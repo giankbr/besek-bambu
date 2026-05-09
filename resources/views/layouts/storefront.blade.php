@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 @stack('head')
 </head>
-<body>
+<body class="storefront-body">
 @yield('content')
 @stack('scripts')
 </body>

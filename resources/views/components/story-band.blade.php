@@ -1,4 +1,4 @@
-<section class="container" style="padding-top: 24px;">
+<section class="container story-band">
   <div class="story">
     <p>We craft kitchenware you can trust for years to come — through everyday meals and evolving lifestyles. Each piece is thoughtfully made with sustainable materials.</p>
   </div>

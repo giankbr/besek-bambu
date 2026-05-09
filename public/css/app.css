@@ -9,9 +9,15 @@
     --pill: #eef0d8;
     --green-deep: #2c4a3a;
     --green-soft: #e9efe2;
+    --page-max-width: 1200px;
+    --page-padding-x: clamp(1rem, 4vw, 1.5rem);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    overflow-x: clip;
+  }
 
   html, body {
     background: var(--bg);
@@ -21,28 +27,50 @@
     line-height: 1.5;
   }
 
+  body.storefront-body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-main {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
   .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
+    width: min(100%, var(--page-max-width));
+    max-width: var(--page-max-width);
+    margin-inline: auto;
+    padding-inline: max(var(--page-padding-x), env(safe-area-inset-left, 0px))
+      max(var(--page-padding-x), env(safe-area-inset-right, 0px));
   }
 
   /* ===== Navbar ===== */
   .navbar {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    max-width: 1200px;
-    margin: 0 auto;
+    column-gap: 1rem;
+    padding-block: 1.25rem;
+    padding-inline: max(var(--page-padding-x), env(safe-area-inset-left, 0px))
+      max(var(--page-padding-x), env(safe-area-inset-right, 0px));
+    width: min(100%, var(--page-max-width));
+    max-width: var(--page-max-width);
+    margin-inline: auto;
+    min-width: 0;
   }
 
   .nav-links {
+    grid-column: 1;
+    justify-self: start;
     display: flex;
     gap: 28px;
     list-style: none;
     font-size: 14px;
     color: var(--ink);
+    min-width: 0;
   }
 
   .nav-links a {
@@ -54,6 +82,8 @@
   .nav-links a:hover { opacity: .65; }
 
   .logo {
+    grid-column: 2;
+    justify-self: center;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-style: italic;
     font-size: 22px;
@@ -61,10 +91,13 @@
   }
 
   .nav-actions {
+    grid-column: 3;
+    justify-self: end;
     display: flex;
     gap: 18px;
     align-items: center;
     font-size: 14px;
+    min-width: 0;
   }
 
   .nav-actions a { color: var(--ink); text-decoration: none; }
@@ -73,7 +106,14 @@
   .hero {
     position: relative;
     border-radius: 24px;
-    width: min(100% - 48px, 1200px);
+    width: min(
+      calc(
+        100%
+          - max(var(--page-padding-x), env(safe-area-inset-left, 0px))
+          - max(var(--page-padding-x), env(safe-area-inset-right, 0px))
+      ),
+      var(--page-max-width)
+    );
     margin: 0 auto 28px;
     min-height: 400px;
     height: auto;
@@ -87,7 +127,8 @@
     color: #fff;
     display: flex;
     align-items: flex-end;
-    padding: 48px;
+    padding: clamp(1.5rem, 5vw, 3rem);
+    box-sizing: border-box;
   }
 
   .hero-content { max-width: 540px; }
@@ -246,6 +287,10 @@
     border-radius: 999px;
     font-size: 11px;
     cursor: pointer;
+  }
+
+  .story-band {
+    padding-top: 24px;
   }
 
   /* ===== Story band ===== */
@@ -783,10 +828,39 @@
 
   /* ===== Responsive ===== */
   @media (max-width: 900px) {
+    .navbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      position: relative;
+    }
+    .nav-links {
+      display: none;
+    }
+    .logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      grid-column: unset;
+      justify-self: unset;
+    }
+    .nav-actions {
+      grid-column: unset;
+      justify-self: unset;
+    }
     .grid-4, .cat-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero {
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-end;
+    }
+    .hero-stat {
+      position: static;
+      align-self: flex-end;
+      margin-top: 1.25rem;
+    }
     .hero h1 { font-size: 32px; }
     .pills { flex-wrap: wrap; }
-    .nav-links { display: none; }
     .newsletter { grid-template-columns: 1fr; }
     .news-img-stack, .news-side { flex-direction: row; }
     .foot-band { grid-template-columns: 1fr; }
@@ -801,7 +875,6 @@
     .grid-4, .cat-grid { grid-template-columns: 1fr; }
     .hero { min-height: 340px; height: auto; padding: 28px; }
     .hero-lead { font-size: 14px; }
-    .hero-stat { right: 24px; bottom: 24px; }
     .reviews { padding: 32px 20px; }
     .newsletter { padding: 24px; }
   }
