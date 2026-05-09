@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,10 @@ Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
 Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
@@ -32,6 +37,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::livewire('/', 'pages::admin.categories.index')->name('index');
             Route::livewire('create', 'pages::admin.categories.create')->name('create');
             Route::livewire('{category}/edit', 'pages::admin.categories.edit')->name('edit');
+        });
+
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::livewire('/', 'pages::admin.orders.index')->name('index');
+            Route::livewire('{order}', 'pages::admin.orders.show')->name('show');
         });
     });
 });

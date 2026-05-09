@@ -75,7 +75,7 @@
               <span>Total</span>
               <strong>${{ number_format($subtotal, 2) }}</strong>
             </div>
-            <a class="hero-cta cart-summary__cta" href="#">Proceed to checkout</a>
+            <a class="hero-cta cart-summary__cta" href="{{ route('checkout.show') }}">Proceed to checkout</a>
             <a class="cart-link-btn" href="{{ route('shop.index') }}">Continue shopping</a>
           </aside>
         </div>
