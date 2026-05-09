@@ -10,7 +10,7 @@
 
   <div class="cat-grid">
     @foreach ($categories as $i => $category)
-      <a class="cat cat-{{ $i + 1 }}" href="#" style="background-image: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.4)), url('{{ $category->image_url }}');">
+      <a class="cat cat-{{ $i + 1 }}" href="{{ route('shop.category', $category) }}" style="background-image: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.4)), url('{{ $category->image_url }}');">
         <div class="cat-content">
           <h3>{{ $category->title }}</h3>
           <span class="tag">Shop</span>

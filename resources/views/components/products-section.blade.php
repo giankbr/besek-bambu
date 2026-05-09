@@ -6,7 +6,7 @@
       <div class="eyebrow">Eco Essentials · Planet-Friendly</div>
       <div class="section-title">Bestselling ✦ <em>Products</em></div>
     </div>
-    <a href="#" class="view-more">View more →</a>
+    <a href="{{ route('shop.index') }}" class="view-more">View more →</a>
   </div>
 
   <div class="grid-4">
