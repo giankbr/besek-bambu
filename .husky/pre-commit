@@ -1,0 +1,2 @@
+vendor/bin/pint --dirty
+git update-index --again
