@@ -47,7 +47,7 @@
             @endif
           </div>
 
-          <form action="#" method="post" class="product-detail__cta">
+          <form action="{{ route('cart.add') }}" method="post" class="product-detail__cta">
             @csrf
             <input type="hidden" name="product_id" value="{{ $product->id }}" />
             <div class="qty">

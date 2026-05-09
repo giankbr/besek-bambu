@@ -14,7 +14,7 @@
       @else
         <a href="{{ route('login') }}" aria-label="Account">Account</a>
       @endauth
-      <a href="#" aria-label="Cart">Cart (0)</a>
+      <a href="{{ route('cart.show') }}" aria-label="Cart">Cart ({{ app(\App\Services\CartService::class)->count() }})</a>
     </div>
   </nav>
 </header>
