@@ -69,27 +69,13 @@
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>
 
-        <div class="flex min-h-screen min-w-0 flex-1 flex-col">
-            <flux:header
-                class="sticky top-0 z-20 flex shrink-0 items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 lg:px-4"
-                x-bind:class="{ 'lg:hidden!': desktopSidebarOpen }"
-            >
-                <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
-
-                <button
-                    type="button"
-                    class="max-lg:hidden! relative inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700 dark:hover:bg-zinc-700"
-                    @click="desktopSidebarOpen = true"
-                    x-show="!desktopSidebarOpen"
-                    x-cloak
-                    aria-label="{{ __('Open sidebar') }}"
-                >
-                    <flux:icon.bars-2 class="size-5" />
-                </button>
+        <div class="relative flex min-h-screen min-w-0 flex-1 flex-col">
+            <flux:header class="lg:hidden! sticky top-0 z-20 flex shrink-0 items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900">
+                <flux:sidebar.toggle icon="bars-2" inset="left" />
 
                 <flux:spacer />
 
-                <flux:dropdown position="top" align="end" class="lg:hidden">
+                <flux:dropdown position="top" align="end">
                     <flux:profile
                         :initials="auth()->user()->initials()"
                         icon-trailing="chevron-down"
@@ -138,8 +124,26 @@
                 </flux:dropdown>
             </flux:header>
 
-            {{ $slot }}
+            <div class="flex min-h-0 flex-1">
+                <aside
+                    x-show="!desktopSidebarOpen"
+                    x-cloak
+                    class="max-lg:hidden! sticky top-0 flex h-screen w-12 shrink-0 flex-col items-center border-e border-zinc-200 bg-zinc-50 py-3 dark:border-zinc-700 dark:bg-zinc-900"
+                >
+                    <button
+                        type="button"
+                        class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-200/60 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-700/60 dark:hover:text-white"
+                        @click="desktopSidebarOpen = true"
+                        aria-label="{{ __('Open sidebar') }}"
+                    >
+                        <flux:icon.bars-2 class="size-5" />
+                    </button>
+                </aside>
 
+                <div class="min-w-0 flex-1">
+                    {{ $slot }}
+                </div>
+            </div>
         </div>
 
         @persist('toast')
