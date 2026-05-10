@@ -114,6 +114,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::livewire('/', 'pages::admin.settings.index')->name('index');
         });
+
+        Route::prefix('activity-log')->name('activity-log.')->group(function () {
+            Route::livewire('/', 'pages::admin.activity-log.index')->name('index');
+        });
     });
 });
 

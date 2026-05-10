@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,11 +10,18 @@ use Illuminate\Support\Facades\DB;
 
 class Product extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'name', 'slug', 'description', 'icon', 'image_url',
         'price', 'stock', 'is_active', 'category_id',
         'rating', 'color_class', 'sort_order',
     ];
+
+    public function getLoggableAttributes(): array
+    {
+        return ['name', 'slug', 'price', 'stock', 'is_active', 'category_id', 'sort_order'];
+    }
 
     protected $casts = [
         'price' => 'decimal:2',

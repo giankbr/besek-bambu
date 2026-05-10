@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+    use LogsActivity;
+
     public const STATUSES = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
 
     public const PAYMENT_STATUSES = ['unpaid', 'pending', 'paid', 'failed', 'expired', 'refunded'];
@@ -18,6 +21,11 @@ class Order extends Model
         'notes', 'subtotal', 'discount', 'coupon_code', 'total', 'status',
         'payment_method', 'payment_status', 'payment_token', 'payment_url', 'paid_at',
     ];
+
+    public function getLoggableAttributes(): array
+    {
+        return ['status', 'payment_status', 'payment_method', 'paid_at', 'total', 'shipping_cost'];
+    }
 
     protected $casts = [
         'subtotal' => 'decimal:2',

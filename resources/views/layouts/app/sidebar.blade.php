@@ -71,6 +71,9 @@
                 <flux:sidebar.item icon="cog-6-tooth" :href="route('admin.settings.index')" :current="request()->routeIs('admin.settings.*')" wire:navigate>
                     {{ __('Store settings') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="clock" :href="route('admin.activity-log.index')" :current="request()->routeIs('admin.activity-log.*')" wire:navigate>
+                    {{ __('Activity log') }}
+                </flux:sidebar.item>
             </flux:sidebar.nav>
 
             <flux:spacer />
