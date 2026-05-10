@@ -27,14 +27,14 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request, CheckoutService $checkout, MidtransService $midtrans)
+    public function store(Request $request, CheckoutService $checkout, MidtransService $midtrans, ShippingService $shipping)
     {
         $data = $request->validate([
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:30'],
             'shipping_address' => ['required', 'string', 'max:1000'],
-            'shipping_region' => ['required', 'string', 'in:'.implode(',', array_keys(ShippingService::REGIONS))],
+            'shipping_region' => ['required', 'string', 'in:'.implode(',', $shipping->regionKeys())],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 

@@ -1,6 +1,10 @@
 @extends('layouts.storefront')
 
-@section('title', 'Checkout — Besek Bambu')
+@section('title', 'Checkout — '.store_name())
+
+@php
+  $defaultRegion = array_key_first($regions);
+@endphp
 
 @section('content')
   <x-navbar />
@@ -17,7 +21,7 @@
       <div class="eyebrow">Almost there</div>
       <h1 class="section-title cart-title"><em>Checkout</em></h1>
 
-      <form method="post" action="{{ route('checkout.store') }}" class="checkout-grid" x-data='{ region: @js(old("shipping_region", "java")), regions: @js($regions) }'>
+      <form method="post" action="{{ route('checkout.store') }}" class="checkout-grid" x-data='{ region: @js(old("shipping_region", $defaultRegion)), regions: @js($regions) }'>
         @csrf
         <div class="checkout-form">
           <h2 class="checkout-section-title">Contact</h2>
@@ -49,7 +53,7 @@
             Region
             <select name="shipping_region" x-model="region" required>
               @foreach ($regions as $key => $r)
-                <option value="{{ $key }}" {{ old('shipping_region', 'java') === $key ? 'selected' : '' }}>{{ $r['label'] }} — {{ idr($r['cost']) }}</option>
+                <option value="{{ $key }}" {{ old('shipping_region', $defaultRegion) === $key ? 'selected' : '' }}>{{ $r['label'] }} — {{ idr($r['cost']) }}</option>
               @endforeach
             </select>
             @error('shipping_region')<span class="form-error">{{ $message }}</span>@enderror
@@ -82,11 +86,11 @@
           @endif
           <div class="cart-summary__row">
             <span>Shipping</span>
-            <strong x-text="formatRp(regions[region].cost)">{{ idr($regions['java']['cost']) }}</strong>
+            <strong x-text="formatRp(regions[region].cost)">{{ idr($regions[$defaultRegion]['cost']) }}</strong>
           </div>
           <div class="cart-summary__total">
             <span>Total</span>
-            <strong x-text="formatRp({{ max(0, $subtotal - $discount) }} + regions[region].cost)">{{ idr(max(0, $subtotal - $discount) + $regions['java']['cost']) }}</strong>
+            <strong x-text="formatRp({{ max(0, $subtotal - $discount) }} + regions[region].cost)">{{ idr(max(0, $subtotal - $discount) + $regions[$defaultRegion]['cost']) }}</strong>
           </div>
 
           <button type="submit" class="hero-cta cart-summary__cta">Place order</button>
