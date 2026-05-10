@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap-static.xml', [SitemapController::class, 'staticChunk'])->name('sitemap.static');
+Route::get('/sitemap-products-{page}.xml', [SitemapController::class, 'productChunk'])
+    ->whereNumber('page')
+    ->name('sitemap.products');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');

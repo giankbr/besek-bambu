@@ -1,0 +1,10 @@
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+@foreach ($entries as $entry)
+  <sitemap>
+    <loc>{{ $entry['loc'] }}</loc>
+@if (! empty($entry['lastmod']))
+    <lastmod>{{ $entry['lastmod'] }}</lastmod>
+@endif
+  </sitemap>
+@endforeach
+</sitemapindex>

@@ -48,7 +48,16 @@ class Product extends Model
             }
         });
 
-        $invalidate = fn () => Cache::forget('sitemap.xml');
+        $invalidate = function () {
+            Cache::forget('sitemap.xml');
+            Cache::forget('sitemap.index.xml');
+            Cache::forget('sitemap.static.xml');
+            // Per-page product chunks share a numeric suffix; flush a
+            // generous range so editors never see stale data.
+            for ($i = 1; $i <= 50; $i++) {
+                Cache::forget("sitemap.products.{$i}.xml");
+            }
+        };
         static::saved($invalidate);
         static::deleted($invalidate);
     }

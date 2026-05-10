@@ -2,6 +2,7 @@
 
 @section('title', $product->meta_title ?: ($product->name . ' — Besek Bambu'))
 @section('meta_description', $product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->description ?? ('Handcrafted bamboo kitchenware. ' . $product->name)), 155))
+@section('og_type', 'product')
 @php
   $ogSrc = $product->og_image ? image_src($product->og_image) : ($product->image_url ? image_src($product->image_url) : null);
 @endphp
@@ -11,28 +12,62 @@
 
 @push('head')
   <script src="//unpkg.com/alpinejs" defer></script>
-  <script type="application/ld+json">
-    @json([
+
+  <meta property="product:price:amount" content="{{ (int) round((float) $product->price) }}" />
+  <meta property="product:price:currency" content="IDR" />
+  <meta property="product:availability" content="{{ $product->stock > 0 ? 'in stock' : 'out of stock' }}" />
+  @if ($product->category)
+    <meta property="product:category" content="{{ $product->category->title }}" />
+  @endif
+
+  @php
+    $productSchema = array_filter([
       '@context' => 'https://schema.org',
       '@type' => 'Product',
       'name' => $product->name,
-      'description' => $product->description,
-      'sku' => 'BSK-' . $product->id,
+      'description' => strip_tags((string) $product->description),
+      'sku' => 'BSK-'.$product->id,
+      'mpn' => 'BSK-'.$product->id,
       'image' => $product->image_url ? image_src($product->image_url) : null,
+      'category' => $product->category?->title,
+      'brand' => ['@type' => 'Brand', 'name' => store_name()],
       'offers' => [
         '@type' => 'Offer',
         'price' => (float) $product->price,
         'priceCurrency' => 'IDR',
+        'priceValidUntil' => now()->addYear()->toDateString(),
         'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        'itemCondition' => 'https://schema.org/NewCondition',
         'url' => route('shop.product', $product),
+        'seller' => ['@type' => 'Organization', 'name' => store_name()],
       ],
       'aggregateRating' => $reviewsCount > 0 ? [
         '@type' => 'AggregateRating',
         'ratingValue' => $averageRating,
         'reviewCount' => $reviewsCount,
+        'bestRating' => 5,
+        'worstRating' => 1,
       ] : null,
-    ])
-  </script>
+    ]);
+
+    $breadcrumbItems = [
+      ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+      ['@type' => 'ListItem', 'position' => 2, 'name' => 'Shop', 'item' => route('shop.index')],
+    ];
+    if ($product->category) {
+      $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => 3, 'name' => $product->category->title, 'item' => route('shop.category', $product->category)];
+    }
+    $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $product->category ? 4 : 3, 'name' => $product->name, 'item' => route('shop.product', $product)];
+
+    $breadcrumbSchema = [
+      '@context' => 'https://schema.org',
+      '@type' => 'BreadcrumbList',
+      'itemListElement' => $breadcrumbItems,
+    ];
+  @endphp
+
+  <script type="application/ld+json">{!! json_encode($productSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+  <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 @endpush
 
 @section('content')

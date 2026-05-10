@@ -81,20 +81,34 @@ new #[Title('Import products')] class extends Component {
                 throw new \RuntimeException(__('CSV is empty.'));
             }
 
+            // Strip UTF-8 BOM that Excel inserts at the start of the
+            // first cell, otherwise the first column name will not
+            // match anything.
+            if (isset($headers[0])) {
+                $headers[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $headers[0]);
+            }
+
             $headers = array_map(fn ($h) => strtolower(trim((string) $h)), $headers);
 
             $required = ['name', 'price'];
             foreach ($required as $col) {
                 if (! in_array($col, $headers, true)) {
+                    fclose($handle);
                     throw new \RuntimeException(__('Missing required column: :col', ['col' => $col]));
                 }
             }
 
             $report = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
             $row = 1;
+            $maxRows = 5000;
 
-            while (($data = fgetcsv($handle)) !== false) {
+            try {
+                while (($data = fgetcsv($handle)) !== false) {
                 $row++;
+                if ($row - 1 > $maxRows) {
+                    $report['errors'][] = __('Stopped at row :row — file exceeds the :max row limit.', ['row' => $row, 'max' => $maxRows]);
+                    break;
+                }
                 if (count(array_filter($data, fn ($v) => trim((string) $v) !== '')) === 0) {
                     continue;
                 }
@@ -167,9 +181,10 @@ new #[Title('Import products')] class extends Component {
                 } catch (\Throwable $e) {
                     $report['errors'][] = __('Row :row: :msg', ['row' => $row, 'msg' => $e->getMessage()]);
                 }
+                }
+            } finally {
+                fclose($handle);
             }
-
-            fclose($handle);
 
             $this->report = $report;
             $this->file = null;
