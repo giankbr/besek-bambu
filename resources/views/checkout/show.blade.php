@@ -40,13 +40,9 @@
           "totalWeight" => $totalWeight,
           "csrf" => csrf_token(),
           "urls" => [
-            "cities" => url("/shipping/cities"),
+            "search" => route("shipping.destinations"),
             "cost" => route("shipping.cost"),
           ],
-          "oldProvince" => old("shipping_province_id"),
-          "oldCity" => old("shipping_city_id"),
-          "oldCourier" => old("shipping_courier"),
-          "oldService" => old("shipping_service"),
         ]))'
       >
         @csrf
@@ -75,62 +71,90 @@
           <h2 class="checkout-section-title">Shipping</h2>
           <label>
             Address
-            <textarea name="shipping_address" rows="3" required>{{ old('shipping_address') }}</textarea>
+            <textarea name="shipping_address" rows="3" required placeholder="Street, building number, postal code...">{{ old('shipping_address') }}</textarea>
             @error('shipping_address')<span class="form-error">{{ $message }}</span>@enderror
           </label>
 
           @if ($useRajaOngkir)
-            <div class="checkout-row">
+            <div style="position:relative">
               <label>
-                Province
-                <select x-model="provinceId" @change="loadCities()" required>
-                  <option value="">— Select province —</option>
-                  @foreach ($provinces as $p)
-                    <option value="{{ $p->id }}">{{ $p->name }}</option>
-                  @endforeach
-                </select>
+                Destination (district / city)
+                <input
+                  type="text"
+                  x-model="destQuery"
+                  @input.debounce.350ms="searchDestinations()"
+                  @focus="showDestResults = true"
+                  @click.outside="showDestResults = false"
+                  placeholder="Type at least 2 characters (e.g. 'sleman', 'kebayoran')"
+                  autocomplete="off"
+                  :readonly="!!selectedDest"
+                  required
+                />
               </label>
-              <label>
-                City / Regency
-                <select name="shipping_city_id" x-model="cityId" @change="loadServices()" :disabled="!provinceId" required>
-                  <option value="">— Select city —</option>
-                  <template x-for="c in cities" :key="c.id">
-                    <option :value="c.id" x-text="(c.type ? c.type + ' ' : '') + c.name"></option>
-                  </template>
-                </select>
-                @error('shipping_city_id')<span class="form-error">{{ $message }}</span>@enderror
-              </label>
+              <input type="hidden" name="shipping_city_id" :value="selectedDest ? selectedDest.id : ''" />
+              <input type="hidden" name="shipping_city_name" :value="selectedDest ? selectedDest.label : ''" />
+
+              <div
+                x-show="showDestResults && (destLoading || destResults.length > 0 || destError)"
+                style="position:absolute;left:0;right:0;z-index:20;margin-top:4px;max-height:18rem;overflow-y:auto;background:#fff;border:1px solid #e5e0d6;border-radius:0.5rem;box-shadow:0 8px 16px rgba(0,0,0,0.08)"
+                x-cloak
+              >
+                <div x-show="destLoading" style="padding:0.5rem 0.75rem;font-size:0.875rem;color:#7d6f5f">Searching…</div>
+                <div x-show="!destLoading && destError" style="padding:0.5rem 0.75rem;font-size:0.875rem;color:#b91c1c" x-text="destError"></div>
+                <template x-for="r in destResults" :key="r.id">
+                  <button
+                    type="button"
+                    @click="pickDest(r)"
+                    style="display:block;width:100%;padding:0.5rem 0.75rem;text-align:left;font-size:0.875rem;border:0;background:transparent;cursor:pointer"
+                    @mouseover="$el.style.background='#f7f3ec'"
+                    @mouseleave="$el.style.background='transparent'"
+                  >
+                    <div style="font-weight:600" x-text="r.label"></div>
+                    <div style="font-size:0.75rem;color:#7d6f5f" x-text="'ID: ' + r.id"></div>
+                  </button>
+                </template>
+              </div>
+
+              <div
+                x-show="selectedDest"
+                style="margin-top:0.5rem;padding:0.5rem 0.75rem;font-size:0.875rem;background:#f1f8f3;border:1px solid #c8e6cb;border-radius:0.375rem;display:flex;align-items:center;justify-content:space-between"
+              >
+                <span x-text="selectedDest && selectedDest.label"></span>
+                <button type="button" @click="clearDest()" style="background:transparent;border:0;color:#1f7a3a;cursor:pointer;font-weight:600">Change</button>
+              </div>
+
+              @error('shipping_city_id')<span class="form-error">{{ $message }}</span>@enderror
+
+              <div x-show="loadingServices" class="confirmation-meta" style="margin-top:0.75rem">
+                Calculating shipping cost…
+              </div>
+
+              <div x-show="!loadingServices && services.length > 0" class="checkout-payment-methods" style="margin-top:0.75rem">
+                <template x-for="s in services" :key="s.code + '-' + s.service">
+                  <label class="checkout-payment-method">
+                    <input type="radio" name="shipping_courier_service" :value="s.code + '-' + s.service" :checked="isSelected(s)" @change="selectService(s)" required />
+                    <span>
+                      <strong x-text="(s.name || s.code.toUpperCase()) + ' ' + s.service"></strong>
+                      <small style="display:block;color:#7d6f5f" x-text="(s.description ? s.description + ' — ' : '') + (s.etd ? s.etd + ' days · ' : '') + formatRp(s.cost)"></small>
+                    </span>
+                  </label>
+                </template>
+              </div>
+
+              <div
+                x-show="!loadingServices && selectedDest && services.length === 0 && servicesError"
+                class="form-error"
+                style="margin-top:0.5rem"
+                x-text="servicesError"
+              ></div>
+
+              <input type="hidden" name="shipping_courier" :value="selectedCourier" />
+              <input type="hidden" name="shipping_service" :value="selectedService" />
+              <input type="hidden" name="shipping_cost" :value="selectedCost" />
+              <input type="hidden" name="shipping_etd" :value="selectedEtd" />
+              @error('shipping_courier')<span class="form-error">{{ $message }}</span>@enderror
+              @error('shipping_service')<span class="form-error">{{ $message }}</span>@enderror
             </div>
-
-            <div x-show="loadingServices" class="confirmation-meta" style="margin-top:0.75rem">
-              Calculating shipping cost…
-            </div>
-
-            <div x-show="!loadingServices && services.length > 0" class="checkout-payment-methods" style="margin-top:0.75rem">
-              <template x-for="s in services" :key="s.courier + '-' + s.service">
-                <label class="checkout-payment-method">
-                  <input type="radio" name="shipping_courier_service" :value="s.courier + '-' + s.service" :checked="isSelected(s)" @change="selectService(s)" required />
-                  <span>
-                    <strong x-text="s.courier.toUpperCase() + ' ' + s.service"></strong>
-                    <small style="display:block;color:#7d6f5f" x-text="s.description + ' — ' + (s.etd ? s.etd + ' days · ' : '') + formatRp(s.cost)"></small>
-                  </span>
-                </label>
-              </template>
-            </div>
-
-            <div
-              x-show="!loadingServices && cityId && services.length === 0 && servicesError"
-              class="form-error"
-              style="margin-top:0.5rem"
-              x-text="servicesError"
-            ></div>
-
-            <input type="hidden" name="shipping_courier" :value="selectedCourier" />
-            <input type="hidden" name="shipping_service" :value="selectedService" />
-            <input type="hidden" name="shipping_cost" :value="selectedCost" />
-            <input type="hidden" name="shipping_etd" :value="selectedEtd" />
-            @error('shipping_courier')<span class="form-error">{{ $message }}</span>@enderror
-            @error('shipping_service')<span class="form-error">{{ $message }}</span>@enderror
           @else
             <label>
               Region
@@ -204,7 +228,7 @@
             <strong x-text="formatRp({{ $totalBeforeShipping }} + shippingCost())">{{ idr($totalBeforeShipping + $initialShippingCost) }}</strong>
           </div>
 
-          <button type="submit" class="hero-cta cart-summary__cta" :disabled="!canSubmit()" x-bind:title="canSubmit() ? '' : 'Pick a shipping option first'">Place order</button>
+          <button type="submit" class="hero-cta cart-summary__cta" :disabled="!canSubmit()" x-bind:title="canSubmit() ? '' : 'Pick a destination and shipping option first'">Place order</button>
           <a class="cart-link-btn" href="{{ route('cart.show') }}">Back to cart</a>
         </aside>
       </form>
@@ -222,35 +246,62 @@
         useRajaOngkir: config.useRajaOngkir,
         regions: config.regions,
         region: config.defaultRegion,
-        provinceId: config.oldProvince || '',
-        cityId: config.oldCity || '',
-        cities: [],
+
+        destQuery: '',
+        destResults: [],
+        destLoading: false,
+        showDestResults: false,
+        destError: '',
+        selectedDest: null,
+
         services: [],
         loadingServices: false,
         servicesError: '',
-        selectedCourier: config.oldCourier || '',
-        selectedService: config.oldService || '',
+        selectedCourier: '',
+        selectedService: '',
         selectedCost: 0,
         selectedEtd: '',
 
-        init() {
-          if (this.useRajaOngkir && this.provinceId) {
-            this.loadCities().then(() => {
-              if (this.cityId) this.loadServices()
+        async searchDestinations() {
+          this.destError = ''
+          if (this.destQuery.trim().length < 2) {
+            this.destResults = []
+            return
+          }
+          this.destLoading = true
+          try {
+            const res = await fetch(`${config.urls.search}?q=${encodeURIComponent(this.destQuery)}&limit=15`, {
+              headers: { 'Accept': 'application/json' },
             })
+            const json = await res.json()
+            this.destResults = Array.isArray(json.results) ? json.results : []
+            if (this.destResults.length === 0) {
+              this.destError = json.message || 'No matches. Try the city or postal code.'
+            }
+          } catch (e) {
+            this.destError = 'Search failed. Please try again.'
+          } finally {
+            this.destLoading = false
           }
         },
 
-        async loadCities() {
-          this.cities = []
+        pickDest(r) {
+          this.selectedDest = r
+          this.destQuery = r.label
+          this.showDestResults = false
+          this.destResults = []
+          this.loadServices()
+        },
+
+        clearDest() {
+          this.selectedDest = null
+          this.destQuery = ''
           this.services = []
-          this.servicesError = ''
           this.selectedCourier = ''
           this.selectedService = ''
           this.selectedCost = 0
-          if (!this.provinceId) return
-          const res = await fetch(`${config.urls.cities}/${this.provinceId}`)
-          this.cities = await res.json()
+          this.selectedEtd = ''
+          this.servicesError = ''
         },
 
         async loadServices() {
@@ -259,7 +310,7 @@
           this.selectedService = ''
           this.selectedCost = 0
           this.servicesError = ''
-          if (!this.cityId) return
+          if (!this.selectedDest) return
 
           this.loadingServices = true
           try {
@@ -270,12 +321,15 @@
                 'X-CSRF-TOKEN': config.csrf,
                 'Accept': 'application/json',
               },
-              body: JSON.stringify({ destination_city_id: this.cityId }),
+              body: JSON.stringify({
+                destination_id: String(this.selectedDest.id),
+                weight: config.totalWeight,
+              }),
             })
             const json = await res.json()
             this.services = Array.isArray(json.services) ? json.services : []
             if (this.services.length === 0) {
-              this.servicesError = 'No shipping services available for this destination. Try a different city or contact us.'
+              this.servicesError = json.message || 'No shipping services available for this destination. Please pick a different area or contact us.'
             }
           } catch (e) {
             this.servicesError = 'Could not fetch shipping rates. Please try again.'
@@ -285,11 +339,11 @@
         },
 
         isSelected(s) {
-          return this.selectedCourier === s.courier && this.selectedService === s.service
+          return this.selectedCourier === s.code && this.selectedService === s.service
         },
 
         selectService(s) {
-          this.selectedCourier = s.courier
+          this.selectedCourier = s.code
           this.selectedService = s.service
           this.selectedCost = s.cost
           this.selectedEtd = s.etd || ''
@@ -301,7 +355,7 @@
 
         canSubmit() {
           if (!this.useRajaOngkir) return true
-          return !!this.selectedCourier && !!this.selectedService && this.selectedCost > 0
+          return !!this.selectedDest && !!this.selectedCourier && !!this.selectedService && this.selectedCost > 0
         },
       })
     </script>

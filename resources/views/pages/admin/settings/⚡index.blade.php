@@ -1,14 +1,10 @@
 <?php
 
 use App\Models\Setting;
-use App\Models\ShippingCity;
-use App\Models\ShippingProvince;
 use App\Services\RajaOngkirClient;
 use App\Services\ShippingService;
 use Flux\Flux;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Validation\ValidationException;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -37,8 +33,8 @@ new #[Title('Store settings')] class extends Component {
 
     public string $shipping_provider = ShippingService::PROVIDER_FLAT;
     public string $shipping_rajaongkir_api_key = '';
-    public string $shipping_origin_province_id = '';
     public string $shipping_origin_city_id = '';
+    public string $shipping_origin_label = '';
     public array $shipping_couriers = [];
 
     public string $tax_rate = '0';
@@ -77,12 +73,9 @@ new #[Title('Store settings')] class extends Component {
         $this->shipping_provider = (string) Setting::get('shipping_provider', ShippingService::PROVIDER_FLAT);
         $this->shipping_rajaongkir_api_key = (string) Setting::get('shipping_rajaongkir_api_key', '');
         $this->shipping_origin_city_id = (string) Setting::get('shipping_origin_city_id', '');
+        $this->shipping_origin_label = (string) Setting::get('shipping_origin_label', '');
         $couriers = Setting::get('shipping_couriers', []);
         $this->shipping_couriers = is_array($couriers) ? array_values($couriers) : [];
-
-        if ($this->shipping_origin_city_id) {
-            $this->shipping_origin_province_id = (string) (ShippingCity::find($this->shipping_origin_city_id)?->province_id ?? '');
-        }
 
         $this->tax_rate = (string) Setting::get('tax_rate', '0');
         $this->tax_inclusive = (bool) Setting::get('tax_inclusive', false);
@@ -164,12 +157,15 @@ new #[Title('Store settings')] class extends Component {
     public function saveShipping(): void
     {
         try {
+            $supportedCouriers = array_keys(RajaOngkirClient::SUPPORTED_COURIERS);
+
             $this->validate([
                 'shipping_provider' => ['required', 'in:flat,rajaongkir'],
                 'shipping_rajaongkir_api_key' => ['nullable', 'string', 'max:255'],
                 'shipping_origin_city_id' => ['nullable', 'string', 'max:32'],
+                'shipping_origin_label' => ['nullable', 'string', 'max:255'],
                 'shipping_couriers' => ['array'],
-                'shipping_couriers.*' => ['string', 'in:jne,pos,tiki'],
+                'shipping_couriers.*' => ['string', \Illuminate\Validation\Rule::in($supportedCouriers)],
                 'shipping_zones' => ['array'],
                 'shipping_zones.*.name' => ['required_with:shipping_zones.*.cost', 'string', 'max:120'],
                 'shipping_zones.*.cost' => ['required_with:shipping_zones.*.name', 'numeric', 'min:0'],
@@ -183,7 +179,7 @@ new #[Title('Store settings')] class extends Component {
                 }
                 if (! $this->shipping_origin_city_id) {
                     throw ValidationException::withMessages([
-                        'shipping_origin_city_id' => __('Pick the origin city (your warehouse).'),
+                        'shipping_origin_city_id' => __('Search and pick your origin (warehouse) location.'),
                     ]);
                 }
                 if (empty($this->shipping_couriers)) {
@@ -205,6 +201,7 @@ new #[Title('Store settings')] class extends Component {
             Setting::put('shipping_provider', $this->shipping_provider);
             Setting::put('shipping_rajaongkir_api_key', $this->shipping_rajaongkir_api_key);
             Setting::put('shipping_origin_city_id', $this->shipping_origin_city_id);
+            Setting::put('shipping_origin_label', $this->shipping_origin_label);
             Setting::put('shipping_couriers', array_values($this->shipping_couriers));
             Setting::put('shipping_zones', $clean);
 
@@ -226,55 +223,34 @@ new #[Title('Store settings')] class extends Component {
         }
     }
 
-    public function syncRajaOngkir(): void
+    public function testRajaOngkirKey(): void
     {
         try {
             if (! $this->shipping_rajaongkir_api_key) {
-                throw new \DomainException(__('Save your API key first, then run the sync.'));
+                throw new \DomainException(__('Enter an API key first.'));
             }
 
-            $exit = Artisan::call('shipping:sync-rajaongkir', [
-                '--key' => $this->shipping_rajaongkir_api_key,
-            ]);
+            $client = new RajaOngkirClient($this->shipping_rajaongkir_api_key);
+            $results = $client->searchDestinations('jakarta', 1);
 
-            if ($exit !== 0) {
-                throw new \RuntimeException(trim(Artisan::output()) ?: __('Sync failed.'));
+            if (empty($results)) {
+                throw new \RuntimeException(__('Connected, but no results returned.'));
             }
-
-            unset($this->provinces, $this->originCities);
 
             Flux::toast(
                 variant: 'success',
-                heading: __('Sync complete'),
-                text: trim(Artisan::output()),
+                heading: __('Connection OK'),
+                text: __('RajaOngkir V2 (Komerce) is reachable.'),
             );
         } catch (\Throwable $e) {
-            Flux::toast(variant: 'danger', heading: __('Sync failed'), text: $e->getMessage());
+            Flux::toast(variant: 'danger', heading: __('Connection failed'), text: $e->getMessage());
         }
     }
 
-    public function updatedShippingOriginProvinceId(): void
+    public function clearOrigin(): void
     {
         $this->shipping_origin_city_id = '';
-        unset($this->originCities);
-    }
-
-    #[Computed]
-    public function provinces()
-    {
-        return ShippingProvince::orderBy('name')->get(['id', 'name']);
-    }
-
-    #[Computed]
-    public function originCities()
-    {
-        if (! $this->shipping_origin_province_id) {
-            return collect();
-        }
-
-        return ShippingCity::where('province_id', $this->shipping_origin_province_id)
-            ->orderBy('name')
-            ->get(['id', 'name', 'type']);
+        $this->shipping_origin_label = '';
     }
 
     public function saveTax(): void
@@ -426,18 +402,18 @@ new #[Title('Store settings')] class extends Component {
                     <flux:label>{{ __('Shipping provider') }}</flux:label>
                     <flux:radio.group wire:model.live="shipping_provider" variant="segmented">
                         <flux:radio value="flat" :label="__('Flat-rate zones (manual)')" />
-                        <flux:radio value="rajaongkir" :label="__('RajaOngkir API (live rates)')" />
+                        <flux:radio value="rajaongkir" :label="__('RajaOngkir V2 / Komerce (live rates)')" />
                     </flux:radio.group>
                     <flux:text size="sm" class="text-zinc-500">
-                        {{ __('RajaOngkir provides live shipping costs per courier and city. Flat-rate zones are still kept as a fallback if the API is unreachable.') }}
+                        {{ __('RajaOngkir provides live shipping costs per courier. Flat-rate zones remain as a fallback if the API is unreachable.') }}
                     </flux:text>
                 </div>
 
                 @if ($shipping_provider === 'rajaongkir')
                     <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
-                        <flux:heading size="lg">{{ __('RajaOngkir (Starter tier)') }}</flux:heading>
+                        <flux:heading size="lg">{{ __('RajaOngkir V2 (Komerce)') }}</flux:heading>
                         <flux:text size="sm" class="text-zinc-500">
-                            {{ __('Get a free API key at rajaongkir.com → Account → API Key. Starter supports JNE, POS, and TIKI.') }}
+                            {{ __('Get an API key at rajaongkir.com (powered by Komerce). The new endpoint is rajaongkir.komerce.id/api/v1.') }}
                         </flux:text>
 
                         <div class="mt-4 grid gap-5">
@@ -450,53 +426,86 @@ new #[Title('Store settings')] class extends Component {
                                 placeholder="••••••••"
                             />
 
-                            <div class="flex flex-wrap items-center gap-3">
+                            <div>
                                 <flux:button
                                     type="button"
                                     variant="filled"
-                                    icon="arrow-path"
-                                    wire:click="syncRajaOngkir"
+                                    icon="signal"
+                                    wire:click="testRajaOngkirKey"
                                     wire:loading.attr="disabled"
-                                    wire:target="syncRajaOngkir"
+                                    wire:target="testRajaOngkirKey"
                                 >
-                                    <span wire:loading.remove wire:target="syncRajaOngkir">{{ __('Sync provinces & cities') }}</span>
-                                    <span wire:loading wire:target="syncRajaOngkir">{{ __('Syncing…') }}</span>
+                                    <span wire:loading.remove wire:target="testRajaOngkirKey">{{ __('Test connection') }}</span>
+                                    <span wire:loading wire:target="testRajaOngkirKey">{{ __('Testing…') }}</span>
                                 </flux:button>
-                                <flux:text size="sm" class="text-zinc-500">
-                                    {{ __(':provinces provinces · :cities cities cached locally', [
-                                        'provinces' => $this->provinces->count(),
-                                        'cities' => \App\Models\ShippingCity::count(),
-                                    ]) }}
-                                </flux:text>
                             </div>
 
                             <flux:separator />
 
                             <flux:heading size="md">{{ __('Origin (warehouse location)') }}</flux:heading>
-                            <div class="grid gap-5 md:grid-cols-2">
-                                <flux:select wire:model.live="shipping_origin_province_id" :label="__('Province')">
-                                    <flux:select.option value="">{{ __('— pick province —') }}</flux:select.option>
-                                    @foreach ($this->provinces as $p)
-                                        <flux:select.option value="{{ $p->id }}">{{ $p->name }}</flux:select.option>
-                                    @endforeach
-                                </flux:select>
+                            <flux:text size="sm" class="text-zinc-500">
+                                {{ __('Search by district, city, or postal code (e.g. "Yogyakarta", "Sleman", "55281").') }}
+                            </flux:text>
 
-                                <flux:select wire:model="shipping_origin_city_id" :label="__('City / regency')" :disabled="!$shipping_origin_province_id">
-                                    <flux:select.option value="">{{ __('— pick city —') }}</flux:select.option>
-                                    @foreach ($this->originCities as $c)
-                                        <flux:select.option value="{{ $c->id }}">{{ trim(($c->type ? $c->type.' ' : '').$c->name) }}</flux:select.option>
-                                    @endforeach
-                                </flux:select>
-                            </div>
+                            @if ($shipping_origin_city_id)
+                                <div class="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-900 dark:bg-emerald-950/30">
+                                    <div class="flex-1">
+                                        <flux:text class="font-medium">{{ $shipping_origin_label ?: __('(no label)') }}</flux:text>
+                                        <flux:text size="sm" class="text-zinc-500">ID: {{ $shipping_origin_city_id }}</flux:text>
+                                    </div>
+                                    <flux:button size="sm" variant="ghost" icon="x-mark" type="button" wire:click="clearOrigin">{{ __('Change') }}</flux:button>
+                                </div>
+                            @else
+                                <div
+                                    x-data="originPicker(@js([
+                                        'searchUrl' => route('shipping.destinations'),
+                                    ]))"
+                                    class="relative"
+                                >
+                                    <input
+                                        type="text"
+                                        x-model="query"
+                                        @input.debounce.350ms="search()"
+                                        @focus="showResults = true"
+                                        @click.outside="showResults = false"
+                                        placeholder="{{ __('Type to search…') }}"
+                                        class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                                        autocomplete="off"
+                                    />
+                                    <div
+                                        x-show="showResults && (loading || results.length > 0 || error)"
+                                        class="absolute left-0 right-0 z-10 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                                        x-cloak
+                                    >
+                                        <div x-show="loading" class="px-3 py-2 text-sm text-zinc-500">{{ __('Searching…') }}</div>
+                                        <div x-show="!loading && error" class="px-3 py-2 text-sm text-rose-500" x-text="error"></div>
+                                        <template x-for="r in results" :key="r.id">
+                                            <button
+                                                type="button"
+                                                @click="pick(r)"
+                                                class="block w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                            >
+                                                <div class="font-medium" x-text="r.label"></div>
+                                                <div class="text-xs text-zinc-500" x-text="'ID: ' + r.id"></div>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                                @error('shipping_origin_city_id')<flux:text class="text-rose-500 text-sm">{{ $message }}</flux:text>@enderror
+                            @endif
 
                             <flux:separator />
 
                             <flux:heading size="md">{{ __('Enabled couriers') }}</flux:heading>
-                            <div class="flex flex-wrap gap-4">
-                                <flux:checkbox wire:model="shipping_couriers" value="jne" label="JNE" />
-                                <flux:checkbox wire:model="shipping_couriers" value="pos" label="POS Indonesia" />
-                                <flux:checkbox wire:model="shipping_couriers" value="tiki" label="TIKI" />
+                            <flux:text size="sm" class="text-zinc-500">
+                                {{ __('Pick which couriers to offer at checkout. Some require a paid tier or special account on RajaOngkir.') }}
+                            </flux:text>
+                            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                                @foreach (\App\Services\RajaOngkirClient::SUPPORTED_COURIERS as $code => $name)
+                                    <flux:checkbox wire:model="shipping_couriers" value="{{ $code }}" label="{{ $name }}" />
+                                @endforeach
                             </div>
+                            @error('shipping_couriers')<flux:text class="text-rose-500 text-sm">{{ $message }}</flux:text>@enderror
                         </div>
                     </div>
                 @endif
@@ -504,7 +513,7 @@ new #[Title('Store settings')] class extends Component {
                 <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
                     <flux:heading size="lg">{{ __('Flat-rate zones') }}</flux:heading>
                     <flux:text size="sm" class="text-zinc-500">
-                        {{ __('Used when RajaOngkir is disabled, the API fails, or the destination city is not in their database.') }}
+                        {{ __('Used when RajaOngkir is disabled, the API fails, or no destination is picked.') }}
                     </flux:text>
 
                     <div class="mt-4 grid gap-3">
@@ -530,6 +539,59 @@ new #[Title('Store settings')] class extends Component {
                     <flux:button type="submit" variant="primary">{{ __('Save shipping') }}</flux:button>
                 </div>
             </form>
+
+            @push('scripts')
+                <script src="//unpkg.com/alpinejs" defer></script>
+                <script>
+                  window.originPicker = (config) => ({
+                    query: '',
+                    results: [],
+                    loading: false,
+                    showResults: false,
+                    error: '',
+
+                    async search() {
+                      this.error = ''
+                      if (this.query.trim().length < 2) {
+                        this.results = []
+                        return
+                      }
+                      this.loading = true
+                      try {
+                        const res = await fetch(`${config.searchUrl}?q=${encodeURIComponent(this.query)}&limit=15`, {
+                          headers: { 'Accept': 'application/json' },
+                        })
+                        const json = await res.json()
+                        this.results = Array.isArray(json.results) ? json.results : []
+                        if (this.results.length === 0) {
+                          this.error = json.message || 'No matches found.'
+                        }
+                      } catch (e) {
+                        this.error = 'Search failed.'
+                      } finally {
+                        this.loading = false
+                      }
+                    },
+
+                    pick(r) {
+                      this.showResults = false
+                      const event = new CustomEvent('origin-picked', { detail: r })
+                      window.dispatchEvent(event)
+                    },
+                  })
+
+                  window.addEventListener('origin-picked', (e) => {
+                    if (window.Livewire) {
+                      const components = window.Livewire.all()
+                      const settings = components.find(c => c.name === 'pages::admin.settings.index')
+                      if (settings) {
+                        settings.set('shipping_origin_city_id', String(e.detail.id))
+                        settings.set('shipping_origin_label', e.detail.label)
+                      }
+                    }
+                  })
+                </script>
+            @endpush
         @endif
 
         @if ($tab === 'tax')

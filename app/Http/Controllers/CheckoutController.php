@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\ShippingCity;
-use App\Models\ShippingProvince;
 use App\Services\CartService;
 use App\Services\CheckoutService;
 use App\Services\MidtransService;
@@ -40,11 +38,8 @@ class CheckoutController extends Controller
             'shippingProvider' => $shipping->provider(),
             'rajaOngkirReady' => $shipping->isRajaOngkir()
                 && $shipping->rajaOngkirClient()->isConfigured()
-                && $shipping->originCityId()
-                && ShippingProvince::query()->exists(),
-            'provinces' => $shipping->isRajaOngkir()
-                ? ShippingProvince::orderBy('name')->get(['id', 'name'])
-                : collect(),
+                && $shipping->originId()
+                && $shipping->enabledCouriers() !== [],
             'totalWeight' => $cart->totalWeight(),
         ]);
     }
@@ -70,7 +65,8 @@ class CheckoutController extends Controller
         $usingRajaOngkir = $shipping->isRajaOngkir() && $request->input('shipping_mode') === 'rajaongkir';
 
         if ($usingRajaOngkir) {
-            $rules['shipping_city_id'] = ['required', Rule::exists('shipping_cities', 'id')];
+            $rules['shipping_city_id'] = ['required', 'string', 'max:32'];
+            $rules['shipping_city_name'] = ['required', 'string', 'max:255'];
             $rules['shipping_courier'] = ['required', 'string', Rule::in($shipping->enabledCouriers())];
             $rules['shipping_service'] = ['required', 'string', 'max:64'];
             $rules['shipping_cost'] = ['required', 'integer', 'min:0'];
@@ -83,14 +79,6 @@ class CheckoutController extends Controller
         $data = $request->validate($rules);
         $data['payment_method'] = $data['payment_method'] ?? $methodKeys[0];
         $data['shipping_mode'] = $usingRajaOngkir ? 'rajaongkir' : 'flat';
-
-        if ($usingRajaOngkir) {
-            $city = ShippingCity::find($data['shipping_city_id']);
-            if ($city) {
-                $data['shipping_city_name'] = trim(($city->type ? $city->type.' ' : '').$city->name);
-                $data['shipping_province'] = $city->province_name;
-            }
-        }
 
         try {
             $order = $checkout->place($data);

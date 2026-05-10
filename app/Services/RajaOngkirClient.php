@@ -8,29 +8,47 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Thin HTTP wrapper around the RajaOngkir Starter API.
+ * Thin wrapper around the RajaOngkir / Komerce V2 API.
  *
- * The Starter tier exposes:
- *   - GET /province
- *   - GET /city
- *   - POST /cost (JNE, POS, TIKI only)
+ * Base URL: https://rajaongkir.komerce.id/api/v1
  *
- * Reference: https://rajaongkir.com/dokumentasi/starter
+ * The legacy api.rajaongkir.com endpoints were retired when RajaOngkir
+ * migrated to Komerce. We use the typeahead-style "Search Destination"
+ * endpoint instead of caching province/city/district hierarchies
+ * locally, which keeps the data model lightweight.
+ *
+ * Reference: https://rajaongkir.com/docs
  */
 class RajaOngkirClient
 {
-    public const TIER_STARTER = 'starter';
+    /**
+     * Couriers commonly available on RajaOngkir V2. The API will
+     * silently skip any courier without rates for the given lane, so
+     * exposing a wider list does not break anything.
+     */
+    public const SUPPORTED_COURIERS = [
+        'jne' => 'JNE',
+        'jnt' => 'J&T Express',
+        'sicepat' => 'SiCepat Express',
+        'anteraja' => 'AnterAja',
+        'pos' => 'POS Indonesia',
+        'tiki' => 'TIKI',
+        'sap' => 'SAP Express',
+        'ide' => 'ID Express',
+        'ninja' => 'Ninja Xpress',
+        'lion' => 'Lion Parcel',
+        'wahana' => 'Wahana',
+        'rpx' => 'RPX',
+        'ncs' => 'NCS',
+        'sentral' => 'Sentral Cargo',
+        'star' => 'Star Cargo',
+        'rex' => 'REX Kiriman Express',
+        'dse' => '21 Express',
+    ];
 
-    public const COURIER_STARTER = ['jne', 'pos', 'tiki'];
+    private string $baseUrl = 'https://rajaongkir.komerce.id/api/v1';
 
-    private string $baseUrl;
-
-    public function __construct(
-        private readonly ?string $apiKey = null,
-        string $tier = self::TIER_STARTER,
-    ) {
-        $this->baseUrl = "https://api.rajaongkir.com/{$tier}";
-    }
+    public function __construct(private readonly ?string $apiKey = null) {}
 
     public function isConfigured(): bool
     {
@@ -38,55 +56,79 @@ class RajaOngkirClient
     }
 
     /**
-     * @return array<int, array{province_id: string, province: string}>
-     */
-    public function provinces(): array
-    {
-        return Cache::remember('rajaongkir.provinces', now()->addDay(), function () {
-            $response = $this->request('GET', '/province');
-
-            return $this->extractResults($response);
-        });
-    }
-
-    /**
-     * @return array<int, array{city_id: string, province_id: string, province: string, type: string, city_name: string, postal_code: string}>
-     */
-    public function cities(?string $provinceId = null): array
-    {
-        $cacheKey = 'rajaongkir.cities.'.($provinceId ?? 'all');
-
-        return Cache::remember($cacheKey, now()->addDay(), function () use ($provinceId) {
-            $response = $this->request('GET', '/city', $provinceId ? ['province' => $provinceId] : []);
-
-            return $this->extractResults($response);
-        });
-    }
-
-    /**
-     * Returns shipping cost services from a single courier.
+     * Typeahead search across all Indonesian destinations. Each match
+     * is unique enough (district + city + province) to be picked from
+     * a dropdown without further drilling.
      *
-     * @return array<int, array{service: string, description: string, cost: array<int, array{value: int, etd: string, note: string}>}>
+     * @return array<int, array{id: int, label: string, province_name: string, city_name: string, district_name: string, subdistrict_name: string, zip_code: string}>
      */
-    public function cost(string $originCityId, string $destinationCityId, int $weight, string $courier): array
+    public function searchDestinations(string $keyword, int $limit = 20, int $offset = 0): array
+    {
+        $keyword = trim($keyword);
+
+        if ($keyword === '') {
+            return [];
+        }
+
+        $cacheKey = sprintf('rajaongkir.v2.search.%s.%d.%d', md5(strtolower($keyword)), $limit, $offset);
+
+        return Cache::remember($cacheKey, now()->addHour(), function () use ($keyword, $limit, $offset) {
+            $response = $this->request('GET', '/destination/domestic-destination', [
+                'search' => $keyword,
+                'limit' => $limit,
+                'offset' => $offset,
+            ]);
+
+            return $this->extractData($response);
+        });
+    }
+
+    /**
+     * Calculate live shipping costs for the given lane and weight.
+     *
+     * @param  array<int, string>  $couriers  e.g. ['jne', 'pos', 'tiki']
+     * @return array<int, array{name: string, code: string, service: string, description: string, cost: int, etd: string}>
+     */
+    public function cost(int|string $originId, int|string $destinationId, int $weight, array $couriers, string $price = 'lowest'): array
     {
         if ($weight < 1) {
             $weight = 1;
         }
 
-        $cacheKey = sprintf('rajaongkir.cost.%s.%s.%d.%s', $originCityId, $destinationCityId, $weight, $courier);
+        $couriers = array_values(array_unique(array_filter(array_map('strtolower', $couriers))));
 
-        return Cache::remember($cacheKey, now()->addHours(6), function () use ($originCityId, $destinationCityId, $weight, $courier) {
-            $response = $this->request('POST', '/cost', [
-                'origin' => $originCityId,
-                'destination' => $destinationCityId,
+        if ($couriers === []) {
+            return [];
+        }
+
+        $courierString = implode(':', $couriers);
+        $cacheKey = sprintf('rajaongkir.v2.cost.%s.%s.%d.%s.%s', $originId, $destinationId, $weight, $courierString, $price);
+
+        return Cache::remember($cacheKey, now()->addHours(6), function () use ($originId, $destinationId, $weight, $courierString, $price) {
+            $response = $this->request('POST', '/calculate/domestic-cost', [
+                'origin' => (string) $originId,
+                'destination' => (string) $destinationId,
                 'weight' => $weight,
-                'courier' => $courier,
+                'courier' => $courierString,
+                'price' => $price,
             ]);
 
-            $results = $this->extractResults($response);
+            $rows = $this->extractData($response);
 
-            return $results[0]['costs'] ?? [];
+            return array_values(array_filter(array_map(function (array $row): ?array {
+                if (! isset($row['cost'])) {
+                    return null;
+                }
+
+                return [
+                    'name' => (string) ($row['name'] ?? ''),
+                    'code' => strtolower((string) ($row['code'] ?? '')),
+                    'service' => (string) ($row['service'] ?? ''),
+                    'description' => (string) ($row['description'] ?? ''),
+                    'cost' => (int) $row['cost'],
+                    'etd' => trim((string) ($row['etd'] ?? '')),
+                ];
+            }, $rows)));
         });
     }
 
@@ -102,25 +144,30 @@ class RajaOngkirClient
         try {
             $request = Http::withHeaders([
                 'key' => $this->apiKey,
-            ])->timeout(10)->retry(2, 250);
+                'Accept' => 'application/json',
+            ])->timeout(15)->retry(2, 250, throw: false);
 
             $response = $method === 'GET'
                 ? $request->get($this->baseUrl.$path, $payload)
                 : $request->asForm()->post($this->baseUrl.$path, $payload);
 
             if (! $response->successful()) {
-                Log::warning('RajaOngkir request failed', [
+                $body = $response->body();
+                Log::warning('RajaOngkir V2 request failed', [
                     'method' => $method,
                     'path' => $path,
                     'status' => $response->status(),
-                    'body' => $response->body(),
+                    'body' => mb_substr($body, 0, 500),
                 ]);
-                throw new \RuntimeException("RajaOngkir HTTP {$response->status()}");
+                $message = $response->json('meta.message') ?? "HTTP {$response->status()}";
+                throw new \RuntimeException("RajaOngkir error: {$message}");
             }
 
             return $response;
+        } catch (\DomainException|\RuntimeException $e) {
+            throw $e;
         } catch (\Throwable $e) {
-            Log::warning('RajaOngkir transport error', [
+            Log::warning('RajaOngkir V2 transport error', [
                 'method' => $method,
                 'path' => $path,
                 'error' => $e->getMessage(),
@@ -129,18 +176,21 @@ class RajaOngkirClient
         }
     }
 
-    private function extractResults(Response $response): array
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function extractData(Response $response): array
     {
         $payload = $response->json();
-        $status = $payload['rajaongkir']['status']['code'] ?? null;
+        $code = $payload['meta']['code'] ?? null;
 
-        if ($status !== 200) {
-            $message = $payload['rajaongkir']['status']['description'] ?? 'Unknown RajaOngkir error';
+        if ($code !== null && (int) $code !== 200) {
+            $message = $payload['meta']['message'] ?? 'Unknown RajaOngkir error';
             throw new \RuntimeException("RajaOngkir error: {$message}");
         }
 
-        $results = $payload['rajaongkir']['results'] ?? [];
+        $data = $payload['data'] ?? [];
 
-        return is_array($results) ? array_values($results) : [];
+        return is_array($data) ? array_values($data) : [];
     }
 }

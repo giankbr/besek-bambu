@@ -68,9 +68,9 @@ class ShippingService
     }
 
     /**
-     * Available couriers for the active provider. For RajaOngkir Starter
-     * it is the intersection of admin-enabled couriers and what Starter
-     * supports (jne/pos/tiki).
+     * Couriers the admin has enabled, intersected with what the V2
+     * RajaOngkir client knows about. Order is preserved by the
+     * supported list so the dropdown always renders consistently.
      *
      * @return array<int, string>
      */
@@ -82,14 +82,22 @@ class ShippingService
             return [];
         }
 
-        $allowed = RajaOngkirClient::COURIER_STARTER;
+        $configured = array_map('strtolower', $configured);
+        $supported = array_keys(RajaOngkirClient::SUPPORTED_COURIERS);
 
-        return array_values(array_intersect($allowed, array_map('strtolower', $configured)));
+        return array_values(array_intersect($supported, $configured));
     }
 
-    public function originCityId(): ?string
+    public function originId(): ?string
     {
         $value = setting('shipping_origin_city_id');
+
+        return $value ? (string) $value : null;
+    }
+
+    public function originLabel(): ?string
+    {
+        $value = setting('shipping_origin_label');
 
         return $value ? (string) $value : null;
     }

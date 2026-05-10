@@ -40,8 +40,7 @@ Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.s
 Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::prefix('shipping')->name('shipping.')->group(function () {
-    Route::get('provinces', [ShippingController::class, 'provinces'])->name('provinces');
-    Route::get('cities/{provinceId}', [ShippingController::class, 'cities'])->name('cities');
+    Route::get('destinations', [ShippingController::class, 'searchDestinations'])->name('destinations');
     Route::post('cost', [ShippingController::class, 'cost'])->name('cost');
 });
 

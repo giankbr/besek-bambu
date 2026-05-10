@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ShippingCity;
-use App\Models\ShippingProvince;
 use App\Services\CartService;
 use App\Services\ShippingService;
 use Illuminate\Http\JsonResponse;
@@ -13,33 +11,52 @@ use Illuminate\Support\Facades\Log;
 class ShippingController extends Controller
 {
     /**
-     * Public province list for the checkout cascade.
+     * Typeahead destination search backed by RajaOngkir V2. Used by
+     * both the admin origin picker and the storefront checkout.
      */
-    public function provinces(): JsonResponse
+    public function searchDestinations(Request $request, ShippingService $shipping): JsonResponse
     {
-        return response()->json(
-            ShippingProvince::orderBy('name')->get(['id', 'name'])
-        );
-    }
+        $data = $request->validate([
+            'q' => ['required', 'string', 'min:2', 'max:120'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:50'],
+        ]);
 
-    public function cities(string $provinceId): JsonResponse
-    {
-        $cities = ShippingCity::where('province_id', $provinceId)
-            ->orderBy('name')
-            ->get(['id', 'name', 'type']);
+        $client = $shipping->rajaOngkirClient();
 
-        return response()->json($cities);
+        if (! $client->isConfigured()) {
+            return response()->json(['results' => [], 'reason' => 'api_key_missing'], 200);
+        }
+
+        try {
+            $results = $client->searchDestinations(
+                $data['q'],
+                (int) ($data['limit'] ?? 15),
+            );
+        } catch (\Throwable $e) {
+            Log::warning('RajaOngkir destination search failed', [
+                'q' => $data['q'],
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'results' => [],
+                'reason' => 'api_error',
+                'message' => $e->getMessage(),
+            ], 200);
+        }
+
+        return response()->json(['results' => $results]);
     }
 
     /**
      * Compute live RajaOngkir costs for the current cart from the
-     * configured origin to the requested destination city. Returns the
-     * full set of services across the enabled couriers.
+     * configured origin to the requested destination.
      */
     public function cost(Request $request, ShippingService $shipping, CartService $cart): JsonResponse
     {
         $data = $request->validate([
-            'destination_city_id' => ['required', 'string', 'max:32'],
+            'destination_id' => ['required', 'string', 'max:32'],
+            'weight' => ['nullable', 'integer', 'min:1'],
         ]);
 
         if (! $shipping->isRajaOngkir()) {
@@ -52,43 +69,39 @@ class ShippingController extends Controller
             return response()->json(['services' => [], 'reason' => 'api_key_missing']);
         }
 
-        $origin = $shipping->originCityId();
+        $origin = $shipping->originId();
 
         if (! $origin) {
             return response()->json(['services' => [], 'reason' => 'origin_missing']);
         }
 
-        $weight = $cart->totalWeight();
-        $services = [];
+        $couriers = $shipping->enabledCouriers();
 
-        foreach ($shipping->enabledCouriers() as $courier) {
-            try {
-                $rows = $client->cost($origin, $data['destination_city_id'], $weight, $courier);
+        if ($couriers === []) {
+            return response()->json(['services' => [], 'reason' => 'no_couriers_enabled']);
+        }
 
-                foreach ($rows as $row) {
-                    $cost = $row['cost'][0] ?? null;
-                    if (! $cost) {
-                        continue;
-                    }
-                    $services[] = [
-                        'courier' => $courier,
-                        'service' => (string) ($row['service'] ?? ''),
-                        'description' => (string) ($row['description'] ?? ''),
-                        'cost' => (int) ($cost['value'] ?? 0),
-                        'etd' => trim((string) ($cost['etd'] ?? '')),
-                    ];
-                }
-            } catch (\Throwable $e) {
-                Log::warning('RajaOngkir cost lookup failed', [
-                    'courier' => $courier,
-                    'error' => $e->getMessage(),
-                ]);
-            }
+        $weight = (int) ($data['weight'] ?? $cart->totalWeight());
+
+        try {
+            $services = $client->cost($origin, $data['destination_id'], $weight, $couriers);
+        } catch (\Throwable $e) {
+            Log::warning('RajaOngkir cost lookup failed', [
+                'origin' => $origin,
+                'destination' => $data['destination_id'],
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'services' => [],
+                'reason' => 'api_error',
+                'message' => $e->getMessage(),
+            ], 200);
         }
 
         return response()->json([
-            'origin_city_id' => $origin,
-            'destination_city_id' => $data['destination_city_id'],
+            'origin_id' => $origin,
+            'destination_id' => $data['destination_id'],
             'weight' => $weight,
             'services' => $services,
         ]);
