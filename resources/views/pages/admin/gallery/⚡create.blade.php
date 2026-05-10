@@ -55,7 +55,7 @@ new #[Title('New gallery item')] class extends Component {
             <flux:subheading>{{ __('Add an image to the storefront gallery.') }}</flux:subheading>
         </div>
 
-        <form wire:submit="save" class="grid max-w-2xl gap-5">
+        <form wire:submit="save" class="grid w-full gap-5">
             <flux:input wire:model="title" :label="__('Title')" required />
             <flux:input wire:model="subtitle" :label="__('Subtitle')" />
             <div class="grid gap-5 md:grid-cols-2">

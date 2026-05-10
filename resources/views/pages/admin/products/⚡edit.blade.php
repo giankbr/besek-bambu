@@ -136,7 +136,7 @@ new #[Title('Edit Product')] class extends Component {
             <flux:subheading>{{ $product->name }}</flux:subheading>
         </div>
 
-        <form wire:submit="save" class="grid max-w-3xl gap-5">
+        <form wire:submit="save" class="grid w-full gap-5">
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:input wire:model="name" :label="__('Name')" required />
                 <flux:input wire:model="slug" :label="__('Slug')" required />
@@ -164,18 +164,11 @@ new #[Title('Edit Product')] class extends Component {
                 <flux:input wire:model="image_url" :label="__('…or external URL / path')" placeholder="https://..." />
             </div>
 
-            <div class="grid gap-5 md:grid-cols-3">
+            <div class="grid gap-5 md:grid-cols-2">
                 <flux:select wire:model="category_id" :label="__('Category')" placeholder="{{ __('— None —') }}">
                     @foreach ($this->categories as $category)
                         <flux:select.option value="{{ $category->id }}">{{ $category->title }}</flux:select.option>
                     @endforeach
-                </flux:select>
-
-                <flux:select wire:model="color_class" :label="__('Color theme')">
-                    <flux:select.option value="p-1">{{ __('Green soft') }}</flux:select.option>
-                    <flux:select.option value="p-2">{{ __('Cream') }}</flux:select.option>
-                    <flux:select.option value="p-3">{{ __('Green blue') }}</flux:select.option>
-                    <flux:select.option value="p-4">{{ __('Yellow') }}</flux:select.option>
                 </flux:select>
 
                 <flux:input wire:model="rating" :label="__('Rating')" type="number" min="1" max="5" />
@@ -194,7 +187,7 @@ new #[Title('Edit Product')] class extends Component {
 
         <flux:separator class="my-2" />
 
-        <div class="max-w-3xl">
+        <div class="w-full">
             <flux:heading size="lg">{{ __('Image gallery') }}</flux:heading>
             <flux:subheading>{{ __('Upload additional images to show on the product page.') }}</flux:subheading>
 

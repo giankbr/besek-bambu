@@ -59,7 +59,7 @@ new #[Title('New Category')] class extends Component {
             <flux:subheading>{{ __('Add a new category.') }}</flux:subheading>
         </div>
 
-        <form wire:submit="save" class="grid max-w-2xl gap-5">
+        <form wire:submit="save" class="grid w-full gap-5">
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:input wire:model.blur="title" :label="__('Title')" required />
                 <flux:input wire:model="slug" :label="__('Slug')" required />

@@ -45,7 +45,7 @@ new #[Title('New coupon')] class extends Component {
             <flux:subheading>{{ __('Configure a new promo code.') }}</flux:subheading>
         </div>
 
-        <form wire:submit="save" class="grid max-w-2xl gap-5">
+        <form wire:submit="save" class="grid w-full gap-5">
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:input wire:model="code" :label="__('Code')" required placeholder="WELCOME20" />
                 <flux:input wire:model="label" :label="__('Label (optional)')" />
