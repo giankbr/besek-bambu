@@ -120,16 +120,18 @@ new #[Title('New Product')] class extends Component {
                 <flux:input wire:model="stock" :label="__('Stock')" type="number" min="0" required />
             </div>
 
-            <div class="grid gap-5 md:grid-cols-2">
-                <div>
-                    <flux:label>{{ __('Upload image') }}</flux:label>
-                    <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
-                    @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
-                    @if ($image)
-                        <div class="mt-2"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" /></div>
-                    @endif
-                </div>
-                <flux:input wire:model="image_url" :label="__('…or external URL')" type="url" placeholder="https://..." />
+            <livewire:admin.media-picker
+                wire:model="image_url"
+                :label="__('Primary image')"
+                key="product-create-image"
+            />
+            @if ($image)
+                <div class="mt-1"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" alt="" /></div>
+            @endif
+            <div>
+                <flux:label>{{ __('…or upload directly') }}</flux:label>
+                <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
+                @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
             </div>
 
             <div class="grid gap-5 md:grid-cols-2">
@@ -169,13 +171,12 @@ new #[Title('New Product')] class extends Component {
                 :description="($meta_description ? strlen($meta_description) : 0).' / 320. '.__('Recommended 120–160 characters.')"
             />
 
-            <div class="grid gap-3">
-                <flux:label>{{ __('Open Graph image') }}</flux:label>
-                <input type="file" wire:model="og_image_upload" accept="image/*" class="block w-full text-sm" />
-                @error('og_image_upload')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
-                <flux:input wire:model="og_image" :label="__('…or external URL / path')" placeholder="https://..." />
-                <flux:text size="sm" class="text-zinc-500">{{ __('Recommended size 1200×630.') }}</flux:text>
-            </div>
+            <livewire:admin.media-picker
+                wire:model="og_image"
+                :label="__('Open Graph image')"
+                key="product-create-og"
+            />
+            <flux:text size="sm" class="text-zinc-500">{{ __('Recommended size 1200×630.') }}</flux:text>
 
             <div class="flex items-center gap-3">
                 <flux:button type="submit" variant="primary">{{ __('Create') }}</flux:button>

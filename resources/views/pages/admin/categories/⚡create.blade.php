@@ -86,16 +86,18 @@ new #[Title('New Category')] class extends Component {
                 <flux:input wire:model="slug" :label="__('Slug')" required />
             </div>
 
-            <div class="grid gap-5 md:grid-cols-2">
-                <div>
-                    <flux:label>{{ __('Upload image') }}</flux:label>
-                    <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
-                    @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
-                    @if ($image)
-                        <div class="mt-2"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" /></div>
-                    @endif
-                </div>
-                <flux:input wire:model="image_url" :label="__('…or external URL')" placeholder="https://..." />
+            <livewire:admin.media-picker
+                wire:model="image_url"
+                :label="__('Image')"
+                key="category-create-image"
+            />
+            @if ($image)
+                <div class="mt-1"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" alt="" /></div>
+            @endif
+            <div>
+                <flux:label>{{ __('…or upload directly') }}</flux:label>
+                <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
+                @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
             </div>
 
             <flux:input wire:model="sort_order" :label="__('Sort order')" type="number" min="0" />
