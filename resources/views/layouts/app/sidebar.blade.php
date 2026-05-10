@@ -53,6 +53,12 @@
                 <flux:sidebar.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>
                     {{ __('Gallery') }}
                 </flux:sidebar.item>
+
+                <div class="{{ $dividerClass }}"></div>
+                <div class="{{ $headingClass }}">{{ __('Access') }}</div>
+                <flux:sidebar.item icon="users" :href="route('admin.users.index')" :current="request()->routeIs('admin.users.*')" wire:navigate>
+                    {{ __('Users') }}
+                </flux:sidebar.item>
             </flux:sidebar.nav>
 
             <flux:spacer />

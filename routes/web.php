@@ -95,6 +95,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::livewire('create', 'pages::admin.coupons.create')->name('create');
             Route::livewire('{coupon}/edit', 'pages::admin.coupons.edit')->name('edit');
         });
+
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::livewire('/', 'pages::admin.users.index')->name('index');
+            Route::livewire('create', 'pages::admin.users.create')->name('create');
+            Route::livewire('{user}/edit', 'pages::admin.users.edit')->name('edit');
+        });
     });
 });
 
