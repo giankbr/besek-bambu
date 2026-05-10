@@ -255,7 +255,7 @@ new #[Title('Edit Product')] class extends Component {
                 'name' => ['required', 'string', 'max:255'],
                 'slug' => ['required', 'string', 'max:255', Rule::unique('products', 'slug')->ignore($this->product->id)],
                 'description' => ['nullable', 'string'],
-                'icon' => ['required', 'string', 'max:8'],
+                'icon' => ['nullable', 'string', 'max:8'],
                 'image_url' => ['nullable', 'string', 'max:2048'],
                 'image' => ['nullable', 'image', 'max:4096'],
                 'price' => ['required', 'numeric', 'min:0'],
@@ -409,8 +409,7 @@ new #[Title('Edit Product')] class extends Component {
 
             <flux:textarea wire:model="description" :label="__('Description')" rows="3" />
 
-            <div class="grid gap-5 md:grid-cols-4">
-                <flux:input wire:model="icon" :label="__('Icon (emoji)')" required maxlength="8" />
+            <div class="grid gap-5 md:grid-cols-3">
                 <flux:input wire:model="price" :label="__('Price (IDR)')" type="number" step="1" min="0" required />
                 <flux:input wire:model="stock" :label="__('Stock')" type="number" min="0" required />
                 <flux:input
