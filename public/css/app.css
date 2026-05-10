@@ -2002,6 +2002,11 @@ a.product:hover { transform: translateY(-2px); }
   box-shadow: 0 10px 28px rgba(37, 211, 102, 0.45);
 }
 .wa-floating__icon { display: inline-flex; }
+
+.variant-chip { transition: all .15s ease; }
+.variant-chip:hover:not(:disabled) { border-color: #b8a47a; background: #faf6ee; }
+.variant-chip:disabled { opacity: .55; cursor: not-allowed; }
+.variant-chip--active { border-color: #1f7a3a !important; background: #eaf6ed !important; color: #1f7a3a; }
 @media (max-width: 480px) {
   .wa-floating { padding: 12px; }
   .wa-floating__label { display: none; }

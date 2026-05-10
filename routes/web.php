@@ -35,8 +35,8 @@ Route::get('/categories/{category:slug}', [ShopController::class, 'category'])->
 
 Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
 Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::patch('/cart/{key}', [CartController::class, 'update'])->where('key', '[0-9]+(-[0-9]+)?')->name('cart.update');
+Route::delete('/cart/{key}', [CartController::class, 'destroy'])->where('key', '[0-9]+(-[0-9]+)?')->name('cart.destroy');
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 

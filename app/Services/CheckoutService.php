@@ -6,6 +6,7 @@ use App\Mail\LowStockAlert;
 use App\Mail\OrderPlaced;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -28,8 +29,10 @@ class CheckoutService
         }
 
         foreach ($items as $item) {
-            if ($item->product->stock < $item->quantity) {
-                throw new \DomainException("Sorry, only {$item->product->stock} of {$item->product->name} are available.");
+            $available = $item->variant ? (int) $item->variant->stock : (int) $item->product->stock;
+            $label = $item->product->name.($item->variant_label ? " ({$item->variant_label})" : '');
+            if ($available < $item->quantity) {
+                throw new \DomainException("Sorry, only {$available} of {$label} are available.");
             }
         }
 
@@ -105,24 +108,40 @@ class CheckoutService
                     ->lockForUpdate()
                     ->firstOrFail();
 
-                if ($product->stock < $item->quantity) {
-                    throw new \DomainException("Sorry, only {$product->stock} of {$product->name} are available.");
+                $variant = $item->variant
+                    ? ProductVariant::query()->whereKey($item->variant->id)->lockForUpdate()->firstOrFail()
+                    : null;
+
+                $availableStock = $variant ? (int) $variant->stock : (int) $product->stock;
+                $itemLabel = $product->name.($variant ? " ({$variant->label})" : '');
+                if ($availableStock < $item->quantity) {
+                    throw new \DomainException("Sorry, only {$availableStock} of {$itemLabel} are available.");
                 }
+
+                $unitPrice = $variant ? $variant->effectivePrice() : $product->price;
 
                 $order->items()->create([
                     'product_id' => $product->id,
+                    'product_variant_id' => $variant?->id,
                     'product_name' => $product->name,
+                    'variant_label' => $variant?->label,
                     'product_icon' => $product->icon,
-                    'price' => $product->price,
+                    'price' => $unitPrice,
                     'quantity' => $item->quantity,
                     'line_total' => $item->line_total,
                 ]);
 
-                $previousStock = (int) $product->stock;
-                $product->decrement('stock', $item->quantity);
-                $product->refresh();
-
-                $this->maybeNotifyLowStock($product, $previousStock);
+                if ($variant) {
+                    $variant->decrement('stock', $item->quantity);
+                    // Mirror to the parent product so global "stock" still
+                    // reflects total inventory for legacy reporting.
+                    $product->decrement('stock', min((int) $product->stock, $item->quantity));
+                } else {
+                    $previousStock = (int) $product->stock;
+                    $product->decrement('stock', $item->quantity);
+                    $product->refresh();
+                    $this->maybeNotifyLowStock($product, $previousStock);
+                }
             }
 
             $this->cart->clear();

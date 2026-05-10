@@ -38,20 +38,27 @@
                 </a>
                 <div class="cart-item__body">
                   <a class="cart-item__name" href="{{ route('shop.product', $item->product) }}">{{ $item->product->name }}</a>
-                  <div class="cart-item__price">{{ idr($item->product->price) }}</div>
+                  @if ($item->variant_label)
+                    <div class="cart-item__variant" style="color:#7d6f5f;font-size:0.9rem">Size: <strong>{{ $item->variant_label }}</strong></div>
+                  @endif
+                  <div class="cart-item__price">{{ idr($item->unit_price) }}</div>
 
-                  <form method="post" action="{{ route('cart.update', $item->product->id) }}" class="cart-item__qty">
+                  @php
+                    $itemStockCap = $item->variant ? (int) $item->variant->stock : (int) $item->product->stock;
+                    $itemMoq = max(1, (int) ($item->product->min_order_quantity ?? 1));
+                  @endphp
+                  <form method="post" action="{{ route('cart.update', $item->key) }}" class="cart-item__qty">
                     @csrf
                     @method('PATCH')
-                    <label for="qty-{{ $item->product->id }}">Qty</label>
-                    <input id="qty-{{ $item->product->id }}" type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ max(1, $item->product->stock) }}" />
+                    <label for="qty-{{ $item->key }}">Qty</label>
+                    <input id="qty-{{ $item->key }}" type="number" name="quantity" value="{{ $item->quantity }}" min="{{ $itemMoq }}" max="{{ max($itemMoq, $itemStockCap) }}" />
                     <button type="submit" class="cart-link-btn">Update</button>
                   </form>
                 </div>
 
                 <div class="cart-item__right">
                   <div class="cart-item__line">{{ idr($item->line_total) }}</div>
-                  <form method="post" action="{{ route('cart.destroy', $item->product->id) }}">
+                  <form method="post" action="{{ route('cart.destroy', $item->key) }}">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="cart-link-btn cart-link-btn--danger">Remove</button>

@@ -80,6 +80,40 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
+    }
+
+    public function hasVariants(): bool
+    {
+        // Use the loaded relationship when available so a single
+        // page rendering many cards doesn't hit the DB per product.
+        if ($this->relationLoaded('variants')) {
+            return $this->variants->isNotEmpty();
+        }
+
+        return $this->variants()->exists();
+    }
+
+    public function defaultVariant(): ?ProductVariant
+    {
+        $variants = $this->relationLoaded('variants') ? $this->variants : $this->variants()->get();
+
+        return $variants->firstWhere('is_default', true) ?? $variants->first();
+    }
+
+    public function totalStock(): int
+    {
+        if ($this->hasVariants()) {
+            $variants = $this->relationLoaded('variants') ? $this->variants : $this->variants()->get();
+
+            return (int) $variants->sum('stock');
+        }
+
+        return (int) $this->stock;
+    }
+
     public function primaryImage(): ?string
     {
         $primary = $this->images()->where('is_primary', true)->first()

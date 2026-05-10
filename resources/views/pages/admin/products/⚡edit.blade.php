@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -37,6 +38,8 @@ new #[Title('Edit Product')] class extends Component {
     public ?string $og_image = null;
     public $og_image_upload = null;
 
+    public array $variants = [];
+
     public function mount(Product $product): void
     {
         $this->product = $product;
@@ -58,6 +61,111 @@ new #[Title('Edit Product')] class extends Component {
         $this->meta_title = $product->meta_title;
         $this->meta_description = $product->meta_description;
         $this->og_image = $product->og_image;
+
+        $this->variants = $product->variants()->orderBy('sort_order')->get()->map(fn ($v) => [
+            'id' => $v->id,
+            'label' => $v->label,
+            'sku' => $v->sku ?? '',
+            'price' => $v->price !== null ? (string) $v->price : '',
+            'stock' => (int) $v->stock,
+            'weight' => $v->weight,
+            'sort_order' => (int) $v->sort_order,
+            'is_default' => (bool) $v->is_default,
+        ])->toArray();
+    }
+
+    public function addVariant(): void
+    {
+        $this->variants[] = [
+            'id' => null,
+            'label' => '',
+            'sku' => '',
+            'price' => '',
+            'stock' => 0,
+            'weight' => null,
+            'sort_order' => count($this->variants),
+            'is_default' => count($this->variants) === 0,
+        ];
+    }
+
+    public function removeVariant(int $index): void
+    {
+        if (! isset($this->variants[$index])) {
+            return;
+        }
+
+        $variant = $this->variants[$index];
+        if (! empty($variant['id'])) {
+            ProductVariant::whereKey($variant['id'])->delete();
+        }
+        array_splice($this->variants, $index, 1);
+        $this->variants = array_values($this->variants);
+    }
+
+    public function setDefaultVariant(int $index): void
+    {
+        foreach ($this->variants as $i => $_) {
+            $this->variants[$i]['is_default'] = $i === $index;
+        }
+    }
+
+    public function saveVariants(): void
+    {
+        try {
+            $this->validate([
+                'variants' => ['array'],
+                'variants.*.label' => ['required', 'string', 'max:120'],
+                'variants.*.sku' => ['nullable', 'string', 'max:64'],
+                'variants.*.price' => ['nullable', 'numeric', 'min:0'],
+                'variants.*.stock' => ['required', 'integer', 'min:0'],
+                'variants.*.weight' => ['nullable', 'integer', 'min:0', 'max:1000000'],
+                'variants.*.sort_order' => ['integer', 'min:0'],
+                'variants.*.is_default' => ['boolean'],
+            ]);
+
+            $sawDefault = false;
+            foreach ($this->variants as $i => $v) {
+                $payload = [
+                    'product_id' => $this->product->id,
+                    'label' => trim($v['label']),
+                    'sku' => $v['sku'] !== '' ? $v['sku'] : null,
+                    'price' => $v['price'] !== '' ? (float) $v['price'] : null,
+                    'stock' => (int) $v['stock'],
+                    'weight' => $v['weight'] !== null && $v['weight'] !== '' ? (int) $v['weight'] : null,
+                    'sort_order' => (int) ($v['sort_order'] ?? $i),
+                    'is_default' => (bool) ($v['is_default'] ?? false) && ! $sawDefault,
+                ];
+                if ($payload['is_default']) {
+                    $sawDefault = true;
+                }
+
+                if (! empty($v['id'])) {
+                    ProductVariant::whereKey($v['id'])->update($payload);
+                    $this->variants[$i]['is_default'] = $payload['is_default'];
+                } else {
+                    $created = ProductVariant::create($payload);
+                    $this->variants[$i]['id'] = $created->id;
+                    $this->variants[$i]['is_default'] = $payload['is_default'];
+                }
+            }
+
+            // Force exactly one default if any variants exist.
+            if ($this->variants && ! $sawDefault) {
+                $this->variants[0]['is_default'] = true;
+                ProductVariant::whereKey($this->variants[0]['id'])->update(['is_default' => true]);
+            }
+
+            Flux::toast(variant: 'success', text: __('Variants saved.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the variant rows.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(variant: 'danger', heading: __('Failed to save'), text: $e->getMessage());
+        }
     }
 
     #[Computed]
@@ -324,6 +432,52 @@ new #[Title('Edit Product')] class extends Component {
                 <flux:button :href="route('admin.products.index')" variant="ghost" wire:navigate>{{ __('Cancel') }}</flux:button>
             </div>
         </form>
+
+        <flux:separator class="my-2" />
+
+        <div class="w-full">
+            <flux:heading size="lg">{{ __('Variants (sizes)') }}</flux:heading>
+            <flux:subheading>
+                {{ __('Define each size as its own row with its own price and stock. Leave price blank to fall back to the base price above.') }}
+            </flux:subheading>
+
+            <div class="mt-4 grid gap-3">
+                @foreach ($variants as $i => $v)
+                    <div class="grid items-end gap-2 rounded-lg border border-zinc-200 p-3 md:grid-cols-12">
+                        <div class="md:col-span-3">
+                            <flux:input wire:model="variants.{{ $i }}.label" :label="__('Label')" placeholder="20×20 cm" />
+                            @error("variants.$i.label")<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                        </div>
+                        <div class="md:col-span-2">
+                            <flux:input wire:model="variants.{{ $i }}.sku" :label="__('SKU (opt)')" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <flux:input wire:model="variants.{{ $i }}.price" :label="__('Price')" type="number" min="0" step="1" placeholder="{{ $product->price }}" />
+                        </div>
+                        <div class="md:col-span-1">
+                            <flux:input wire:model="variants.{{ $i }}.stock" :label="__('Stock')" type="number" min="0" />
+                        </div>
+                        <div class="md:col-span-1">
+                            <flux:input wire:model="variants.{{ $i }}.weight" :label="__('Wt(g)')" type="number" min="0" placeholder="{{ $product->weight }}" />
+                        </div>
+                        <div class="md:col-span-2 flex items-center gap-2">
+                            <flux:checkbox wire:model="variants.{{ $i }}.is_default" :label="__('Default')" />
+                        </div>
+                        <div class="md:col-span-1 flex items-center gap-2">
+                            <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="removeVariant({{ $i }})" wire:confirm="{{ __('Delete this variant?') }}" />
+                        </div>
+                    </div>
+                @endforeach
+                @if (count($variants) === 0)
+                    <flux:text class="text-zinc-500">{{ __('No variants yet. Add a size to enable size selection on the storefront.') }}</flux:text>
+                @endif
+            </div>
+
+            <div class="mt-3 flex items-center gap-2">
+                <flux:button type="button" variant="ghost" icon="plus" wire:click="addVariant">{{ __('Add variant') }}</flux:button>
+                <flux:button type="button" variant="primary" wire:click="saveVariants">{{ __('Save variants') }}</flux:button>
+            </div>
+        </div>
 
         <flux:separator class="my-2" />
 

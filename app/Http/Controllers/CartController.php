@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 
@@ -26,31 +27,43 @@ class CartController extends Controller
     {
         $data = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
-            'quantity' => ['nullable', 'integer', 'min:1', 'max:99'],
+            'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
+            'quantity' => ['nullable', 'integer', 'min:1', 'max:9999'],
         ]);
 
-        $product = Product::findOrFail($data['product_id']);
-        abort_unless($product->is_active && $product->stock > 0, 422, 'Product unavailable.');
+        $product = Product::with('variants')->findOrFail($data['product_id']);
+        abort_unless($product->is_active, 422, 'Product unavailable.');
 
-        $cart->add($product, (int) ($data['quantity'] ?? 1));
+        $variant = null;
+        if ($product->hasVariants()) {
+            abort_unless(! empty($data['variant_id']), 422, 'Please choose a size first.');
+            $variant = ProductVariant::where('product_id', $product->id)
+                ->whereKey($data['variant_id'])
+                ->firstOrFail();
+            abort_unless($variant->stock > 0, 422, 'Selected size is sold out.');
+        } else {
+            abort_unless($product->stock > 0, 422, 'Product unavailable.');
+        }
+
+        $cart->add($product, (int) ($data['quantity'] ?? 1), $variant);
 
         return redirect()->route('cart.show')->with('status', 'Added to cart.');
     }
 
-    public function update(Request $request, int $product, CartService $cart)
+    public function update(Request $request, string $key, CartService $cart)
     {
         $data = $request->validate([
-            'quantity' => ['required', 'integer', 'min:0', 'max:99'],
+            'quantity' => ['required', 'integer', 'min:0', 'max:9999'],
         ]);
 
-        $cart->update($product, (int) $data['quantity']);
+        $cart->update($key, (int) $data['quantity']);
 
         return redirect()->route('cart.show');
     }
 
-    public function destroy(int $product, CartService $cart)
+    public function destroy(string $key, CartService $cart)
     {
-        $cart->remove($product);
+        $cart->remove($key);
 
         return redirect()->route('cart.show')->with('status', 'Item removed.');
     }

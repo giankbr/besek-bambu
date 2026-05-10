@@ -179,44 +179,114 @@
               <small style="margin-left:8px;color:var(--muted)">{{ number_format($averageRating, 1) }} · {{ $reviewsCount }} {{ Str::plural('review', $reviewsCount) }}</small>
             @endif
           </div>
-          <div class="product-detail__price">{{ idr($product->price) }}</div>
-
-          @if ($product->description)
-            <p class="product-detail__desc">{{ $product->description }}</p>
-          @endif
-
           @php
             $moq = max(1, (int) ($product->min_order_quantity ?? 1));
             $leadDays = (int) ($product->production_lead_days ?? 0);
             $waNumber = preg_replace('/\D+/', '', (string) (setting('whatsapp_order_number') ?: setting('store_phone') ?: ''));
             $waText = rawurlencode("Halo, saya mau tanya: {$product->name} (".route('shop.product', $product).')');
+            $hasVariants = $product->hasVariants();
+            $variantsPayload = $product->variants->map(fn ($v) => [
+              'id' => $v->id,
+              'label' => $v->label,
+              'price' => (float) $v->effectivePrice(),
+              'stock' => (int) $v->stock,
+              'is_default' => (bool) $v->is_default,
+            ])->values()->all();
+            $defaultVariant = $product->defaultVariant();
           @endphp
 
-          <div class="product-detail__stock" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-            @if ($product->stock > 0)
-              <span class="stock-pill stock-pill--in">In stock · {{ $product->stock }} available</span>
-            @else
-              <span class="stock-pill stock-pill--out">Sold out</span>
-            @endif
-            @if ($moq > 1)
-              <span class="stock-pill" style="background:#fff8e1;color:#8a6d11">Min. order {{ $moq }} pcs</span>
-            @endif
-            @if ($leadDays > 0)
-              <span class="stock-pill" style="background:#eaf2ff;color:#1e4faf">Lead time {{ $leadDays }} hari kerja</span>
-            @endif
-          </div>
+          <div
+            x-data='{
+              variants: @php echo json_encode($variantsPayload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); @endphp,
+              hasVariants: @json($hasVariants),
+              basePrice: @json((float) $product->price),
+              baseStock: @json((int) $product->stock),
+              moq: {{ $moq }},
+              variantId: {{ $defaultVariant?->id ?? 'null' }},
+              get current() {
+                if (!this.hasVariants) return { price: this.basePrice, stock: this.baseStock };
+                return this.variants.find(v => v.id === this.variantId) || this.variants[0] || { price: this.basePrice, stock: 0 };
+              },
+              get displayPrice() { return new Intl.NumberFormat("id-ID").format(Math.round(this.current.price)); },
+              get availableStock() { return Number(this.current.stock || 0); },
+              get effectiveMax() { return Math.max(this.moq, this.availableStock || this.moq); },
+              pickVariant(id) {
+                this.variantId = id;
+                this.$nextTick(() => {
+                  if (this.$refs.qtyInput) {
+                    const cap = this.availableStock > 0 ? this.availableStock : this.moq;
+                    this.$refs.qtyInput.value = Math.min(Math.max(this.moq, Number(this.$refs.qtyInput.value) || this.moq), cap);
+                  }
+                });
+              },
+            }'
+          >
+            <div class="product-detail__price">Rp <span x-text="displayPrice">{{ number_format((float) $product->price, 0, ',', '.') }}</span></div>
 
-          <form action="{{ route('cart.add') }}" method="post" class="product-detail__cta">
-            @csrf
-            <input type="hidden" name="product_id" value="{{ $product->id }}" />
-            <div class="qty">
-              <label for="qty">Qty</label>
-              <input id="qty" type="number" name="quantity" value="{{ $moq }}" min="{{ $moq }}" step="1" max="{{ max($moq, $product->stock) }}" {{ $product->stock === 0 ? 'disabled' : '' }} />
+            @if ($product->description)
+              <p class="product-detail__desc">{{ $product->description }}</p>
+            @endif
+
+            @if ($hasVariants)
+              <div style="margin:14px 0">
+                <div style="font-weight:600;font-size:0.95rem;margin-bottom:6px">Pilih ukuran</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  @foreach ($product->variants as $v)
+                    <button
+                      type="button"
+                      @click="pickVariant({{ $v->id }})"
+                      :class="variantId === {{ $v->id }} ? 'variant-chip variant-chip--active' : 'variant-chip'"
+                      {{ $v->stock === 0 ? 'disabled' : '' }}
+                      style="padding:8px 14px;border-radius:999px;border:1px solid #e5e0d6;background:#fff;cursor:pointer;font-weight:600;font-size:0.9rem"
+                    >
+                      {{ $v->label }}
+                      @if ($v->stock === 0)
+                        <small style="color:#b91c1c">— habis</small>
+                      @endif
+                    </button>
+                  @endforeach
+                </div>
+              </div>
+            @endif
+
+            <div class="product-detail__stock" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+              <template x-if="availableStock > 0">
+                <span class="stock-pill stock-pill--in">In stock · <span x-text="availableStock"></span> available</span>
+              </template>
+              <template x-if="availableStock === 0">
+                <span class="stock-pill stock-pill--out">Sold out</span>
+              </template>
+              @if ($moq > 1)
+                <span class="stock-pill" style="background:#fff8e1;color:#8a6d11">Min. order {{ $moq }} pcs</span>
+              @endif
+              @if ($leadDays > 0)
+                <span class="stock-pill" style="background:#eaf2ff;color:#1e4faf">Lead time {{ $leadDays }} hari kerja</span>
+              @endif
             </div>
-            <button type="submit" class="hero-cta" {{ $product->stock === 0 ? 'disabled' : '' }}>
-              {{ $product->stock === 0 ? 'Sold out' : 'Add to cart' }}
-            </button>
-          </form>
+
+            <form action="{{ route('cart.add') }}" method="post" class="product-detail__cta">
+              @csrf
+              <input type="hidden" name="product_id" value="{{ $product->id }}" />
+              @if ($hasVariants)
+                <input type="hidden" name="variant_id" :value="variantId" />
+              @endif
+              <div class="qty">
+                <label for="qty">Qty</label>
+                <input
+                  id="qty"
+                  x-ref="qtyInput"
+                  type="number"
+                  name="quantity"
+                  value="{{ $moq }}"
+                  :min="moq"
+                  :max="effectiveMax"
+                  step="1"
+                  :disabled="availableStock === 0"
+                />
+              </div>
+              <button type="submit" class="hero-cta" :disabled="availableStock === 0" x-text="availableStock === 0 ? 'Sold out' : 'Add to cart'">Add to cart</button>
+            </form>
+          </div>
 
           @if ($waNumber)
             <a
