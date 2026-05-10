@@ -37,6 +37,11 @@ new #[Title('Store settings')] class extends Component {
     public string $shipping_origin_label = '';
     public array $shipping_couriers = [];
 
+    public string $origin_search = '';
+    public array $origin_results = [];
+    public string $origin_search_error = '';
+    public bool $origin_searching = false;
+
     public string $tax_rate = '0';
     public bool $tax_inclusive = false;
 
@@ -251,6 +256,50 @@ new #[Title('Store settings')] class extends Component {
     {
         $this->shipping_origin_city_id = '';
         $this->shipping_origin_label = '';
+        $this->origin_search = '';
+        $this->origin_results = [];
+        $this->origin_search_error = '';
+    }
+
+    public function searchOrigin(): void
+    {
+        $this->origin_results = [];
+        $this->origin_search_error = '';
+
+        $term = trim($this->origin_search);
+
+        if (mb_strlen($term) < 2) {
+            return;
+        }
+
+        if (! $this->shipping_rajaongkir_api_key) {
+            $this->origin_search_error = __('Enter and save your API key first.');
+
+            return;
+        }
+
+        try {
+            $this->origin_searching = true;
+            $client = new RajaOngkirClient($this->shipping_rajaongkir_api_key);
+            $this->origin_results = $client->searchDestinations($term, 15);
+
+            if (empty($this->origin_results)) {
+                $this->origin_search_error = __('No matches found. Try the city or postal code.');
+            }
+        } catch (\Throwable $e) {
+            $this->origin_search_error = $e->getMessage();
+        } finally {
+            $this->origin_searching = false;
+        }
+    }
+
+    public function pickOrigin(int $id, string $label): void
+    {
+        $this->shipping_origin_city_id = (string) $id;
+        $this->shipping_origin_label = $label;
+        $this->origin_results = [];
+        $this->origin_search = '';
+        $this->origin_search_error = '';
     }
 
     public function saveTax(): void
@@ -456,40 +505,46 @@ new #[Title('Store settings')] class extends Component {
                                     <flux:button size="sm" variant="ghost" icon="x-mark" type="button" wire:click="clearOrigin">{{ __('Change') }}</flux:button>
                                 </div>
                             @else
-                                <div
-                                    x-data="originPicker(@js([
-                                        'searchUrl' => route('shipping.destinations'),
-                                    ]))"
-                                    class="relative"
-                                >
-                                    <input
-                                        type="text"
-                                        x-model="query"
-                                        @input.debounce.350ms="search()"
-                                        @focus="showResults = true"
-                                        @click.outside="showResults = false"
-                                        placeholder="{{ __('Type to search…') }}"
-                                        class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                                        autocomplete="off"
-                                    />
-                                    <div
-                                        x-show="showResults && (loading || results.length > 0 || error)"
-                                        class="absolute left-0 right-0 z-10 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
-                                        x-cloak
-                                    >
-                                        <div x-show="loading" class="px-3 py-2 text-sm text-zinc-500">{{ __('Searching…') }}</div>
-                                        <div x-show="!loading && error" class="px-3 py-2 text-sm text-rose-500" x-text="error"></div>
-                                        <template x-for="r in results" :key="r.id">
-                                            <button
-                                                type="button"
-                                                @click="pick(r)"
-                                                class="block w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                                            >
-                                                <div class="font-medium" x-text="r.label"></div>
-                                                <div class="text-xs text-zinc-500" x-text="'ID: ' + r.id"></div>
-                                            </button>
-                                        </template>
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex gap-2">
+                                        <flux:input
+                                            wire:model.live.debounce.500ms="origin_search"
+                                            wire:keydown.enter.prevent="searchOrigin"
+                                            placeholder="{{ __('Type at least 2 characters then press Enter') }}"
+                                            class="flex-1"
+                                            autocomplete="off"
+                                        />
+                                        <flux:button
+                                            type="button"
+                                            variant="filled"
+                                            icon="magnifying-glass"
+                                            wire:click="searchOrigin"
+                                            wire:loading.attr="disabled"
+                                            wire:target="searchOrigin,origin_search"
+                                        >
+                                            <span wire:loading.remove wire:target="searchOrigin,origin_search">{{ __('Search') }}</span>
+                                            <span wire:loading wire:target="searchOrigin,origin_search">{{ __('Searching…') }}</span>
+                                        </flux:button>
                                     </div>
+
+                                    @if ($origin_search_error)
+                                        <flux:text class="text-rose-500 text-sm">{{ $origin_search_error }}</flux:text>
+                                    @endif
+
+                                    @if (! empty($origin_results))
+                                        <div class="max-h-72 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
+                                            @foreach ($origin_results as $r)
+                                                <button
+                                                    type="button"
+                                                    wire:click="pickOrigin({{ (int) $r['id'] }}, @js($r['label']))"
+                                                    class="block w-full cursor-pointer border-b border-zinc-100 px-3 py-2 text-left text-sm last:border-b-0 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-700"
+                                                >
+                                                    <div class="font-medium">{{ $r['label'] }}</div>
+                                                    <div class="text-xs text-zinc-500">ID: {{ $r['id'] }}</div>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                                 @error('shipping_origin_city_id')<flux:text class="text-rose-500 text-sm">{{ $message }}</flux:text>@enderror
                             @endif
@@ -540,58 +595,6 @@ new #[Title('Store settings')] class extends Component {
                 </div>
             </form>
 
-            @push('scripts')
-                <script src="//unpkg.com/alpinejs" defer></script>
-                <script>
-                  window.originPicker = (config) => ({
-                    query: '',
-                    results: [],
-                    loading: false,
-                    showResults: false,
-                    error: '',
-
-                    async search() {
-                      this.error = ''
-                      if (this.query.trim().length < 2) {
-                        this.results = []
-                        return
-                      }
-                      this.loading = true
-                      try {
-                        const res = await fetch(`${config.searchUrl}?q=${encodeURIComponent(this.query)}&limit=15`, {
-                          headers: { 'Accept': 'application/json' },
-                        })
-                        const json = await res.json()
-                        this.results = Array.isArray(json.results) ? json.results : []
-                        if (this.results.length === 0) {
-                          this.error = json.message || 'No matches found.'
-                        }
-                      } catch (e) {
-                        this.error = 'Search failed.'
-                      } finally {
-                        this.loading = false
-                      }
-                    },
-
-                    pick(r) {
-                      this.showResults = false
-                      const event = new CustomEvent('origin-picked', { detail: r })
-                      window.dispatchEvent(event)
-                    },
-                  })
-
-                  window.addEventListener('origin-picked', (e) => {
-                    if (window.Livewire) {
-                      const components = window.Livewire.all()
-                      const settings = components.find(c => c.name === 'pages::admin.settings.index')
-                      if (settings) {
-                        settings.set('shipping_origin_city_id', String(e.detail.id))
-                        settings.set('shipping_origin_label', e.detail.label)
-                      }
-                    }
-                  })
-                </script>
-            @endpush
         @endif
 
         @if ($tab === 'tax')
