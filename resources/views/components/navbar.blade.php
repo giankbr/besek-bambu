@@ -36,6 +36,10 @@
         <button type="submit" aria-label="Submit search">⌕</button>
       </form>
       @auth
+        @php
+          $wishCount = \Illuminate\Support\Facades\DB::table('wishlist_items')->where('user_id', auth()->id())->count();
+        @endphp
+        <a href="{{ route('account.wishlist') }}" aria-label="Wishlist" title="Wishlist">♥ {{ $wishCount }}</a>
         <a href="{{ route('account.index') }}" aria-label="Account">{{ auth()->user()->name }}</a>
       @else
         <a href="{{ route('login') }}" aria-label="Account">Account</a>

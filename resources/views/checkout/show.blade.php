@@ -212,6 +212,17 @@
               <span>Discount ({{ $coupon->code }})</span>
               <strong>− {{ idr($discount) }}</strong>
             </div>
+          @else
+            <details class="cart-coupon-details" style="margin:8px 0 4px">
+              <summary style="cursor:pointer;font-size:13px;color:#1f7a3a">Have a promo code?</summary>
+              <form method="post" action="{{ route('cart.coupon.apply') }}" class="cart-coupon" style="margin-top:8px">
+                @csrf
+                <div class="cart-coupon__row">
+                  <input type="text" name="code" placeholder="Enter code" maxlength="64" required />
+                  <button type="submit" class="cart-link-btn">Apply</button>
+                </div>
+              </form>
+            </details>
           @endif
           @if ($tax > 0)
             <div class="cart-summary__row">

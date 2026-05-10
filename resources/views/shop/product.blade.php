@@ -21,6 +21,14 @@
   @endif
 
   @php
+    $schemaImages = collect();
+    if ($product->image_url) { $schemaImages->push(image_src($product->image_url)); }
+    foreach ($product->images as $img) {
+      $src = image_src($img->path);
+      if ($src && ! $schemaImages->contains($src)) { $schemaImages->push($src); }
+    }
+    $schemaImages = $schemaImages->values()->all();
+
     $productSchema = array_filter([
       '@context' => 'https://schema.org',
       '@type' => 'Product',
@@ -28,7 +36,7 @@
       'description' => strip_tags((string) $product->description),
       'sku' => 'BSK-'.$product->id,
       'mpn' => 'BSK-'.$product->id,
-      'image' => $product->image_url ? image_src($product->image_url) : null,
+      'image' => count($schemaImages) > 0 ? $schemaImages : null,
       'category' => $product->category?->title,
       'brand' => ['@type' => 'Brand', 'name' => store_name()],
       'offers' => [
@@ -90,25 +98,67 @@
         $galleryImages = $product->images;
         $primary = $galleryImages->firstWhere('is_primary', true) ?? $galleryImages->first();
         $heroSrc = $primary ? image_src($primary->path) : ($product->image_url ? image_src($product->image_url) : null);
+
+        $allMedia = collect();
+        if ($product->image_url) {
+          $allMedia->push(image_src($product->image_url));
+        }
+        foreach ($galleryImages as $img) {
+          $src = image_src($img->path);
+          if ($src && ! $allMedia->contains($src)) {
+            $allMedia->push($src);
+          }
+        }
+        $allMedia = $allMedia->values()->all();
+        $hasMultiple = count($allMedia) > 1;
       @endphp
-      <div class="product-detail" x-data='{ active: @js($heroSrc) }'>
+      <div
+        class="product-detail"
+        x-data='{
+          images: @js($allMedia),
+          index: 0,
+          get active() { return this.images[this.index] ?? null },
+          next() { if (this.images.length) this.index = (this.index + 1) % this.images.length },
+          prev() { if (this.images.length) this.index = (this.index - 1 + this.images.length) % this.images.length },
+        }'
+        @keydown.window.arrow-right="next()"
+        @keydown.window.arrow-left="prev()"
+      >
         <div class="product-detail__media {{ $product->color_class }}">
           @if ($heroSrc)
-            <img :src="active" src="{{ $heroSrc }}" alt="{{ $product->name }}" />
+            <div class="product-detail__hero">
+              <img :src="active" src="{{ $heroSrc }}" alt="{{ $product->name }}" />
+              @if ($hasMultiple)
+                <button
+                  type="button"
+                  class="product-detail__nav product-detail__nav--prev"
+                  @click="prev()"
+                  aria-label="Previous image"
+                >‹</button>
+                <button
+                  type="button"
+                  class="product-detail__nav product-detail__nav--next"
+                  @click="next()"
+                  aria-label="Next image"
+                >›</button>
+                <div class="product-detail__counter" x-text="(index + 1) + ' / ' + images.length"></div>
+              @endif
+            </div>
           @else
             <div class="product-detail__icon">{{ $product->icon }}</div>
           @endif
 
-          @if ($galleryImages->count() > 0)
+          @if ($hasMultiple)
             <div class="product-detail__thumbs">
-              @if ($product->image_url)
-                <button type="button" class="product-detail__thumb" @click='active = @js(image_src($product->image_url))'>
-                  <img src="{{ image_src($product->image_url) }}" alt="" />
-                </button>
-              @endif
-              @foreach ($galleryImages as $img)
-                <button type="button" class="product-detail__thumb" @click='active = @js(image_src($img->path))'>
-                  <img src="{{ image_src($img->path) }}" alt="" />
+              @foreach ($allMedia as $i => $src)
+                <button
+                  type="button"
+                  class="product-detail__thumb"
+                  :class="index === {{ $i }} ? 'product-detail__thumb--active' : ''"
+                  @click="index = {{ $i }}"
+                  aria-label="View image {{ $i + 1 }}"
+                >
+                  <img src="{{ $src }}" alt="" loading="lazy" />
                 </button>
               @endforeach
             </div>

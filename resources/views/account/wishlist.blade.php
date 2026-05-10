@@ -50,10 +50,22 @@
               @foreach ($products as $product)
                 <div class="wishlist-cell">
                   <x-product-card :product="$product" />
-                  <form method="post" action="{{ route('wishlist.toggle', $product) }}">
-                    @csrf
-                    <button type="submit" class="cart-link-btn cart-link-btn--danger" style="margin-top:8px">Remove</button>
-                  </form>
+                  <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+                    @if ($product->stock > 0)
+                      <form method="post" action="{{ route('cart.add') }}">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button type="submit" class="cart-link-btn">Add to cart</button>
+                      </form>
+                    @else
+                      <span class="cart-link-btn" style="opacity:.6;cursor:not-allowed">Sold out</span>
+                    @endif
+                    <form method="post" action="{{ route('wishlist.toggle', $product) }}">
+                      @csrf
+                      <button type="submit" class="cart-link-btn cart-link-btn--danger">Remove</button>
+                    </form>
+                  </div>
                 </div>
               @endforeach
             </div>

@@ -64,16 +64,16 @@ class CartController extends Controller
         try {
             $coupon = $cart->applyCoupon(strtoupper(trim($data['code'])));
         } catch (\DomainException $e) {
-            return redirect()->route('cart.show')->with('status', $e->getMessage());
+            return back()->with('status', $e->getMessage());
         }
 
-        return redirect()->route('cart.show')->with('status', "Coupon {$coupon->code} applied.");
+        return back()->with('status', "Coupon {$coupon->code} applied.");
     }
 
     public function removeCoupon(CartService $cart)
     {
         $cart->clearCoupon();
 
-        return redirect()->route('cart.show')->with('status', 'Coupon removed.');
+        return back()->with('status', 'Coupon removed.');
     }
 }

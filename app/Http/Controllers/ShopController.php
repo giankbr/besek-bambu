@@ -60,7 +60,7 @@ class ShopController extends Controller
     {
         abort_unless($product->is_active, 404);
 
-        $product->load('category');
+        $product->load(['category', 'images']);
 
         $related = Product::query()
             ->where('is_active', true)
