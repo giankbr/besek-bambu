@@ -57,13 +57,13 @@
             @foreach ($items as $item)
               <li>
                 <span class="checkout-item__name">{{ $item->product->icon }} {{ $item->product->name }} <small>× {{ $item->quantity }}</small></span>
-                <span>${{ number_format($item->line_total, 2) }}</span>
+                <span>{{ idr($item->line_total) }}</span>
               </li>
             @endforeach
           </ul>
           <div class="cart-summary__row">
             <span>Subtotal</span>
-            <strong>${{ number_format($subtotal, 2) }}</strong>
+            <strong>{{ idr($subtotal) }}</strong>
           </div>
           <div class="cart-summary__row cart-summary__row--muted">
             <span>Shipping</span>
@@ -71,7 +71,7 @@
           </div>
           <div class="cart-summary__total">
             <span>Total</span>
-            <strong>${{ number_format($subtotal, 2) }}</strong>
+            <strong>{{ idr($subtotal) }}</strong>
           </div>
 
           <button type="submit" class="hero-cta cart-summary__cta">Place order</button>

@@ -16,7 +16,7 @@ new #[Title('Edit Product')] class extends Component {
     public ?string $description = null;
     public string $icon = '';
     public ?string $image_url = null;
-    public string $price = '0.00';
+    public string $price = '0';
     public int $stock = 0;
     public int $rating = 5;
     public string $color_class = 'p-1';
@@ -88,7 +88,7 @@ new #[Title('Edit Product')] class extends Component {
 
             <div class="grid gap-5 md:grid-cols-3">
                 <flux:input wire:model="icon" :label="__('Icon (emoji)')" required maxlength="8" />
-                <flux:input wire:model="price" :label="__('Price')" type="number" step="0.01" min="0" required />
+                <flux:input wire:model="price" :label="__('Price (IDR)')" type="number" step="1" min="0" required />
                 <flux:input wire:model="stock" :label="__('Stock')" type="number" min="0" required />
             </div>
 

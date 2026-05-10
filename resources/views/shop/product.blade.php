@@ -32,8 +32,16 @@
             <a class="product-detail__cat" href="{{ route('shop.category', $product->category) }}">{{ $product->category->title }}</a>
           @endif
           <h1 class="product-detail__name">{{ $product->name }}</h1>
-          <div class="product-stars">{{ str_repeat('★', $product->rating) }}{{ str_repeat('☆', 5 - $product->rating) }}</div>
-          <div class="product-detail__price">${{ number_format($product->price, 2) }}</div>
+          @php
+            $displayRating = $reviewsCount > 0 ? (int) round($averageRating) : $product->rating;
+          @endphp
+          <div class="product-stars">
+            {{ str_repeat('★', $displayRating) }}{{ str_repeat('☆', 5 - $displayRating) }}
+            @if ($reviewsCount > 0)
+              <small style="margin-left:8px;color:var(--muted)">{{ number_format($averageRating, 1) }} · {{ $reviewsCount }} {{ Str::plural('review', $reviewsCount) }}</small>
+            @endif
+          </div>
+          <div class="product-detail__price">{{ idr($product->price) }}</div>
 
           @if ($product->description)
             <p class="product-detail__desc">{{ $product->description }}</p>
@@ -62,6 +70,85 @@
       </div>
     </section>
 
+    <section class="section container">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Customer reviews</div>
+          <div class="section-title">What buyers ✦ <em>say</em></div>
+        </div>
+      </div>
+
+      @if (session('status'))
+        <div class="confirmation-card" style="margin-bottom:1rem;background:#eef7ee">
+          <p class="confirmation-meta" style="margin:0">{{ session('status') }}</p>
+        </div>
+      @endif
+
+      <div class="reviews-grid">
+        <div class="reviews-list">
+          @forelse ($reviews as $review)
+            <article class="review-card">
+              <div class="product-stars">{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</div>
+              @if ($review->title)
+                <h3 class="review-card__title">{{ $review->title }}</h3>
+              @endif
+              <p class="review-card__body">{{ $review->body }}</p>
+              <div class="review-card__meta">
+                <strong>{{ $review->user?->name ?? 'Customer' }}</strong>
+                <span>· {{ $review->created_at->diffForHumans() }}</span>
+              </div>
+            </article>
+          @empty
+            <p class="confirmation-meta">No reviews yet. Be the first to review this product!</p>
+          @endforelse
+        </div>
+
+        <aside class="review-form-aside">
+          @auth
+            @if ($canReview)
+              <form method="post" action="{{ route('reviews.store', $product) }}" class="review-form confirmation-card">
+                @csrf
+                <h3 class="confirmation-section-title" style="margin-top:0">Write a review</h3>
+                <label class="review-form__label">
+                  Rating
+                  <select name="rating" required>
+                    <option value="">Select…</option>
+                    @for ($i = 5; $i >= 1; $i--)
+                      <option value="{{ $i }}" {{ old('rating') == $i ? 'selected' : '' }}>{{ str_repeat('★', $i) }} ({{ $i }})</option>
+                    @endfor
+                  </select>
+                  @error('rating')<span class="form-error">{{ $message }}</span>@enderror
+                </label>
+                <label class="review-form__label">
+                  Title (optional)
+                  <input type="text" name="title" maxlength="120" value="{{ old('title') }}" />
+                </label>
+                <label class="review-form__label">
+                  Your review
+                  <textarea name="body" rows="4" required minlength="10" maxlength="2000">{{ old('body') }}</textarea>
+                  @error('body')<span class="form-error">{{ $message }}</span>@enderror
+                </label>
+                <button type="submit" class="hero-cta">Submit review</button>
+              </form>
+            @elseif ($hasReviewed)
+              <div class="confirmation-card">
+                <p class="confirmation-meta" style="margin:0">Thanks — you've already reviewed this product.</p>
+              </div>
+            @else
+              <div class="confirmation-card">
+                <p class="confirmation-meta" style="margin:0">Only customers who purchased this product can leave a review.</p>
+              </div>
+            @endif
+          @else
+            <div class="confirmation-card">
+              <p class="confirmation-meta">Want to leave a review?</p>
+              <a class="cart-link-btn" href="{{ route('login') }}">Sign in to your account</a>
+            </div>
+          @endauth
+        </aside>
+      </div>
+    </section>
+
     @if ($related->count() > 0)
       <section class="section container">
         <div class="section-head">
@@ -77,7 +164,7 @@
               <div class="product-name">{{ $r->name }}</div>
               <div class="product-stars">{{ str_repeat('★', $r->rating) }}{{ str_repeat('☆', 5 - $r->rating) }}</div>
               <div class="product-foot">
-                <span class="product-price">${{ number_format($r->price, 2) }}</span>
+                <span class="product-price">{{ idr($r->price) }}</span>
                 <span class="add-btn">View</span>
               </div>
             </a>

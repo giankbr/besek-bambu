@@ -18,13 +18,13 @@
             @foreach ($order->items as $item)
               <li>
                 <span class="checkout-item__name">{{ $item->product_icon }} {{ $item->product_name }} <small>× {{ $item->quantity }}</small></span>
-                <span>${{ number_format($item->line_total, 2) }}</span>
+                <span>Rp {{ number_format((float) $item->line_total, 0, ',', '.') }}</span>
               </li>
             @endforeach
           </ul>
           <div class="cart-summary__total">
             <span>Total</span>
-            <strong>${{ number_format($order->total, 2) }}</strong>
+            <strong>Rp {{ number_format((float) $order->total, 0, ',', '.') }}</strong>
           </div>
 
           <h2 class="confirmation-section-title">Shipping to</h2>
@@ -33,12 +33,24 @@
           <p class="confirmation-meta">{{ $order->shipping_address }}</p>
 
           <div class="confirmation-status">
-            <span class="stock-pill stock-pill--in">Status: {{ ucfirst($order->status) }}</span>
+            <span class="stock-pill stock-pill--in">Order: {{ ucfirst($order->status) }}</span>
+            <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">
+              Payment: {{ ucfirst($order->payment_status) }}
+            </span>
+            @if ($order->payment_method)
+              <span class="stock-pill stock-pill--in">Method: {{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</span>
+            @endif
           </div>
+
+          @if ($order->canBePaid())
+            <div class="confirmation-actions" style="margin-top:1.25rem">
+              <a class="hero-cta" href="{{ route('payment.pay', $order) }}">Pay now</a>
+            </div>
+          @endif
         </div>
 
         <div class="confirmation-actions">
-          <a class="hero-cta" href="{{ route('shop.index') }}">Continue shopping</a>
+          <a class="cart-link-btn" href="{{ route('shop.index') }}">Continue shopping</a>
         </div>
       </div>
     </section>

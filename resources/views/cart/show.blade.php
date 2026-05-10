@@ -38,7 +38,7 @@
                 </a>
                 <div class="cart-item__body">
                   <a class="cart-item__name" href="{{ route('shop.product', $item->product) }}">{{ $item->product->name }}</a>
-                  <div class="cart-item__price">${{ number_format($item->product->price, 2) }}</div>
+                  <div class="cart-item__price">{{ idr($item->product->price) }}</div>
 
                   <form method="post" action="{{ route('cart.update', $item->product->id) }}" class="cart-item__qty">
                     @csrf
@@ -50,7 +50,7 @@
                 </div>
 
                 <div class="cart-item__right">
-                  <div class="cart-item__line">${{ number_format($item->line_total, 2) }}</div>
+                  <div class="cart-item__line">{{ idr($item->line_total) }}</div>
                   <form method="post" action="{{ route('cart.destroy', $item->product->id) }}">
                     @csrf
                     @method('DELETE')
@@ -65,7 +65,7 @@
             <h2 class="cart-summary__title">Summary</h2>
             <div class="cart-summary__row">
               <span>Subtotal</span>
-              <strong>${{ number_format($subtotal, 2) }}</strong>
+              <strong>{{ idr($subtotal) }}</strong>
             </div>
             <div class="cart-summary__row cart-summary__row--muted">
               <span>Shipping</span>
@@ -73,7 +73,7 @@
             </div>
             <div class="cart-summary__total">
               <span>Total</span>
-              <strong>${{ number_format($subtotal, 2) }}</strong>
+              <strong>{{ idr($subtotal) }}</strong>
             </div>
             <a class="hero-cta cart-summary__cta" href="{{ route('checkout.show') }}">Proceed to checkout</a>
             <a class="cart-link-btn" href="{{ route('shop.index') }}">Continue shopping</a>

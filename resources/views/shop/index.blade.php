@@ -30,7 +30,7 @@
               <div class="product-name">{{ $product->name }}</div>
               <div class="product-stars">{{ str_repeat('★', $product->rating) }}{{ str_repeat('☆', 5 - $product->rating) }}</div>
               <div class="product-foot">
-                <span class="product-price">${{ number_format($product->price, 2) }}</span>
+                <span class="product-price">{{ idr($product->price) }}</span>
                 @if ($product->stock > 0)
                   <span class="add-btn">View</span>
                 @else

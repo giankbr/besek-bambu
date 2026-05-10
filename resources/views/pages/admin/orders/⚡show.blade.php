@@ -53,17 +53,17 @@ new #[Title('Order detail')] class extends Component {
                                     <span class="text-2xl">{{ $item->product_icon }}</span>
                                     <div>
                                         <div class="font-medium">{{ $item->product_name }}</div>
-                                        <flux:text size="sm" class="text-zinc-500">${{ number_format($item->price, 2) }} × {{ $item->quantity }}</flux:text>
+                                        <flux:text size="sm" class="text-zinc-500">Rp {{ number_format((float) $item->price, 0, ',', '.') }} × {{ $item->quantity }}</flux:text>
                                     </div>
                                 </div>
-                                <div class="font-semibold">${{ number_format($item->line_total, 2) }}</div>
+                                <div class="font-semibold">Rp {{ number_format((float) $item->line_total, 0, ',', '.') }}</div>
                             </div>
                         @endforeach
                     </div>
                     <flux:separator class="my-4" />
                     <div class="flex justify-between text-base font-semibold">
                         <span>{{ __('Total') }}</span>
-                        <span>${{ number_format($order->total, 2) }}</span>
+                        <span>Rp {{ number_format((float) $order->total, 0, ',', '.') }}</span>
                     </div>
                 </flux:card>
 
@@ -95,6 +95,38 @@ new #[Title('Order detail')] class extends Component {
                         </flux:select>
                         <flux:button type="submit" variant="primary">{{ __('Update status') }}</flux:button>
                     </form>
+                </flux:card>
+
+                <flux:card>
+                    <flux:heading size="lg">{{ __('Payment') }}</flux:heading>
+                    <div class="mt-3 space-y-2">
+                        @php
+                            $payColor = match ($order->payment_status) {
+                                'paid' => 'green',
+                                'pending' => 'amber',
+                                'unpaid' => 'zinc',
+                                'failed', 'expired' => 'red',
+                                'refunded' => 'purple',
+                                default => 'zinc',
+                            };
+                        @endphp
+                        <div class="flex items-center justify-between">
+                            <flux:text class="text-zinc-500">{{ __('Status') }}</flux:text>
+                            <flux:badge :color="$payColor" size="sm">{{ ucfirst($order->payment_status) }}</flux:badge>
+                        </div>
+                        @if ($order->payment_method)
+                            <div class="flex items-center justify-between">
+                                <flux:text class="text-zinc-500">{{ __('Method') }}</flux:text>
+                                <flux:text>{{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</flux:text>
+                            </div>
+                        @endif
+                        @if ($order->paid_at)
+                            <div class="flex items-center justify-between">
+                                <flux:text class="text-zinc-500">{{ __('Paid at') }}</flux:text>
+                                <flux:text>{{ $order->paid_at->format('M d, Y · H:i') }}</flux:text>
+                            </div>
+                        @endif
+                    </div>
                 </flux:card>
             </div>
         </div>

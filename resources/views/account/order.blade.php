@@ -1,0 +1,87 @@
+@extends('layouts.storefront')
+
+@section('title', 'Order ' . $order->number . ' — Besek Bambu')
+
+@section('content')
+  <x-navbar />
+  <main id="main-content" class="page-main">
+    <section class="container">
+      <nav class="breadcrumbs">
+        <a href="{{ route('home') }}">Home</a>
+        <span>/</span>
+        <a href="{{ route('account.index') }}">Account</a>
+        <span>/</span>
+        <a href="{{ route('account.orders') }}">Orders</a>
+        <span>/</span>
+        <span class="current">{{ $order->number }}</span>
+      </nav>
+
+      <div class="eyebrow">Order detail</div>
+      <h1 class="section-title cart-title">Order <em>{{ $order->number }}</em></h1>
+
+      <div class="confirmation-card">
+        <div class="confirmation-status">
+          <span class="stock-pill stock-pill--in">Order: {{ ucfirst($order->status) }}</span>
+          <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">Payment: {{ ucfirst($order->payment_status) }}</span>
+          @if ($order->payment_method)
+            <span class="stock-pill stock-pill--in">{{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</span>
+          @endif
+        </div>
+
+        <h2 class="confirmation-section-title">Items</h2>
+        <ul class="checkout-items">
+          @foreach ($order->items as $item)
+            <li>
+              <span class="checkout-item__name">{{ $item->product_icon }} {{ $item->product_name }} <small>× {{ $item->quantity }}</small></span>
+              <span>{{ idr($item->line_total) }}</span>
+            </li>
+          @endforeach
+        </ul>
+        <div class="cart-summary__total">
+          <span>Total</span>
+          <strong>{{ idr($order->total) }}</strong>
+        </div>
+
+        <h2 class="confirmation-section-title">Shipping to</h2>
+        <p class="confirmation-meta">{{ $order->customer_name }}</p>
+        <p class="confirmation-meta">{{ $order->customer_phone }}</p>
+        <p class="confirmation-meta">{{ $order->shipping_address }}</p>
+        @if ($order->notes)
+          <p class="confirmation-meta"><em>{{ $order->notes }}</em></p>
+        @endif
+
+        @if ($order->canBePaid())
+          <div class="confirmation-actions" style="margin-top:1.25rem">
+            <a class="hero-cta" href="{{ route('payment.pay', $order) }}">Pay now</a>
+          </div>
+        @endif
+
+        <h2 class="confirmation-section-title" style="margin-top:1.5rem">Tracking</h2>
+        <ol class="order-timeline">
+          <li class="order-timeline__step {{ in_array($order->status, ['pending','paid','shipped','delivered']) ? 'is-done' : '' }}">
+            <strong>Order placed</strong>
+            <span>{{ $order->created_at->format('M d, Y · H:i') }}</span>
+          </li>
+          <li class="order-timeline__step {{ $order->isPaid() ? 'is-done' : '' }}">
+            <strong>Payment received</strong>
+            <span>{{ $order->paid_at?->format('M d, Y · H:i') ?? '—' }}</span>
+          </li>
+          <li class="order-timeline__step {{ in_array($order->status, ['shipped','delivered']) ? 'is-done' : '' }}">
+            <strong>Shipped</strong>
+            <span>{{ $order->status === 'shipped' || $order->status === 'delivered' ? 'Your order is on the way' : '—' }}</span>
+          </li>
+          <li class="order-timeline__step {{ $order->status === 'delivered' ? 'is-done' : '' }}">
+            <strong>Delivered</strong>
+            <span>{{ $order->status === 'delivered' ? 'Enjoy your purchase!' : '—' }}</span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="confirmation-actions">
+        <a class="cart-link-btn" href="{{ route('account.orders') }}">← Back to orders</a>
+      </div>
+    </section>
+
+    <x-site-footer />
+  </main>
+@endsection

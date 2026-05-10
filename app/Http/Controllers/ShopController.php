@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductReview;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ShopController extends Controller
 {
@@ -47,9 +50,42 @@ class ShopController extends Controller
             ->limit(4)
             ->get();
 
+        $reviews = $product->approvedReviews()
+            ->with('user:id,name')
+            ->latest()
+            ->take(20)
+            ->get();
+
+        $averageRating = $product->averageRating();
+        $reviewsCount = $reviews->count();
+
+        $canReview = false;
+        $eligibleOrder = null;
+        $hasReviewed = false;
+
+        if (Auth::check()) {
+            $hasReviewed = ProductReview::where('product_id', $product->id)
+                ->where('user_id', Auth::id())
+                ->exists();
+
+            $eligibleOrder = Order::where('user_id', Auth::id())
+                ->whereIn('status', ['delivered', 'paid', 'shipped'])
+                ->whereHas('items', fn ($q) => $q->where('product_id', $product->id))
+                ->latest()
+                ->first();
+
+            $canReview = ! $hasReviewed && $eligibleOrder !== null;
+        }
+
         return view('shop.product', [
             'product' => $product,
             'related' => $related,
+            'reviews' => $reviews,
+            'averageRating' => $averageRating,
+            'reviewsCount' => $reviewsCount,
+            'canReview' => $canReview,
+            'eligibleOrder' => $eligibleOrder,
+            'hasReviewed' => $hasReviewed,
         ]);
     }
 

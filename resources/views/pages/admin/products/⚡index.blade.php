@@ -98,7 +98,7 @@ new #[Title('Products')] class extends Component {
                             </div>
                         </flux:table.cell>
                         <flux:table.cell>{{ $product->category?->title ?? '—' }}</flux:table.cell>
-                        <flux:table.cell>${{ number_format($product->price, 2) }}</flux:table.cell>
+                        <flux:table.cell>{{ idr($product->price) }}</flux:table.cell>
                         <flux:table.cell>{{ $product->stock }}</flux:table.cell>
                         <flux:table.cell>
                             @if ($product->is_active)

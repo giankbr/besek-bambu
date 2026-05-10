@@ -31,6 +31,21 @@
                         {{ __('Orders') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+
+                <flux:sidebar.group :heading="__('Engagement')" class="grid">
+                    <flux:sidebar.item icon="star" :href="route('admin.reviews.index')" :current="request()->routeIs('admin.reviews.*')" wire:navigate>
+                        {{ __('Reviews') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="envelope" :href="route('admin.messages.index')" :current="request()->routeIs('admin.messages.*')" wire:navigate>
+                        {{ __('Messages') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group :heading="__('Content')" class="grid">
+                    <flux:sidebar.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>
+                        {{ __('Gallery') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />

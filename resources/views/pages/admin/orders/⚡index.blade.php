@@ -71,6 +71,7 @@ new #[Title('Orders')] class extends Component {
                 <flux:table.column>{{ __('Items') }}</flux:table.column>
                 <flux:table.column>{{ __('Total') }}</flux:table.column>
                 <flux:table.column>{{ __('Status') }}</flux:table.column>
+                <flux:table.column>{{ __('Payment') }}</flux:table.column>
                 <flux:table.column>{{ __('Placed') }}</flux:table.column>
                 <flux:table.column></flux:table.column>
             </flux:table.columns>
@@ -86,7 +87,7 @@ new #[Title('Orders')] class extends Component {
                             <flux:text size="sm" class="text-zinc-500">{{ $order->customer_email }}</flux:text>
                         </flux:table.cell>
                         <flux:table.cell>{{ $order->items_count }}</flux:table.cell>
-                        <flux:table.cell>${{ number_format($order->total, 2) }}</flux:table.cell>
+                        <flux:table.cell>Rp {{ number_format((float) $order->total, 0, ',', '.') }}</flux:table.cell>
                         <flux:table.cell>
                             @php
                                 $color = match ($order->status) {
@@ -99,6 +100,19 @@ new #[Title('Orders')] class extends Component {
                                 };
                             @endphp
                             <flux:badge :color="$color" size="sm">{{ ucfirst($order->status) }}</flux:badge>
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            @php
+                                $payColor = match ($order->payment_status) {
+                                    'paid' => 'green',
+                                    'pending' => 'amber',
+                                    'unpaid' => 'zinc',
+                                    'failed', 'expired' => 'red',
+                                    'refunded' => 'purple',
+                                    default => 'zinc',
+                                };
+                            @endphp
+                            <flux:badge :color="$payColor" size="sm">{{ ucfirst($order->payment_status) }}</flux:badge>
                         </flux:table.cell>
                         <flux:table.cell>{{ $order->created_at->diffForHumans() }}</flux:table.cell>
                         <flux:table.cell>
@@ -115,7 +129,7 @@ new #[Title('Orders')] class extends Component {
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="7" class="text-center text-zinc-500">
+                        <flux:table.cell colspan="8" class="text-center text-zinc-500">
                             {{ __('No orders yet.') }}
                         </flux:table.cell>
                     </flux:table.row>

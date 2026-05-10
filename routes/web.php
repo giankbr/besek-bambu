@@ -1,12 +1,22 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::post('/contact', [PageController::class, 'contactSubmit'])->name('contact.submit');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/products/{product:slug}', [ShopController::class, 'show'])->name('shop.product');
@@ -20,6 +30,17 @@ Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+
+Route::get('/payment/{order}', [PaymentController::class, 'pay'])->name('payment.pay');
+Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/account', [AccountController::class, 'index'])->name('account.index');
+    Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
+    Route::get('/account/orders/{order}', [AccountController::class, 'show'])->name('account.orders.show');
+
+    Route::post('/products/{product:slug}/reviews', [ProductReviewController::class, 'store'])->name('reviews.store');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
@@ -42,6 +63,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::livewire('/', 'pages::admin.orders.index')->name('index');
             Route::livewire('{order}', 'pages::admin.orders.show')->name('show');
+        });
+
+        Route::prefix('reviews')->name('reviews.')->group(function () {
+            Route::livewire('/', 'pages::admin.reviews.index')->name('index');
+        });
+
+        Route::prefix('gallery')->name('gallery.')->group(function () {
+            Route::livewire('/', 'pages::admin.gallery.index')->name('index');
+            Route::livewire('create', 'pages::admin.gallery.create')->name('create');
+            Route::livewire('{item}/edit', 'pages::admin.gallery.edit')->name('edit');
+        });
+
+        Route::prefix('messages')->name('messages.')->group(function () {
+            Route::livewire('/', 'pages::admin.messages.index')->name('index');
         });
     });
 });

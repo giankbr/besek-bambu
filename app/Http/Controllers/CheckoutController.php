@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
@@ -21,7 +23,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request, CheckoutService $checkout)
+    public function store(Request $request, CheckoutService $checkout, MidtransService $midtrans)
     {
         $data = $request->validate([
             'customer_name' => ['required', 'string', 'max:255'],
@@ -35,6 +37,16 @@ class CheckoutController extends Controller
             $order = $checkout->place($data);
         } catch (\DomainException $e) {
             return redirect()->route('cart.show')->with('status', $e->getMessage());
+        }
+
+        if (config('services.midtrans.server_key')) {
+            try {
+                $midtrans->createSnapToken($order);
+
+                return redirect()->route('payment.pay', $order);
+            } catch (\Throwable $e) {
+                Log::warning('Failed to create Midtrans snap token', ['error' => $e->getMessage()]);
+            }
         }
 
         return redirect()->route('checkout.confirmation', $order);
