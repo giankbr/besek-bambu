@@ -3,8 +3,13 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky stashable collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+    <body class="min-h-screen bg-white dark:bg-zinc-800" x-data="{ desktopSidebarOpen: true }">
+        <flux:sidebar
+            sticky
+            collapsible="mobile"
+            class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
+            x-bind:class="{ 'lg:hidden': !desktopSidebarOpen }"
+        >
             <flux:sidebar.header>
                 <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
             </flux:sidebar.header>
@@ -109,7 +114,15 @@
             </flux:dropdown>
         </flux:header>
 
-        <flux:sidebar.toggle class="hidden lg:flex fixed top-4 left-4 z-30" icon="bars-2" />
+        <button
+            type="button"
+            class="hidden lg:flex fixed top-4 left-4 z-30 size-9 items-center justify-center rounded-lg bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700 dark:hover:bg-zinc-700 cursor-pointer"
+            @click="desktopSidebarOpen = !desktopSidebarOpen"
+            x-bind:aria-expanded="desktopSidebarOpen"
+            aria-label="{{ __('Toggle sidebar') }}"
+        >
+            <flux:icon.bars-2 class="size-5" />
+        </button>
 
         {{ $slot }}
 
