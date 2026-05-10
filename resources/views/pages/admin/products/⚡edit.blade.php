@@ -20,6 +20,7 @@ new #[Title('Edit Product')] class extends Component {
     public string $icon = '';
     public ?string $image_url = null;
     public $image;
+    public $extraImages = [];
     public string $price = '0';
     public int $stock = 0;
     public int $rating = 5;
@@ -83,6 +84,48 @@ new #[Title('Edit Product')] class extends Component {
         $this->image_url = $this->product->fresh()->image_url;
 
         Flux::toast(variant: 'success', text: __('Product updated.'));
+    }
+
+    public function uploadExtraImages(): void
+    {
+        $this->validate([
+            'extraImages.*' => ['image', 'max:4096'],
+        ]);
+
+        $maxSort = $this->product->images()->max('sort_order') ?? 0;
+        $hasPrimary = $this->product->images()->where('is_primary', true)->exists();
+
+        foreach ($this->extraImages as $i => $file) {
+            $path = $file->store('products', 'public');
+            $this->product->images()->create([
+                'path' => $path,
+                'sort_order' => $maxSort + $i + 1,
+                'is_primary' => ! $hasPrimary && $i === 0,
+            ]);
+            $hasPrimary = true;
+        }
+
+        $this->extraImages = [];
+        $this->dispatch('images-updated');
+
+        Flux::toast(variant: 'success', text: __('Images uploaded.'));
+    }
+
+    public function setPrimary(int $imageId): void
+    {
+        $this->product->images()->update(['is_primary' => false]);
+        $this->product->images()->where('id', $imageId)->update(['is_primary' => true]);
+        Flux::toast(variant: 'success', text: __('Primary image updated.'));
+    }
+
+    public function deleteImage(int $imageId): void
+    {
+        $image = \App\Models\ProductImage::find($imageId);
+        if ($image && $image->product_id === $this->product->id) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($image->path);
+            $image->delete();
+            Flux::toast(variant: 'success', text: __('Image removed.'));
+        }
     }
 }; ?>
 
@@ -148,5 +191,40 @@ new #[Title('Edit Product')] class extends Component {
                 <flux:button :href="route('admin.products.index')" variant="ghost" wire:navigate>{{ __('Cancel') }}</flux:button>
             </div>
         </form>
+
+        <flux:separator class="my-2" />
+
+        <div class="max-w-3xl">
+            <flux:heading size="lg">{{ __('Image gallery') }}</flux:heading>
+            <flux:subheading>{{ __('Upload additional images to show on the product page.') }}</flux:subheading>
+
+            <div class="mt-4 flex flex-wrap gap-3">
+                @foreach ($product->images as $img)
+                    <div class="relative">
+                        <img src="{{ image_src($img->path) }}" class="h-28 w-28 rounded-lg object-cover {{ $img->is_primary ? 'ring-2 ring-emerald-500' : '' }}" />
+                        <div class="mt-1 flex gap-1">
+                            @if (! $img->is_primary)
+                                <flux:button size="xs" variant="ghost" wire:click="setPrimary({{ $img->id }})">{{ __('Set primary') }}</flux:button>
+                            @else
+                                <flux:badge color="green" size="sm">{{ __('Primary') }}</flux:badge>
+                            @endif
+                            <flux:button size="xs" variant="ghost" icon="trash" wire:click="deleteImage({{ $img->id }})" wire:confirm="{{ __('Remove this image?') }}" />
+                        </div>
+                    </div>
+                @endforeach
+                @if ($product->images->isEmpty())
+                    <flux:text class="text-zinc-500">{{ __('No additional images yet.') }}</flux:text>
+                @endif
+            </div>
+
+            <form wire:submit="uploadExtraImages" class="mt-5 grid gap-3">
+                <flux:label>{{ __('Add more images (multiple allowed)') }}</flux:label>
+                <input type="file" wire:model="extraImages" multiple accept="image/*" class="block w-full text-sm" />
+                @error('extraImages.*')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                <div>
+                    <flux:button type="submit" variant="primary">{{ __('Upload images') }}</flux:button>
+                </div>
+            </form>
+        </div>
     </div>
 </section>

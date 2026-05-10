@@ -33,6 +33,19 @@ class Product extends Model
         return $this->hasMany(ProductReview::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    public function primaryImage(): ?string
+    {
+        $primary = $this->images()->where('is_primary', true)->first()
+            ?? $this->images()->first();
+
+        return $primary?->path ?? $this->image_url;
+    }
+
     public function approvedReviews(): HasMany
     {
         return $this->hasMany(ProductReview::class)->where('is_approved', true);

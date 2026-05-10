@@ -2,6 +2,10 @@
 
 @section('title', $product->name . ' — Besek Bambu')
 
+@push('head')
+  <script src="//unpkg.com/alpinejs" defer></script>
+@endpush
+
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">
@@ -18,12 +22,32 @@
         <span class="current">{{ $product->name }}</span>
       </nav>
 
-      <div class="product-detail">
+      @php
+        $galleryImages = $product->images;
+        $primary = $galleryImages->firstWhere('is_primary', true) ?? $galleryImages->first();
+        $heroSrc = $primary ? image_src($primary->path) : ($product->image_url ? image_src($product->image_url) : null);
+      @endphp
+      <div class="product-detail" x-data='{ active: @js($heroSrc) }'>
         <div class="product-detail__media {{ $product->color_class }}">
-          @if ($product->image_url)
-            <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" />
+          @if ($heroSrc)
+            <img :src="active" src="{{ $heroSrc }}" alt="{{ $product->name }}" />
           @else
             <div class="product-detail__icon">{{ $product->icon }}</div>
+          @endif
+
+          @if ($galleryImages->count() > 0)
+            <div class="product-detail__thumbs">
+              @if ($product->image_url)
+                <button type="button" class="product-detail__thumb" @click='active = @js(image_src($product->image_url))'>
+                  <img src="{{ image_src($product->image_url) }}" alt="" />
+                </button>
+              @endif
+              @foreach ($galleryImages as $img)
+                <button type="button" class="product-detail__thumb" @click='active = @js(image_src($img->path))'>
+                  <img src="{{ image_src($img->path) }}" alt="" />
+                </button>
+              @endforeach
+            </div>
           @endif
         </div>
 
