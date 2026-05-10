@@ -8,10 +8,14 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/about', [PageController::class, 'about'])->name('about');

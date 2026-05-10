@@ -1,9 +1,35 @@
 @extends('layouts.storefront')
 
 @section('title', $product->name . ' — Besek Bambu')
+@section('meta_description', \Illuminate\Support\Str::limit($product->description ?? 'Handcrafted bamboo kitchenware. ' . $product->name, 155))
+@if ($heroSrc = $product->image_url ? image_src($product->image_url) : null)
+  @section('meta_image', $heroSrc)
+@endif
 
 @push('head')
   <script src="//unpkg.com/alpinejs" defer></script>
+  <script type="application/ld+json">
+    @json([
+      '@context' => 'https://schema.org',
+      '@type' => 'Product',
+      'name' => $product->name,
+      'description' => $product->description,
+      'sku' => 'BSK-' . $product->id,
+      'image' => $product->image_url ? image_src($product->image_url) : null,
+      'offers' => [
+        '@type' => 'Offer',
+        'price' => (float) $product->price,
+        'priceCurrency' => 'IDR',
+        'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        'url' => route('shop.product', $product),
+      ],
+      'aggregateRating' => $reviewsCount > 0 ? [
+        '@type' => 'AggregateRating',
+        'ratingValue' => $averageRating,
+        'reviewCount' => $reviewsCount,
+      ] : null,
+    ])
+  </script>
 @endpush
 
 @section('content')
