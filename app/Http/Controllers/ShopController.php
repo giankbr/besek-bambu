@@ -27,7 +27,11 @@ class ShopController extends Controller
                 $q->whereHas('category', fn ($c) => $c->where('slug', $slug));
             })
             ->when($request->string('q')->toString(), function ($q, $term) {
-                $q->where('name', 'like', "%{$term}%");
+                $q->where(function ($inner) use ($term) {
+                    $inner->where('name', 'like', "%{$term}%")
+                        ->orWhere('description', 'like', "%{$term}%")
+                        ->orWhereHas('category', fn ($c) => $c->where('title', 'like', "%{$term}%"));
+                });
             })
             ->when($minPrice > 0, fn ($q) => $q->where('price', '>=', $minPrice))
             ->when($maxPrice > 0, fn ($q) => $q->where('price', '<=', $maxPrice))

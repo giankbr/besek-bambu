@@ -53,6 +53,9 @@ new #[Title('Store settings')] class extends Component {
     public string $email_from_name = '';
     public string $email_from_address = '';
 
+    public int $stock_alert_threshold = 5;
+    public string $stock_alert_email = '';
+
     public function mount(): void
     {
         $this->store_name = (string) Setting::get('store_name', config('app.name'));
@@ -92,6 +95,9 @@ new #[Title('Store settings')] class extends Component {
 
         $this->email_from_name = (string) Setting::get('email_from_name', config('mail.from.name'));
         $this->email_from_address = (string) Setting::get('email_from_address', config('mail.from.address'));
+
+        $this->stock_alert_threshold = (int) Setting::get('stock_alert_threshold', 5);
+        $this->stock_alert_email = (string) Setting::get('stock_alert_email', '');
     }
 
     public function addZone(): void
@@ -353,10 +359,14 @@ new #[Title('Store settings')] class extends Component {
             $this->validate([
                 'email_from_name' => ['nullable', 'string', 'max:120'],
                 'email_from_address' => ['nullable', 'email', 'max:255'],
+                'stock_alert_threshold' => ['integer', 'min:0', 'max:1000000'],
+                'stock_alert_email' => ['nullable', 'email', 'max:255'],
             ]);
 
             Setting::put('email_from_name', $this->email_from_name);
             Setting::put('email_from_address', $this->email_from_address);
+            Setting::put('stock_alert_threshold', $this->stock_alert_threshold);
+            Setting::put('stock_alert_email', $this->stock_alert_email);
 
             Flux::toast(variant: 'success', text: __('Email settings saved.'));
         } catch (\Throwable $e) {
@@ -640,6 +650,28 @@ new #[Title('Store settings')] class extends Component {
                 <flux:text size="sm" class="text-zinc-500">
                     {{ __('Used as the sender for transactional emails (order confirmations, password resets).') }}
                 </flux:text>
+
+                <flux:separator />
+
+                <flux:heading size="lg">{{ __('Stock alerts') }}</flux:heading>
+                <flux:text size="sm" class="text-zinc-500">
+                    {{ __('Send an email when a product\'s stock drops to or below the threshold. Set the threshold to 0 to disable alerts.') }}
+                </flux:text>
+                <div class="grid gap-5 md:grid-cols-2">
+                    <flux:input
+                        wire:model="stock_alert_threshold"
+                        type="number"
+                        min="0"
+                        :label="__('Low stock threshold')"
+                    />
+                    <flux:input
+                        wire:model="stock_alert_email"
+                        type="email"
+                        :label="__('Recipient email')"
+                        :placeholder="store_email() ?: __('Defaults to store email')"
+                    />
+                </div>
+
                 <div>
                     <flux:button type="submit" variant="primary">{{ __('Save email') }}</flux:button>
                 </div>

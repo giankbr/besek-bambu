@@ -6,6 +6,7 @@ use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class Product extends Model
@@ -17,6 +18,7 @@ class Product extends Model
         'price', 'stock', 'weight', 'is_active', 'category_id',
         'rating', 'color_class', 'sort_order',
         'meta_title', 'meta_description', 'og_image',
+        'low_stock_notified_at',
     ];
 
     public function getLoggableAttributes(): array
@@ -31,7 +33,25 @@ class Product extends Model
         'weight' => 'integer',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
+        'low_stock_notified_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Product $product) {
+            // Reset the low-stock notification flag when stock is
+            // topped back up above the configured threshold so the
+            // next dip can trigger another alert.
+            $threshold = (int) (function_exists('setting') ? setting('stock_alert_threshold', 5) : 5);
+            if ($threshold > 0 && (int) $product->stock > $threshold) {
+                $product->low_stock_notified_at = null;
+            }
+        });
+
+        $invalidate = fn () => Cache::forget('sitemap.xml');
+        static::saved($invalidate);
+        static::deleted($invalidate);
+    }
 
     public function category(): BelongsTo
     {

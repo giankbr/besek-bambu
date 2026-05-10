@@ -75,9 +75,14 @@ new #[Title('Products')] class extends Component {
                 <flux:heading size="xl">{{ __('Products') }}</flux:heading>
                 <flux:subheading>{{ __('Manage your product catalog.') }}</flux:subheading>
             </div>
-            <flux:button :href="route('admin.products.create')" variant="primary" icon="plus" wire:navigate>
-                {{ __('New Product') }}
-            </flux:button>
+            <div class="flex flex-wrap gap-2">
+                <flux:button :href="route('admin.products.import')" variant="ghost" icon="arrow-up-tray" wire:navigate>
+                    {{ __('Import CSV') }}
+                </flux:button>
+                <flux:button :href="route('admin.products.create')" variant="primary" icon="plus" wire:navigate>
+                    {{ __('New Product') }}
+                </flux:button>
+            </div>
         </div>
 
         <div class="flex items-center gap-3">

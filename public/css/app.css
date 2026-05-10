@@ -102,6 +102,46 @@
 
   .nav-actions a { color: var(--ink); text-decoration: none; }
 
+  .navbar-search {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #fff;
+    border: 1px solid var(--line, #e5e0d6);
+    border-radius: 999px;
+    padding: 4px 4px 4px 12px;
+    transition: border-color .15s ease;
+  }
+  .navbar-search:focus-within { border-color: var(--ink, #1f1a14); }
+  .navbar-search input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink, #1f1a14);
+    width: 160px;
+    min-width: 0;
+  }
+  .navbar-search input::placeholder { color: #b8ad9a; }
+  .navbar-search button {
+    border: 0;
+    background: var(--ink, #1f1a14);
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (max-width: 720px) {
+    .navbar-search input { width: 100px; }
+  }
+
   /* ===== Hero ===== */
   .hero {
     position: relative;

@@ -40,14 +40,30 @@ class PaymentController extends Controller
         try {
             $notification = $midtrans->handleNotification();
         } catch (\Throwable $e) {
-            Log::warning('Midtrans notification could not be parsed', ['error' => $e->getMessage()]);
+            Log::warning('Midtrans notification could not be parsed', [
+                'error' => $e->getMessage(),
+                'ip' => $request->ip(),
+            ]);
 
             return response()->json(['message' => 'invalid payload'], 400);
+        }
+
+        if (! $midtrans->verifySignature($notification)) {
+            Log::warning('Midtrans notification signature mismatch', [
+                'order_id' => $notification->order_id ?? null,
+                'ip' => $request->ip(),
+            ]);
+
+            return response()->json(['message' => 'invalid signature'], 401);
         }
 
         $order = Order::where('number', $notification->order_id)->first();
 
         if (! $order) {
+            Log::warning('Midtrans notification for unknown order', [
+                'order_id' => $notification->order_id ?? null,
+            ]);
+
             return response()->json(['message' => 'order not found'], 404);
         }
 

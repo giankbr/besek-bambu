@@ -57,6 +57,17 @@
     </section>
 
     <section class="container">
+      @if ($searchTerm)
+        <p class="shop-empty" style="text-align:left;background:#faf6ec;padding:0.75rem 1rem;border-radius:0.5rem;margin-bottom:1rem">
+          @if ($products->total() > 0)
+            Showing <strong>{{ $products->total() }}</strong> result{{ $products->total() === 1 ? '' : 's' }} for "<strong>{{ $searchTerm }}</strong>".
+          @else
+            No matches for "<strong>{{ $searchTerm }}</strong>". Try a different term or
+          @endif
+          <a href="{{ route('shop.index') }}" style="color:#1f7a3a;font-weight:600">clear search</a>.
+        </p>
+      @endif
+
       @if ($products->count() === 0)
         <p class="shop-empty">No products found.</p>
       @else

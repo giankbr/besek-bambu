@@ -18,7 +18,23 @@
       @endif
     </a>
     <div class="nav-actions">
-      <a href="{{ route('shop.index') }}" aria-label="Search">Search</a>
+      <form
+        method="get"
+        action="{{ route('shop.index') }}"
+        role="search"
+        class="navbar-search"
+        aria-label="Search products"
+      >
+        <input
+          type="search"
+          name="q"
+          value="{{ request('q') }}"
+          placeholder="Search products…"
+          aria-label="Search products"
+          autocomplete="off"
+        />
+        <button type="submit" aria-label="Submit search">⌕</button>
+      </form>
       @auth
         <a href="{{ route('account.index') }}" aria-label="Account">{{ auth()->user()->name }}</a>
       @else

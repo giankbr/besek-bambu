@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('products')->name('products.')->group(function () {
             Route::livewire('/', 'pages::admin.products.index')->name('index');
             Route::livewire('create', 'pages::admin.products.create')->name('create');
+            Route::livewire('import', 'pages::admin.products.import')->name('import');
             Route::livewire('{product}/edit', 'pages::admin.products.edit')->name('edit');
         });
 

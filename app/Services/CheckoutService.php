@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\LowStockAlert;
 use App\Mail\OrderPlaced;
 use App\Models\Order;
 use App\Models\Product;
@@ -111,7 +112,11 @@ class CheckoutService
                     'line_total' => $item->line_total,
                 ]);
 
+                $previousStock = (int) $product->stock;
                 $product->decrement('stock', $item->quantity);
+                $product->refresh();
+
+                $this->maybeNotifyLowStock($product, $previousStock);
             }
 
             $this->cart->clear();
@@ -126,6 +131,50 @@ class CheckoutService
         }
 
         return $order;
+    }
+
+    /**
+     * Send a low-stock alert when a product crosses (or stays under)
+     * the configured threshold for the first time since restocking.
+     * The notified_at timestamp is reset elsewhere when stock is
+     * topped up above the threshold (see Product save events).
+     */
+    private function maybeNotifyLowStock(Product $product, int $previousStock): void
+    {
+        $threshold = (int) setting('stock_alert_threshold', 5);
+        if ($threshold <= 0) {
+            return;
+        }
+
+        $recipient = trim((string) setting('stock_alert_email', store_email()));
+        if ($recipient === '') {
+            return;
+        }
+
+        $current = (int) $product->stock;
+        if ($current > $threshold) {
+            return;
+        }
+
+        // Only notify once per "fall below" event. Either the product
+        // crossed the threshold this checkout, or it has never been
+        // notified since the last restock.
+        $crossedNow = $previousStock > $threshold;
+        $alreadyNotified = $product->low_stock_notified_at !== null;
+
+        if (! $crossedNow && $alreadyNotified) {
+            return;
+        }
+
+        try {
+            Mail::to($recipient)->send(new LowStockAlert($product, $threshold));
+            $product->forceFill(['low_stock_notified_at' => now()])->save();
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send low-stock alert', [
+                'product' => $product->slug,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function generateNumber(): string
