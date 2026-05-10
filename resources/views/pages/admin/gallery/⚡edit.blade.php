@@ -3,6 +3,7 @@
 use App\Models\GalleryItem;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -33,30 +34,45 @@ new #[Title('Edit gallery item')] class extends Component {
 
     public function save(): void
     {
-        $validated = $this->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'subtitle' => ['nullable', 'string', 'max:255'],
-            'image_url' => ['nullable', 'string', 'max:2048'],
-            'image' => ['nullable', 'image', 'max:4096'],
-            'color_class' => ['required', Rule::in(['g-1', 'g-2', 'g-3', 'g-4'])],
-            'drop' => ['boolean'],
-            'sort_order' => ['integer', 'min:0'],
-        ]);
+        try {
+            $validated = $this->validate([
+                'title' => ['required', 'string', 'max:255'],
+                'subtitle' => ['nullable', 'string', 'max:255'],
+                'image_url' => ['nullable', 'string', 'max:2048'],
+                'image' => ['nullable', 'image', 'max:4096'],
+                'color_class' => ['required', Rule::in(['g-1', 'g-2', 'g-3', 'g-4'])],
+                'drop' => ['boolean'],
+                'sort_order' => ['integer', 'min:0'],
+            ]);
 
-        if ($this->image) {
-            if ($this->item->image_url && ! str_starts_with($this->item->image_url, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($this->item->image_url);
+            if ($this->image) {
+                if ($this->item->image_url && ! str_starts_with($this->item->image_url, 'http')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($this->item->image_url);
+                }
+                $validated['image_url'] = $this->image->store('gallery', 'public');
             }
-            $validated['image_url'] = $this->image->store('gallery', 'public');
+
+            unset($validated['image']);
+
+            $this->item->update($validated);
+            $this->image = null;
+            $this->image_url = $this->item->fresh()->image_url;
+
+            Flux::toast(variant: 'success', text: __('Gallery item updated.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: $e->getMessage(),
+            );
         }
-
-        unset($validated['image']);
-
-        $this->item->update($validated);
-        $this->image = null;
-        $this->image_url = $this->item->fresh()->image_url;
-
-        Flux::toast(variant: 'success', text: __('Gallery item updated.'));
     }
 }; ?>
 

@@ -3,6 +3,7 @@
 use App\Models\Order;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -19,14 +20,29 @@ new #[Title('Order detail')] class extends Component {
 
     public function updateStatus(): void
     {
-        $this->validate([
-            'status' => ['required', Rule::in(Order::STATUSES)],
-        ]);
+        try {
+            $this->validate([
+                'status' => ['required', Rule::in(Order::STATUSES)],
+            ]);
 
-        $this->order->update(['status' => $this->status]);
-        $this->order->refresh();
+            $this->order->update(['status' => $this->status]);
+            $this->order->refresh();
 
-        Flux::toast(variant: 'success', text: __('Status updated.'));
+            Flux::toast(variant: 'success', text: __('Status updated.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to update'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Invalid status.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to update'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

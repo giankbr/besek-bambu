@@ -4,6 +4,7 @@ use App\Models\Category;
 use Flux\Flux;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -26,29 +27,49 @@ new #[Title('New Category')] class extends Component {
 
     public function save(): void
     {
-        $validated = $this->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')],
-            'image_url' => ['nullable', 'string', 'max:2048'],
-            'image' => ['nullable', 'image', 'max:4096'],
-            'sort_order' => ['integer', 'min:0'],
-        ]);
+        try {
+            $validated = $this->validate([
+                'title' => ['required', 'string', 'max:255'],
+                'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')],
+                'image_url' => ['nullable', 'string', 'max:2048'],
+                'image' => ['nullable', 'image', 'max:4096'],
+                'sort_order' => ['integer', 'min:0'],
+            ]);
 
-        if ($this->image) {
-            $validated['image_url'] = $this->image->store('categories', 'public');
+            if ($this->image) {
+                $validated['image_url'] = $this->image->store('categories', 'public');
+            }
+
+            if (empty($validated['image_url'])) {
+                $this->addError('image', __('Please upload an image or provide a URL.'));
+                Flux::toast(
+                    variant: 'danger',
+                    heading: __('Failed to create'),
+                    text: __('Please upload an image or provide a URL.'),
+                );
+                return;
+            }
+
+            unset($validated['image']);
+
+            Category::create($validated);
+
+            Flux::toast(variant: 'success', text: __('Category created.'));
+            $this->redirectRoute('admin.categories.index', navigate: true);
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to create'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to create'),
+                text: $e->getMessage(),
+            );
         }
-
-        if (empty($validated['image_url'])) {
-            $this->addError('image', __('Please upload an image or provide a URL.'));
-            return;
-        }
-
-        unset($validated['image']);
-
-        Category::create($validated);
-
-        Flux::toast(variant: 'success', text: __('Category created.'));
-        $this->redirectRoute('admin.categories.index', navigate: true);
     }
 }; ?>
 

@@ -41,16 +41,32 @@ new #[Title('Reviews')] class extends Component {
 
     public function toggleApproval(int $id): void
     {
-        $review = ProductReview::findOrFail($id);
-        $review->update(['is_approved' => ! $review->is_approved]);
+        try {
+            $review = ProductReview::findOrFail($id);
+            $review->update(['is_approved' => ! $review->is_approved]);
 
-        Flux::toast(variant: 'success', text: $review->is_approved ? __('Review approved.') : __('Review hidden.'));
+            Flux::toast(variant: 'success', text: $review->is_approved ? __('Review approved.') : __('Review hidden.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to update'),
+                text: $e->getMessage(),
+            );
+        }
     }
 
     public function delete(int $id): void
     {
-        ProductReview::where('id', $id)->delete();
-        Flux::toast(variant: 'success', text: __('Review deleted.'));
+        try {
+            ProductReview::where('id', $id)->delete();
+            Flux::toast(variant: 'success', text: __('Review deleted.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

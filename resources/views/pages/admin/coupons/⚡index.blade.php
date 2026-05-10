@@ -30,15 +30,31 @@ new #[Title('Coupons')] class extends Component {
 
     public function delete(int $id): void
     {
-        Coupon::where('id', $id)->delete();
-        Flux::toast(variant: 'success', text: __('Coupon deleted.'));
+        try {
+            Coupon::where('id', $id)->delete();
+            Flux::toast(variant: 'success', text: __('Coupon deleted.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: $e->getMessage(),
+            );
+        }
     }
 
     public function toggleActive(int $id): void
     {
-        $coupon = Coupon::findOrFail($id);
-        $coupon->update(['is_active' => ! $coupon->is_active]);
-        Flux::toast(variant: 'success', text: $coupon->is_active ? __('Coupon activated.') : __('Coupon paused.'));
+        try {
+            $coupon = Coupon::findOrFail($id);
+            $coupon->update(['is_active' => ! $coupon->is_active]);
+            Flux::toast(variant: 'success', text: $coupon->is_active ? __('Coupon activated.') : __('Coupon paused.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to update'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

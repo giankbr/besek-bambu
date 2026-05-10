@@ -5,6 +5,7 @@ use App\Models\Product;
 use Flux\Flux;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -42,32 +43,47 @@ new #[Title('New Product')] class extends Component {
 
     public function save(): void
     {
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('products', 'slug')],
-            'description' => ['nullable', 'string'],
-            'icon' => ['required', 'string', 'max:8'],
-            'image_url' => ['nullable', 'string', 'max:2048'],
-            'image' => ['nullable', 'image', 'max:4096'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
-            'rating' => ['required', 'integer', 'between:1,5'],
-            'color_class' => ['required', Rule::in(['p-1', 'p-2', 'p-3', 'p-4'])],
-            'category_id' => ['nullable', 'exists:categories,id'],
-            'is_active' => ['boolean'],
-            'sort_order' => ['integer', 'min:0'],
-        ]);
+        try {
+            $validated = $this->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'slug' => ['required', 'string', 'max:255', Rule::unique('products', 'slug')],
+                'description' => ['nullable', 'string'],
+                'icon' => ['required', 'string', 'max:8'],
+                'image_url' => ['nullable', 'string', 'max:2048'],
+                'image' => ['nullable', 'image', 'max:4096'],
+                'price' => ['required', 'numeric', 'min:0'],
+                'stock' => ['required', 'integer', 'min:0'],
+                'rating' => ['required', 'integer', 'between:1,5'],
+                'color_class' => ['required', Rule::in(['p-1', 'p-2', 'p-3', 'p-4'])],
+                'category_id' => ['nullable', 'exists:categories,id'],
+                'is_active' => ['boolean'],
+                'sort_order' => ['integer', 'min:0'],
+            ]);
 
-        if ($this->image) {
-            $validated['image_url'] = $this->image->store('products', 'public');
+            if ($this->image) {
+                $validated['image_url'] = $this->image->store('products', 'public');
+            }
+
+            unset($validated['image']);
+
+            Product::create($validated);
+
+            Flux::toast(variant: 'success', text: __('Product created.'));
+            $this->redirectRoute('admin.products.index', navigate: true);
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to create'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to create'),
+                text: $e->getMessage(),
+            );
         }
-
-        unset($validated['image']);
-
-        Product::create($validated);
-
-        Flux::toast(variant: 'success', text: __('Product created.'));
-        $this->redirectRoute('admin.products.index', navigate: true);
     }
 }; ?>
 

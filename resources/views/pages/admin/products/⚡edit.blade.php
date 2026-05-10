@@ -4,6 +4,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -54,77 +55,130 @@ new #[Title('Edit Product')] class extends Component {
 
     public function save(): void
     {
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('products', 'slug')->ignore($this->product->id)],
-            'description' => ['nullable', 'string'],
-            'icon' => ['required', 'string', 'max:8'],
-            'image_url' => ['nullable', 'string', 'max:2048'],
-            'image' => ['nullable', 'image', 'max:4096'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
-            'rating' => ['required', 'integer', 'between:1,5'],
-            'color_class' => ['required', Rule::in(['p-1', 'p-2', 'p-3', 'p-4'])],
-            'category_id' => ['nullable', 'exists:categories,id'],
-            'is_active' => ['boolean'],
-            'sort_order' => ['integer', 'min:0'],
-        ]);
+        try {
+            $validated = $this->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'slug' => ['required', 'string', 'max:255', Rule::unique('products', 'slug')->ignore($this->product->id)],
+                'description' => ['nullable', 'string'],
+                'icon' => ['required', 'string', 'max:8'],
+                'image_url' => ['nullable', 'string', 'max:2048'],
+                'image' => ['nullable', 'image', 'max:4096'],
+                'price' => ['required', 'numeric', 'min:0'],
+                'stock' => ['required', 'integer', 'min:0'],
+                'rating' => ['required', 'integer', 'between:1,5'],
+                'color_class' => ['required', Rule::in(['p-1', 'p-2', 'p-3', 'p-4'])],
+                'category_id' => ['nullable', 'exists:categories,id'],
+                'is_active' => ['boolean'],
+                'sort_order' => ['integer', 'min:0'],
+            ]);
 
-        if ($this->image) {
-            if ($this->product->image_url && ! str_starts_with($this->product->image_url, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($this->product->image_url);
+            if ($this->image) {
+                if ($this->product->image_url && ! str_starts_with($this->product->image_url, 'http')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($this->product->image_url);
+                }
+                $validated['image_url'] = $this->image->store('products', 'public');
             }
-            $validated['image_url'] = $this->image->store('products', 'public');
+
+            unset($validated['image']);
+
+            $this->product->update($validated);
+            $this->image = null;
+            $this->image_url = $this->product->fresh()->image_url;
+
+            Flux::toast(variant: 'success', text: __('Product updated.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: $e->getMessage(),
+            );
         }
-
-        unset($validated['image']);
-
-        $this->product->update($validated);
-        $this->image = null;
-        $this->image_url = $this->product->fresh()->image_url;
-
-        Flux::toast(variant: 'success', text: __('Product updated.'));
     }
 
     public function uploadExtraImages(): void
     {
-        $this->validate([
-            'extraImages.*' => ['image', 'max:4096'],
-        ]);
-
-        $maxSort = $this->product->images()->max('sort_order') ?? 0;
-        $hasPrimary = $this->product->images()->where('is_primary', true)->exists();
-
-        foreach ($this->extraImages as $i => $file) {
-            $path = $file->store('products', 'public');
-            $this->product->images()->create([
-                'path' => $path,
-                'sort_order' => $maxSort + $i + 1,
-                'is_primary' => ! $hasPrimary && $i === 0,
+        try {
+            $this->validate([
+                'extraImages.*' => ['image', 'max:4096'],
             ]);
-            $hasPrimary = true;
+
+            $maxSort = $this->product->images()->max('sort_order') ?? 0;
+            $hasPrimary = $this->product->images()->where('is_primary', true)->exists();
+
+            foreach ($this->extraImages as $i => $file) {
+                $path = $file->store('products', 'public');
+                $this->product->images()->create([
+                    'path' => $path,
+                    'sort_order' => $maxSort + $i + 1,
+                    'is_primary' => ! $hasPrimary && $i === 0,
+                ]);
+                $hasPrimary = true;
+            }
+
+            $this->extraImages = [];
+            $this->dispatch('images-updated');
+
+            Flux::toast(variant: 'success', text: __('Images uploaded.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to upload'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the files.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to upload'),
+                text: $e->getMessage(),
+            );
         }
-
-        $this->extraImages = [];
-        $this->dispatch('images-updated');
-
-        Flux::toast(variant: 'success', text: __('Images uploaded.'));
     }
 
     public function setPrimary(int $imageId): void
     {
-        $this->product->images()->update(['is_primary' => false]);
-        $this->product->images()->where('id', $imageId)->update(['is_primary' => true]);
-        Flux::toast(variant: 'success', text: __('Primary image updated.'));
+        try {
+            $this->product->images()->update(['is_primary' => false]);
+            $this->product->images()->where('id', $imageId)->update(['is_primary' => true]);
+            Flux::toast(variant: 'success', text: __('Primary image updated.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to update'),
+                text: $e->getMessage(),
+            );
+        }
     }
 
     public function deleteImage(int $imageId): void
     {
-        $image = \App\Models\ProductImage::find($imageId);
-        if ($image && $image->product_id === $this->product->id) {
+        try {
+            $image = \App\Models\ProductImage::find($imageId);
+            if (! $image || $image->product_id !== $this->product->id) {
+                Flux::toast(
+                    variant: 'danger',
+                    heading: __('Failed to remove'),
+                    text: __('Image not found.'),
+                );
+                return;
+            }
+
             \Illuminate\Support\Facades\Storage::disk('public')->delete($image->path);
             $image->delete();
             Flux::toast(variant: 'success', text: __('Image removed.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to remove'),
+                text: $e->getMessage(),
+            );
         }
     }
 }; ?>

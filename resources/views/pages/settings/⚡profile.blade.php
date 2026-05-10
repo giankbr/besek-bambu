@@ -4,6 +4,7 @@ use App\Concerns\ProfileValidationRules;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -30,17 +31,32 @@ new #[Title('Profile settings')] class extends Component {
     {
         $user = Auth::user();
 
-        $validated = $this->validate($this->profileRules($user->id));
+        try {
+            $validated = $this->validate($this->profileRules($user->id));
 
-        $user->fill($validated);
+            $user->fill($validated);
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
+
+            $user->save();
+
+            Flux::toast(variant: 'success', text: __('Profile updated.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: $e->getMessage(),
+            );
         }
-
-        $user->save();
-
-        Flux::toast(variant: 'success', text: __('Profile updated.'));
     }
 
     /**
@@ -56,9 +72,17 @@ new #[Title('Profile settings')] class extends Component {
             return;
         }
 
-        $user->sendEmailVerificationNotification();
+        try {
+            $user->sendEmailVerificationNotification();
 
-        Flux::toast(text: __('A new verification link has been sent to your email address.'));
+            Flux::toast(text: __('A new verification link has been sent to your email address.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to send verification email'),
+                text: $e->getMessage(),
+            );
+        }
     }
 
     #[Computed]

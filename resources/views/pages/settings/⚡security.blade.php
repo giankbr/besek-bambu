@@ -54,16 +54,30 @@ new #[Title('Security settings')] class extends Component {
         } catch (ValidationException $e) {
             $this->reset('current_password', 'password', 'password_confirmation');
 
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to update password'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+
             throw $e;
         }
 
-        Auth::user()->update([
-            'password' => $validated['password'],
-        ]);
+        try {
+            Auth::user()->update([
+                'password' => $validated['password'],
+            ]);
 
-        $this->reset('current_password', 'password', 'password_confirmation');
+            $this->reset('current_password', 'password', 'password_confirmation');
 
-        Flux::toast(variant: 'success', text: __('Password updated.'));
+            Flux::toast(variant: 'success', text: __('Password updated.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to update password'),
+                text: $e->getMessage(),
+            );
+        }
     }
 
     /**
@@ -80,9 +94,19 @@ new #[Title('Security settings')] class extends Component {
      */
     public function disable(DisableTwoFactorAuthentication $disableTwoFactorAuthentication): void
     {
-        $disableTwoFactorAuthentication(auth()->user());
+        try {
+            $disableTwoFactorAuthentication(auth()->user());
 
-        $this->twoFactorEnabled = false;
+            $this->twoFactorEnabled = false;
+
+            Flux::toast(variant: 'success', text: __('Two-factor authentication disabled.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to disable 2FA'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

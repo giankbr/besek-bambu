@@ -42,17 +42,33 @@ new #[Title('Messages')] class extends Component {
 
     public function open(int $id): void
     {
-        $this->openedId = $id;
-        ContactMessage::where('id', $id)->where('is_read', false)->update(['is_read' => true]);
+        try {
+            $this->openedId = $id;
+            ContactMessage::where('id', $id)->where('is_read', false)->update(['is_read' => true]);
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to open'),
+                text: $e->getMessage(),
+            );
+        }
     }
 
     public function delete(int $id): void
     {
-        ContactMessage::where('id', $id)->delete();
-        if ($this->openedId === $id) {
-            $this->openedId = null;
+        try {
+            ContactMessage::where('id', $id)->delete();
+            if ($this->openedId === $id) {
+                $this->openedId = null;
+            }
+            Flux::toast(variant: 'success', text: __('Message deleted.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: $e->getMessage(),
+            );
         }
-        Flux::toast(variant: 'success', text: __('Message deleted.'));
     }
 
     #[Computed]

@@ -3,6 +3,7 @@
 use App\Models\Coupon;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -20,21 +21,36 @@ new #[Title('New coupon')] class extends Component {
     {
         $this->code = strtoupper(trim($this->code));
 
-        $validated = $this->validate([
-            'code' => ['required', 'string', 'max:64', Rule::unique('coupons', 'code')],
-            'label' => ['nullable', 'string', 'max:255'],
-            'type' => ['required', Rule::in(Coupon::TYPES)],
-            'value' => ['required', 'numeric', 'min:0'],
-            'min_order' => ['nullable', 'numeric', 'min:0'],
-            'usage_limit' => ['nullable', 'integer', 'min:1'],
-            'expires_at' => ['nullable', 'date', 'after:now'],
-            'is_active' => ['boolean'],
-        ]);
+        try {
+            $validated = $this->validate([
+                'code' => ['required', 'string', 'max:64', Rule::unique('coupons', 'code')],
+                'label' => ['nullable', 'string', 'max:255'],
+                'type' => ['required', Rule::in(Coupon::TYPES)],
+                'value' => ['required', 'numeric', 'min:0'],
+                'min_order' => ['nullable', 'numeric', 'min:0'],
+                'usage_limit' => ['nullable', 'integer', 'min:1'],
+                'expires_at' => ['nullable', 'date', 'after:now'],
+                'is_active' => ['boolean'],
+            ]);
 
-        Coupon::create($validated);
+            Coupon::create($validated);
 
-        Flux::toast(variant: 'success', text: __('Coupon created.'));
-        $this->redirectRoute('admin.coupons.index', navigate: true);
+            Flux::toast(variant: 'success', text: __('Coupon created.'));
+            $this->redirectRoute('admin.coupons.index', navigate: true);
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to create'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to create'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

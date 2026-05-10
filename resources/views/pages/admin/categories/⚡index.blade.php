@@ -24,15 +24,29 @@ new #[Title('Categories')] class extends Component {
     public function delete(): void
     {
         if (! $this->deletingId) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: __('No category selected.'),
+            );
             return;
         }
 
-        Category::findOrFail($this->deletingId)->delete();
+        try {
+            Category::findOrFail($this->deletingId)->delete();
 
-        $this->deletingId = null;
-        Flux::modal('delete-category')->close();
-        Flux::toast(variant: 'success', text: __('Category deleted.'));
-        unset($this->categories);
+            $this->deletingId = null;
+            Flux::modal('delete-category')->close();
+            Flux::toast(variant: 'success', text: __('Category deleted.'));
+            unset($this->categories);
+        } catch (\Throwable $e) {
+            Flux::modal('delete-category')->close();
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

@@ -3,6 +3,7 @@
 use App\Models\Category;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -29,28 +30,43 @@ new #[Title('Edit Category')] class extends Component {
 
     public function save(): void
     {
-        $validated = $this->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($this->category->id)],
-            'image_url' => ['nullable', 'string', 'max:2048'],
-            'image' => ['nullable', 'image', 'max:4096'],
-            'sort_order' => ['integer', 'min:0'],
-        ]);
+        try {
+            $validated = $this->validate([
+                'title' => ['required', 'string', 'max:255'],
+                'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($this->category->id)],
+                'image_url' => ['nullable', 'string', 'max:2048'],
+                'image' => ['nullable', 'image', 'max:4096'],
+                'sort_order' => ['integer', 'min:0'],
+            ]);
 
-        if ($this->image) {
-            if ($this->category->image_url && ! str_starts_with($this->category->image_url, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($this->category->image_url);
+            if ($this->image) {
+                if ($this->category->image_url && ! str_starts_with($this->category->image_url, 'http')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($this->category->image_url);
+                }
+                $validated['image_url'] = $this->image->store('categories', 'public');
             }
-            $validated['image_url'] = $this->image->store('categories', 'public');
+
+            unset($validated['image']);
+
+            $this->category->update($validated);
+            $this->image = null;
+            $this->image_url = $this->category->fresh()->image_url;
+
+            Flux::toast(variant: 'success', text: __('Category updated.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: $e->getMessage(),
+            );
         }
-
-        unset($validated['image']);
-
-        $this->category->update($validated);
-        $this->image = null;
-        $this->image_url = $this->category->fresh()->image_url;
-
-        Flux::toast(variant: 'success', text: __('Category updated.'));
     }
 }; ?>
 

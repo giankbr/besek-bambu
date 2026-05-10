@@ -42,15 +42,29 @@ new #[Title('Products')] class extends Component {
     public function delete(): void
     {
         if (! $this->deletingId) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: __('No product selected.'),
+            );
             return;
         }
 
-        Product::findOrFail($this->deletingId)->delete();
+        try {
+            Product::findOrFail($this->deletingId)->delete();
 
-        $this->deletingId = null;
-        Flux::modal('delete-product')->close();
-        Flux::toast(variant: 'success', text: __('Product deleted.'));
-        unset($this->products);
+            $this->deletingId = null;
+            Flux::modal('delete-product')->close();
+            Flux::toast(variant: 'success', text: __('Product deleted.'));
+            unset($this->products);
+        } catch (\Throwable $e) {
+            Flux::modal('delete-product')->close();
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

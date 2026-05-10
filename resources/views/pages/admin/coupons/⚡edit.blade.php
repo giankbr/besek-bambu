@@ -3,6 +3,7 @@
 use App\Models\Coupon;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -35,20 +36,35 @@ new #[Title('Edit coupon')] class extends Component {
     {
         $this->code = strtoupper(trim($this->code));
 
-        $validated = $this->validate([
-            'code' => ['required', 'string', 'max:64', Rule::unique('coupons', 'code')->ignore($this->coupon->id)],
-            'label' => ['nullable', 'string', 'max:255'],
-            'type' => ['required', Rule::in(Coupon::TYPES)],
-            'value' => ['required', 'numeric', 'min:0'],
-            'min_order' => ['nullable', 'numeric', 'min:0'],
-            'usage_limit' => ['nullable', 'integer', 'min:1'],
-            'expires_at' => ['nullable', 'date'],
-            'is_active' => ['boolean'],
-        ]);
+        try {
+            $validated = $this->validate([
+                'code' => ['required', 'string', 'max:64', Rule::unique('coupons', 'code')->ignore($this->coupon->id)],
+                'label' => ['nullable', 'string', 'max:255'],
+                'type' => ['required', Rule::in(Coupon::TYPES)],
+                'value' => ['required', 'numeric', 'min:0'],
+                'min_order' => ['nullable', 'numeric', 'min:0'],
+                'usage_limit' => ['nullable', 'integer', 'min:1'],
+                'expires_at' => ['nullable', 'date'],
+                'is_active' => ['boolean'],
+            ]);
 
-        $this->coupon->update($validated);
+            $this->coupon->update($validated);
 
-        Flux::toast(variant: 'success', text: __('Coupon updated.'));
+            Flux::toast(variant: 'success', text: __('Coupon updated.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form for errors.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 

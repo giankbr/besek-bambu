@@ -32,8 +32,16 @@ new #[Title('Gallery')] class extends Component {
 
     public function delete(int $id): void
     {
-        GalleryItem::where('id', $id)->delete();
-        Flux::toast(variant: 'success', text: __('Gallery item deleted.'));
+        try {
+            GalleryItem::where('id', $id)->delete();
+            Flux::toast(variant: 'success', text: __('Gallery item deleted.'));
+        } catch (\Throwable $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to delete'),
+                text: $e->getMessage(),
+            );
+        }
     }
 }; ?>
 
