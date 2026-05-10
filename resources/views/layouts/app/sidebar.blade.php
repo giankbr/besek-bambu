@@ -59,6 +59,9 @@
                 <flux:sidebar.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>
                     {{ __('Gallery') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="folder-open" :href="route('admin.media.index')" :current="request()->routeIs('admin.media.*')" wire:navigate>
+                    {{ __('Media library') }}
+                </flux:sidebar.item>
 
                 <div class="{{ $dividerClass }}"></div>
                 <div class="{{ $headingClass }}">{{ __('Access') }}</div>

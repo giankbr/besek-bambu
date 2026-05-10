@@ -118,6 +118,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('activity-log')->name('activity-log.')->group(function () {
             Route::livewire('/', 'pages::admin.activity-log.index')->name('index');
         });
+
+        Route::prefix('media')->name('media.')->group(function () {
+            Route::livewire('/', 'pages::admin.media.index')->name('index');
+        });
     });
 });
 
