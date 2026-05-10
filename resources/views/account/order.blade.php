@@ -66,10 +66,26 @@
           <p class="confirmation-meta"><em>{{ $order->notes }}</em></p>
         @endif
 
-        @if ($order->canBePaid())
-          <div class="confirmation-actions" style="margin-top:1.25rem">
-            <a class="hero-cta" href="{{ route('payment.pay', $order) }}">Pay now</a>
+        @if (session('status'))
+          <div style="margin-top:1rem;padding:10px 14px;background:#eef7ee;border-radius:10px;font-size:14px">
+            {{ session('status') }}
           </div>
+        @endif
+
+        <div class="confirmation-actions" style="margin-top:1.25rem;flex-wrap:wrap">
+          @if ($order->canBePaid())
+            <a class="hero-cta" href="{{ route('payment.pay', $order) }}">Pay now</a>
+          @endif
+
+          @if ($order->status === 'pending' && $order->payment_status !== 'paid')
+            <form method="post" action="{{ route('account.orders.cancel', $order) }}" onsubmit="return confirm('Cancel this order? Stock will be restored.');">
+              @csrf
+              <button type="submit" class="cart-link-btn cart-link-btn--danger">Cancel order</button>
+            </form>
+          @endif
+        </div>
+        @if ($order->status === 'cancelled')
+          <p class="confirmation-meta" style="margin-top:1rem;color:#a33"><em>This order has been cancelled.</em></p>
         @endif
 
         <h2 class="confirmation-section-title" style="margin-top:1.5rem">Tracking</h2>
