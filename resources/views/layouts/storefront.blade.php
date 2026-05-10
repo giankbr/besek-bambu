@@ -6,9 +6,12 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 @php
-  $pageTitle = trim($__env->yieldContent('title', 'Besek Bambu — Eco-Friendly Kitchenware'));
+  $brandName = store_name();
+  $brandTagline = setting('store_tagline');
+  $defaultTitle = $brandName.($brandTagline ? ' — '.$brandTagline : ' — Eco-Friendly Kitchenware');
+  $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
   $metaDescription = trim($__env->yieldContent('meta_description', 'Handcrafted bamboo kitchenware from Indonesia. Sustainable, biodegradable, and made by artisans.'));
-  $metaImage = trim($__env->yieldContent('meta_image', asset('images/og-default.jpg')));
+  $metaImage = trim($__env->yieldContent('meta_image', store_logo_url() ?: asset('images/og-default.jpg')));
   $canonicalUrl = trim($__env->yieldContent('canonical', url()->current()));
 @endphp
 
@@ -21,7 +24,7 @@
 <meta property="og:description" content="{{ $metaDescription }}" />
 <meta property="og:image" content="{{ $metaImage }}" />
 <meta property="og:url" content="{{ $canonicalUrl }}" />
-<meta property="og:site_name" content="Besek Bambu" />
+<meta property="og:site_name" content="{{ $brandName }}" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{{ $pageTitle }}" />

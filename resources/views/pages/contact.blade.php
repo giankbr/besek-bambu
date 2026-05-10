@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Contact — Besek Bambu')
+@section('title', 'Contact — '.store_name())
 
 @section('content')
   <x-navbar />
@@ -53,21 +53,48 @@
           </form>
         </div>
 
+        @php
+          $contactEmail = store_email();
+          $contactPhone = store_phone();
+          $contactAddress = store_address();
+        @endphp
         <aside class="contact-side">
-          <div class="confirmation-card">
-            <h3 class="confirmation-section-title" style="margin-top:0">Workshop</h3>
-            <p class="confirmation-meta">Jl. Kasongan, Bantul</p>
-            <p class="confirmation-meta">Yogyakarta, Indonesia 55184</p>
-          </div>
+          @if ($contactAddress)
+            <div class="confirmation-card">
+              <h3 class="confirmation-section-title" style="margin-top:0">Workshop</h3>
+              @foreach (preg_split('/\r\n|\r|\n/', $contactAddress) as $line)
+                @if (trim($line) !== '')
+                  <p class="confirmation-meta">{{ $line }}</p>
+                @endif
+              @endforeach
+            </div>
+          @else
+            <div class="confirmation-card">
+              <h3 class="confirmation-section-title" style="margin-top:0">Workshop</h3>
+              <p class="confirmation-meta">Jl. Kasongan, Bantul</p>
+              <p class="confirmation-meta">Yogyakarta, Indonesia 55184</p>
+            </div>
+          @endif
+
           <div class="confirmation-card">
             <h3 class="confirmation-section-title" style="margin-top:0">Hours</h3>
             <p class="confirmation-meta">Mon–Sat · 09:00–17:00</p>
             <p class="confirmation-meta">Sunday · Closed</p>
           </div>
-          <div class="confirmation-card">
-            <h3 class="confirmation-section-title" style="margin-top:0">Email</h3>
-            <p class="confirmation-meta">hello@besek-bambu.id</p>
-          </div>
+
+          @if ($contactEmail)
+            <div class="confirmation-card">
+              <h3 class="confirmation-section-title" style="margin-top:0">Email</h3>
+              <p class="confirmation-meta"><a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a></p>
+            </div>
+          @endif
+
+          @if ($contactPhone)
+            <div class="confirmation-card">
+              <h3 class="confirmation-section-title" style="margin-top:0">Phone</h3>
+              <p class="confirmation-meta">{{ $contactPhone }}</p>
+            </div>
+          @endif
         </aside>
       </div>
     </section>

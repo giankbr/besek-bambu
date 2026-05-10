@@ -1,7 +1,18 @@
+@php
+  $brandName = store_name();
+  $tagline = setting('store_tagline') ?: 'Besek promotes sustainable dining with beautifully crafted bamboo and glass';
+  $socials = store_socials();
+  $socialLabels = [
+    'instagram' => 'Instagram',
+    'facebook' => 'Facebook',
+    'tiktok' => 'TikTok',
+    'whatsapp' => 'WhatsApp',
+  ];
+@endphp
 <footer class="container">
   <div class="foot-band">
     <div>
-      <p class="foot-tag">Besek promotes sustainable dining with beautifully crafted bamboo and glass ✧ <em>Kitchenware!</em></p>
+      <p class="foot-tag">{{ $tagline }} ✧ <em>Kitchenware!</em></p>
       <a class="join-btn" href="{{ route('shop.index') }}">Shop now ↗</a>
     </div>
     <div class="foot-cols">
@@ -14,11 +25,17 @@
   </div>
 
   <div class="mega-logo">
-    <div class="word">bes<em>ek</em></div>
+    <div class="word">{{ $brandName }}</div>
     <div class="socials">
-      <a href="#">Twitter</a>
-      <a href="#">Instagram</a>
-      <a href="#">LinkedIn</a>
+      @if (count($socials) > 0)
+        @foreach ($socials as $key => $url)
+          <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $socialLabels[$key] ?? ucfirst($key) }}</a>
+        @endforeach
+      @else
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">TikTok</a>
+      @endif
     </div>
   </div>
 </footer>

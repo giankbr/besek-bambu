@@ -16,6 +16,74 @@ if (! function_exists('setting')) {
     }
 }
 
+if (! function_exists('store_name')) {
+    function store_name(): string
+    {
+        $value = setting('store_name');
+        if ($value) {
+            return (string) $value;
+        }
+
+        $appName = (string) config('app.name', 'Besek Bambu');
+
+        return $appName === 'Laravel' ? 'Besek Bambu' : $appName;
+    }
+}
+
+if (! function_exists('store_logo_url')) {
+    function store_logo_url(): ?string
+    {
+        $logo = setting('store_logo');
+
+        return $logo ? image_src((string) $logo) : null;
+    }
+}
+
+if (! function_exists('store_email')) {
+    function store_email(): ?string
+    {
+        $value = setting('store_email');
+
+        return $value ? (string) $value : null;
+    }
+}
+
+if (! function_exists('store_phone')) {
+    function store_phone(): ?string
+    {
+        $value = setting('store_phone');
+
+        return $value ? (string) $value : null;
+    }
+}
+
+if (! function_exists('store_address')) {
+    function store_address(): ?string
+    {
+        $value = setting('store_address');
+
+        return $value ? (string) $value : null;
+    }
+}
+
+if (! function_exists('store_socials')) {
+    /**
+     * @return array<string, string> map of platform key => url for non-empty links
+     */
+    function store_socials(): array
+    {
+        return collect([
+            'instagram' => setting('social_instagram'),
+            'facebook' => setting('social_facebook'),
+            'tiktok' => setting('social_tiktok'),
+            'whatsapp' => setting('social_whatsapp'),
+        ])
+            ->map(fn ($v) => is_string($v) ? trim($v) : '')
+            ->filter(fn ($v) => $v !== '')
+            ->all();
+    }
+}
+
 if (! function_exists('image_src')) {
     function image_src(?string $value): ?string
     {
