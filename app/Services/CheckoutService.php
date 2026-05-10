@@ -35,7 +35,10 @@ class CheckoutService
         $subtotal = $this->cart->subtotal();
         $coupon = $this->cart->coupon();
         $discount = $this->cart->discount();
-        $shippingCost = $this->shipping->costFor($customer['shipping_region'] ?? null);
+        $usingRajaOngkir = ($customer['shipping_mode'] ?? 'flat') === 'rajaongkir';
+        $shippingCost = $usingRajaOngkir
+            ? (int) ($customer['shipping_cost'] ?? 0)
+            : $this->shipping->costFor($customer['shipping_region'] ?? null);
         $tax = $this->cart->tax();
         $taxRate = $this->cart->taxRate();
         $taxInclusive = $this->cart->taxIsInclusive();
@@ -44,13 +47,17 @@ class CheckoutService
             ? max(0, $subtotal - $discount) + $shippingCost
             : max(0, $subtotal - $discount) + $tax + $shippingCost;
 
-        $order = DB::transaction(function () use ($items, $subtotal, $discount, $tax, $taxRate, $taxInclusive, $shippingCost, $total, $coupon, $customer) {
+        $order = DB::transaction(function () use ($items, $subtotal, $discount, $tax, $taxRate, $taxInclusive, $shippingCost, $total, $coupon, $customer, $usingRajaOngkir) {
             $paymentMethod = $customer['payment_method'] ?? null;
             $paymentStatus = match ($paymentMethod) {
                 'cod' => 'pending',
                 'manual_transfer' => 'pending',
                 default => 'unpaid',
             };
+
+            $regionLabel = $usingRajaOngkir
+                ? trim(($customer['shipping_courier'] ?? '').' '.($customer['shipping_service'] ?? ''))
+                : ($customer['shipping_region'] ?? null);
 
             $order = Order::create([
                 'number' => $this->generateNumber(),
@@ -59,8 +66,15 @@ class CheckoutService
                 'customer_email' => $customer['customer_email'],
                 'customer_phone' => $customer['customer_phone'],
                 'shipping_address' => $customer['shipping_address'],
-                'shipping_region' => $customer['shipping_region'] ?? null,
+                'shipping_region' => $regionLabel,
                 'shipping_cost' => $shippingCost,
+                'shipping_province' => $customer['shipping_province'] ?? null,
+                'shipping_city_id' => $customer['shipping_city_id'] ?? null,
+                'shipping_city_name' => $customer['shipping_city_name'] ?? null,
+                'shipping_courier' => $customer['shipping_courier'] ?? null,
+                'shipping_service' => $customer['shipping_service'] ?? null,
+                'shipping_etd' => $customer['shipping_etd'] ?? null,
+                'shipping_weight' => $usingRajaOngkir ? $this->cart->totalWeight() : null,
                 'discount' => $discount,
                 'tax' => $tax,
                 'tax_rate' => $taxRate,

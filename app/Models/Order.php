@@ -18,6 +18,8 @@ class Order extends Model
     protected $fillable = [
         'number', 'user_id', 'customer_name', 'customer_email', 'customer_phone',
         'shipping_address', 'shipping_region', 'shipping_cost',
+        'shipping_province', 'shipping_city_id', 'shipping_city_name',
+        'shipping_courier', 'shipping_service', 'shipping_etd', 'shipping_weight',
         'notes', 'subtotal', 'discount', 'tax', 'tax_rate', 'tax_inclusive',
         'coupon_code', 'total', 'status',
         'payment_method', 'payment_status', 'payment_token', 'payment_url', 'paid_at',

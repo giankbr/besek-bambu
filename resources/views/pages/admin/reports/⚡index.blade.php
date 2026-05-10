@@ -162,7 +162,7 @@ new #[Title('Reports')] class extends Component {
         return OrderItem::query()
             ->select(
                 'categories.id',
-                DB::raw('MAX(categories.name) as category_name'),
+                DB::raw('MAX(categories.title) as category_name'),
                 DB::raw('SUM(order_items.line_total) as revenue'),
                 DB::raw('SUM(order_items.quantity) as units'),
             )

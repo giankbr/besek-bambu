@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
@@ -37,6 +38,12 @@ Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('ca
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+
+Route::prefix('shipping')->name('shipping.')->group(function () {
+    Route::get('provinces', [ShippingController::class, 'provinces'])->name('provinces');
+    Route::get('cities/{provinceId}', [ShippingController::class, 'cities'])->name('cities');
+    Route::post('cost', [ShippingController::class, 'cost'])->name('cost');
+});
 
 Route::get('/payment/{order}', [PaymentController::class, 'pay'])->name('payment.pay');
 Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');

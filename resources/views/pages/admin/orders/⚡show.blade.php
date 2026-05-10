@@ -84,8 +84,36 @@ new #[Title('Order detail')] class extends Component {
                 </flux:card>
 
                 <flux:card>
-                    <flux:heading size="lg">{{ __('Shipping address') }}</flux:heading>
+                    <flux:heading size="lg">{{ __('Shipping') }}</flux:heading>
                     <flux:text class="mt-2 whitespace-pre-line">{{ $order->shipping_address }}</flux:text>
+
+                    @if ($order->shipping_courier || $order->shipping_city_name)
+                        <flux:separator class="my-3" />
+                        <dl class="grid grid-cols-[140px_1fr] gap-y-1 text-sm">
+                            @if ($order->shipping_city_name)
+                                <dt class="text-zinc-500">{{ __('City') }}</dt>
+                                <dd>{{ $order->shipping_city_name }}{{ $order->shipping_province ? ', '.$order->shipping_province : '' }}</dd>
+                            @endif
+                            @if ($order->shipping_courier)
+                                <dt class="text-zinc-500">{{ __('Courier') }}</dt>
+                                <dd>{{ strtoupper($order->shipping_courier) }} {{ $order->shipping_service }}</dd>
+                            @endif
+                            @if ($order->shipping_etd)
+                                <dt class="text-zinc-500">{{ __('Estimate') }}</dt>
+                                <dd>{{ $order->shipping_etd }} {{ __('days') }}</dd>
+                            @endif
+                            @if ($order->shipping_weight)
+                                <dt class="text-zinc-500">{{ __('Weight') }}</dt>
+                                <dd>{{ number_format($order->shipping_weight) }} g</dd>
+                            @endif
+                            <dt class="text-zinc-500">{{ __('Cost') }}</dt>
+                            <dd>{{ idr($order->shipping_cost) }}</dd>
+                        </dl>
+                    @elseif ($order->shipping_region)
+                        <flux:separator class="my-3" />
+                        <flux:text class="text-zinc-500 text-sm">{{ __('Region:') }} {{ $order->shipping_region }} — {{ idr($order->shipping_cost) }}</flux:text>
+                    @endif
+
                     @if ($order->notes)
                         <flux:heading size="sm" class="mt-4">{{ __('Notes') }}</flux:heading>
                         <flux:text class="text-zinc-500">{{ $order->notes }}</flux:text>
