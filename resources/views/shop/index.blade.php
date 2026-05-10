@@ -9,14 +9,51 @@
 
       <form method="get" action="{{ route('shop.index') }}" class="shop-filter">
         <input type="search" name="q" value="{{ $searchTerm }}" placeholder="Search products..." />
-        <select name="category" onchange="this.form.submit()">
+        <select name="category">
           <option value="">All categories</option>
           @foreach ($categories as $category)
             <option value="{{ $category->slug }}" @selected($activeCategory === $category->slug)>{{ $category->title }}</option>
           @endforeach
         </select>
-        <button type="submit" class="hero-cta">Filter</button>
+        <select name="sort">
+          <option value="featured" @selected($sort === 'featured')>Featured</option>
+          <option value="newest" @selected($sort === 'newest')>Newest</option>
+          <option value="price-asc" @selected($sort === 'price-asc')>Price: low to high</option>
+          <option value="price-desc" @selected($sort === 'price-desc')>Price: high to low</option>
+          <option value="rating" @selected($sort === 'rating')>Top rated</option>
+        </select>
+        <button type="submit" class="hero-cta">Apply</button>
       </form>
+
+      <details class="shop-advanced">
+        <summary>Advanced filters</summary>
+        <form method="get" action="{{ route('shop.index') }}" class="shop-advanced__form">
+          <input type="hidden" name="q" value="{{ $searchTerm }}" />
+          <input type="hidden" name="category" value="{{ $activeCategory }}" />
+          <input type="hidden" name="sort" value="{{ $sort }}" />
+          <label>
+            Min price (Rp)
+            <input type="number" name="min_price" value="{{ $minPrice ?: '' }}" min="0" />
+          </label>
+          <label>
+            Max price (Rp)
+            <input type="number" name="max_price" value="{{ $maxPrice ?: '' }}" min="0" />
+          </label>
+          <label>
+            Min rating
+            <select name="min_rating">
+              <option value="">Any</option>
+              @for ($i = 1; $i <= 5; $i++)
+                <option value="{{ $i }}" @selected($minRating === $i)>{{ str_repeat('★', $i) }} & up</option>
+              @endfor
+            </select>
+          </label>
+          <button type="submit" class="cart-link-btn">Apply filters</button>
+          @if ($minPrice || $maxPrice || $minRating)
+            <a class="cart-link-btn" href="{{ route('shop.index', ['q' => $searchTerm, 'category' => $activeCategory, 'sort' => $sort]) }}">Clear</a>
+          @endif
+        </form>
+      </details>
     </section>
 
     <section class="container">

@@ -15,6 +15,11 @@ class ShopController extends Controller
     {
         $categories = Category::orderBy('sort_order')->get();
 
+        $sort = $request->string('sort')->toString() ?: 'featured';
+        $minPrice = $request->integer('min_price');
+        $maxPrice = $request->integer('max_price');
+        $minRating = $request->integer('min_rating');
+
         $products = Product::query()
             ->where('is_active', true)
             ->with('category')
@@ -24,7 +29,14 @@ class ShopController extends Controller
             ->when($request->string('q')->toString(), function ($q, $term) {
                 $q->where('name', 'like', "%{$term}%");
             })
-            ->orderBy('sort_order')
+            ->when($minPrice > 0, fn ($q) => $q->where('price', '>=', $minPrice))
+            ->when($maxPrice > 0, fn ($q) => $q->where('price', '<=', $maxPrice))
+            ->when($minRating > 0, fn ($q) => $q->where('rating', '>=', $minRating))
+            ->when($sort === 'price-asc', fn ($q) => $q->orderBy('price'))
+            ->when($sort === 'price-desc', fn ($q) => $q->orderByDesc('price'))
+            ->when($sort === 'newest', fn ($q) => $q->latest())
+            ->when($sort === 'rating', fn ($q) => $q->orderByDesc('rating'))
+            ->when(! in_array($sort, ['price-asc', 'price-desc', 'newest', 'rating'], true), fn ($q) => $q->orderBy('sort_order'))
             ->paginate(12)
             ->withQueryString();
 
@@ -33,6 +45,10 @@ class ShopController extends Controller
             'categories' => $categories,
             'activeCategory' => $request->string('category')->toString(),
             'searchTerm' => $request->string('q')->toString(),
+            'sort' => $sort,
+            'minPrice' => $minPrice,
+            'maxPrice' => $maxPrice,
+            'minRating' => $minRating,
         ]);
     }
 
