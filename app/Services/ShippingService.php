@@ -6,6 +6,10 @@ use Illuminate\Support\Str;
 
 class ShippingService
 {
+    public const PROVIDER_FLAT = 'flat';
+
+    public const PROVIDER_RAJAONGKIR = 'rajaongkir';
+
     /**
      * Built-in fallback regions used when no custom zones are configured
      * via Settings → Shipping in the admin panel.
@@ -18,6 +22,16 @@ class ShippingService
         'eastern' => ['label' => 'Bali, Nusa Tenggara, Maluku, Papua', 'cost' => 85_000],
         'international' => ['label' => 'International', 'cost' => 350_000],
     ];
+
+    public function provider(): string
+    {
+        return (string) setting('shipping_provider', self::PROVIDER_FLAT);
+    }
+
+    public function isRajaOngkir(): bool
+    {
+        return $this->provider() === self::PROVIDER_RAJAONGKIR;
+    }
 
     /**
      * @return array<string, array{label: string, cost: int}>
@@ -54,9 +68,38 @@ class ShippingService
     }
 
     /**
-     * Reads shipping_zones from Settings and converts each into a
-     * ['key' => ['label' => ..., 'cost' => ...]] entry.
+     * Available couriers for the active provider. For RajaOngkir Starter
+     * it is the intersection of admin-enabled couriers and what Starter
+     * supports (jne/pos/tiki).
      *
+     * @return array<int, string>
+     */
+    public function enabledCouriers(): array
+    {
+        $configured = setting('shipping_couriers', []);
+
+        if (! is_array($configured)) {
+            return [];
+        }
+
+        $allowed = RajaOngkirClient::COURIER_STARTER;
+
+        return array_values(array_intersect($allowed, array_map('strtolower', $configured)));
+    }
+
+    public function originCityId(): ?string
+    {
+        $value = setting('shipping_origin_city_id');
+
+        return $value ? (string) $value : null;
+    }
+
+    public function rajaOngkirClient(): RajaOngkirClient
+    {
+        return new RajaOngkirClient((string) setting('shipping_rajaongkir_api_key'));
+    }
+
+    /**
      * @return array<string, array{label: string, cost: int}>
      */
     private function customZones(): array
