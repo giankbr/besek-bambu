@@ -110,6 +110,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::livewire('/', 'pages::admin.reports.index')->name('index');
         });
+
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::livewire('/', 'pages::admin.settings.index')->name('index');
+        });
     });
 });
 

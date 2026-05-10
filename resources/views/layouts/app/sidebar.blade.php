@@ -65,6 +65,12 @@
                 <flux:sidebar.item icon="users" :href="route('admin.users.index')" :current="request()->routeIs('admin.users.*')" wire:navigate>
                     {{ __('Users') }}
                 </flux:sidebar.item>
+
+                <div class="{{ $dividerClass }}"></div>
+                <div class="{{ $headingClass }}">{{ __('System') }}</div>
+                <flux:sidebar.item icon="cog-6-tooth" :href="route('admin.settings.index')" :current="request()->routeIs('admin.settings.*')" wire:navigate>
+                    {{ __('Store settings') }}
+                </flux:sidebar.item>
             </flux:sidebar.nav>
 
             <flux:spacer />
