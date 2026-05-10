@@ -24,6 +24,9 @@ class CheckoutController extends Controller
             'discount' => $cart->discount(),
             'coupon' => $cart->coupon(),
             'regions' => $shipping->regions(),
+            'tax' => $cart->tax(),
+            'taxRate' => $cart->taxRate(),
+            'taxInclusive' => $cart->taxIsInclusive(),
         ]);
     }
 

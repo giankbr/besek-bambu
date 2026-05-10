@@ -21,6 +21,10 @@
       <div class="eyebrow">Almost there</div>
       <h1 class="section-title cart-title"><em>Checkout</em></h1>
 
+      @php
+        $taxBase = max(0, $subtotal - $discount);
+        $totalBeforeShipping = $taxInclusive ? $taxBase : $taxBase + $tax;
+      @endphp
       <form method="post" action="{{ route('checkout.store') }}" class="checkout-grid" x-data='{ region: @js(old("shipping_region", $defaultRegion)), regions: @js($regions) }'>
         @csrf
         <div class="checkout-form">
@@ -84,13 +88,19 @@
               <strong>− {{ idr($discount) }}</strong>
             </div>
           @endif
+          @if ($tax > 0)
+            <div class="cart-summary__row">
+              <span>{{ $taxInclusive ? 'Tax included ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' : 'Tax ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' }}</span>
+              <strong>{{ $taxInclusive ? idr($tax) : '+ '.idr($tax) }}</strong>
+            </div>
+          @endif
           <div class="cart-summary__row">
             <span>Shipping</span>
             <strong x-text="formatRp(regions[region].cost)">{{ idr($regions[$defaultRegion]['cost']) }}</strong>
           </div>
           <div class="cart-summary__total">
             <span>Total</span>
-            <strong x-text="formatRp({{ max(0, $subtotal - $discount) }} + regions[region].cost)">{{ idr(max(0, $subtotal - $discount) + $regions[$defaultRegion]['cost']) }}</strong>
+            <strong x-text="formatRp({{ $totalBeforeShipping }} + regions[region].cost)">{{ idr($totalBeforeShipping + $regions[$defaultRegion]['cost']) }}</strong>
           </div>
 
           <button type="submit" class="hero-cta cart-summary__cta">Place order</button>

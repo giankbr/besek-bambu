@@ -146,6 +146,55 @@ class CartService
         return (float) $coupon->calculateDiscount($this->subtotal());
     }
 
+    public function taxRate(): float
+    {
+        return (float) setting('tax_rate', 0);
+    }
+
+    public function taxIsInclusive(): bool
+    {
+        return (bool) setting('tax_inclusive', false);
+    }
+
+    /**
+     * Tax amount for the current cart, after discount, before shipping.
+     * If prices already include tax, this returns the tax portion of the
+     * net amount (gross / (1+rate) * rate). Otherwise it returns the
+     * tax added on top.
+     */
+    public function tax(): float
+    {
+        $rate = $this->taxRate();
+
+        if ($rate <= 0) {
+            return 0.0;
+        }
+
+        $base = max(0.0, $this->subtotal() - $this->discount());
+        $multiplier = $rate / 100;
+
+        if ($this->taxIsInclusive()) {
+            return round($base - ($base / (1 + $multiplier)), 2);
+        }
+
+        return round($base * $multiplier, 2);
+    }
+
+    /**
+     * Cart total before shipping. Includes tax for added-tax mode and
+     * leaves the gross total untouched for inclusive-tax mode.
+     */
+    public function total(): float
+    {
+        $base = max(0.0, $this->subtotal() - $this->discount());
+
+        if ($this->taxIsInclusive()) {
+            return round($base, 2);
+        }
+
+        return round($base + $this->tax(), 2);
+    }
+
     private function raw(): array
     {
         return (array) session(self::SESSION_KEY, []);

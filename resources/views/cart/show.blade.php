@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Cart — Besek Bambu')
+@section('title', 'Cart — '.store_name())
 
 @section('content')
   <x-navbar />
@@ -89,13 +89,20 @@
               </form>
             @endif
 
+            @if ($tax > 0)
+              <div class="cart-summary__row">
+                <span>{{ $taxInclusive ? 'Tax included ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' : 'Tax ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' }}</span>
+                <strong>{{ $taxInclusive ? idr($tax) : '+ '.idr($tax) }}</strong>
+              </div>
+            @endif
+
             <div class="cart-summary__row cart-summary__row--muted">
               <span>Shipping</span>
               <span>Calculated at checkout</span>
             </div>
             <div class="cart-summary__total">
               <span>Total</span>
-              <strong>{{ idr(max(0, $subtotal - $discount)) }}</strong>
+              <strong>{{ idr($preTotal) }}</strong>
             </div>
             <a class="hero-cta cart-summary__cta" href="{{ route('checkout.show') }}">Proceed to checkout</a>
             <a class="cart-link-btn" href="{{ route('shop.index') }}">Continue shopping</a>

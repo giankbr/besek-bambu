@@ -15,6 +15,10 @@ class CartController extends Controller
             'subtotal' => $cart->subtotal(),
             'coupon' => $cart->coupon(),
             'discount' => $cart->discount(),
+            'tax' => $cart->tax(),
+            'taxRate' => $cart->taxRate(),
+            'taxInclusive' => $cart->taxIsInclusive(),
+            'preTotal' => $cart->total(),
         ]);
     }
 

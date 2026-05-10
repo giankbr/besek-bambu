@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Order ' . $order->number . ' — Besek Bambu')
+@section('title', 'Order ' . $order->number . ' — '.store_name())
 
 @section('content')
   <x-navbar />
@@ -30,6 +30,12 @@
             <div class="cart-summary__row" style="color:#1f7a3a">
               <span>Discount{{ $order->coupon_code ? " ({$order->coupon_code})" : '' }}</span>
               <strong>− {{ idr($order->discount) }}</strong>
+            </div>
+          @endif
+          @if ((float) $order->tax > 0)
+            <div class="cart-summary__row">
+              <span>{{ $order->tax_inclusive ? 'Tax included' : 'Tax' }} ({{ rtrim(rtrim(number_format((float) $order->tax_rate, 2), '0'), '.') }}%)</span>
+              <strong>{{ $order->tax_inclusive ? idr($order->tax) : '+ '.idr($order->tax) }}</strong>
             </div>
           @endif
           @if ((float) $order->shipping_cost > 0)

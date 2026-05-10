@@ -18,7 +18,8 @@ class Order extends Model
     protected $fillable = [
         'number', 'user_id', 'customer_name', 'customer_email', 'customer_phone',
         'shipping_address', 'shipping_region', 'shipping_cost',
-        'notes', 'subtotal', 'discount', 'coupon_code', 'total', 'status',
+        'notes', 'subtotal', 'discount', 'tax', 'tax_rate', 'tax_inclusive',
+        'coupon_code', 'total', 'status',
         'payment_method', 'payment_status', 'payment_token', 'payment_url', 'paid_at',
     ];
 
@@ -31,6 +32,9 @@ class Order extends Model
         'subtotal' => 'decimal:2',
         'shipping_cost' => 'decimal:2',
         'discount' => 'decimal:2',
+        'tax' => 'decimal:2',
+        'tax_rate' => 'decimal:2',
+        'tax_inclusive' => 'boolean',
         'total' => 'decimal:2',
         'paid_at' => 'datetime',
     ];

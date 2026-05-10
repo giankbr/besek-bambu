@@ -36,9 +36,15 @@ class CheckoutService
         $coupon = $this->cart->coupon();
         $discount = $this->cart->discount();
         $shippingCost = $this->shipping->costFor($customer['shipping_region'] ?? null);
-        $total = max(0, $subtotal - $discount) + $shippingCost;
+        $tax = $this->cart->tax();
+        $taxRate = $this->cart->taxRate();
+        $taxInclusive = $this->cart->taxIsInclusive();
 
-        $order = DB::transaction(function () use ($items, $subtotal, $discount, $shippingCost, $total, $coupon, $customer) {
+        $total = $taxInclusive
+            ? max(0, $subtotal - $discount) + $shippingCost
+            : max(0, $subtotal - $discount) + $tax + $shippingCost;
+
+        $order = DB::transaction(function () use ($items, $subtotal, $discount, $tax, $taxRate, $taxInclusive, $shippingCost, $total, $coupon, $customer) {
             $order = Order::create([
                 'number' => $this->generateNumber(),
                 'user_id' => Auth::id(),
@@ -49,6 +55,9 @@ class CheckoutService
                 'shipping_region' => $customer['shipping_region'] ?? null,
                 'shipping_cost' => $shippingCost,
                 'discount' => $discount,
+                'tax' => $tax,
+                'tax_rate' => $taxRate,
+                'tax_inclusive' => $taxInclusive,
                 'coupon_code' => $coupon?->code,
                 'notes' => $customer['notes'] ?? null,
                 'subtotal' => $subtotal,
