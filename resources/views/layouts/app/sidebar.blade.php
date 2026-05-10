@@ -12,6 +12,15 @@
         >
             <flux:sidebar.header>
                 <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
+
+                <button
+                    type="button"
+                    class="max-lg:hidden! ms-auto inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-200/60 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-700/60 dark:hover:text-white"
+                    @click="desktopSidebarOpen = false"
+                    aria-label="{{ __('Collapse sidebar') }}"
+                >
+                    <flux:icon.bars-2 class="size-5" />
+                </button>
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
@@ -61,15 +70,19 @@
         </flux:sidebar>
 
         <div class="flex min-h-screen min-w-0 flex-1 flex-col">
-            <flux:header class="sticky top-0 z-20 flex shrink-0 items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 lg:px-4">
+            <flux:header
+                class="sticky top-0 z-20 flex shrink-0 items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 lg:px-4"
+                x-bind:class="{ 'lg:hidden!': desktopSidebarOpen }"
+            >
                 <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
                 <button
                     type="button"
                     class="max-lg:hidden! relative inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700 dark:hover:bg-zinc-700"
-                    @click="desktopSidebarOpen = !desktopSidebarOpen"
-                    x-bind:aria-expanded="desktopSidebarOpen"
-                    aria-label="{{ __('Toggle sidebar') }}"
+                    @click="desktopSidebarOpen = true"
+                    x-show="!desktopSidebarOpen"
+                    x-cloak
+                    aria-label="{{ __('Open sidebar') }}"
                 >
                     <flux:icon.bars-2 class="size-5" />
                 </button>
