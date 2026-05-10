@@ -116,7 +116,7 @@
 
         <button
             type="button"
-            class="hidden lg:flex fixed top-4 left-4 z-30 size-9 items-center justify-center rounded-lg bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700 dark:hover:bg-zinc-700 cursor-pointer"
+            class="max-lg:hidden! lg:flex fixed top-4 left-4 z-30 size-9 items-center justify-center rounded-lg bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700 dark:hover:bg-zinc-700 cursor-pointer"
             @click="desktopSidebarOpen = !desktopSidebarOpen"
             x-bind:aria-expanded="desktopSidebarOpen"
             aria-label="{{ __('Toggle sidebar') }}"
