@@ -13,7 +13,7 @@
 
   <div class="gallery-track">
     @foreach ($galleryItems as $item)
-      <a class="gallery-card {{ $item->color_class }} {{ $item->drop ? 'drop' : '' }}" href="#" style="background-image: url('{{ $item->image_url }}');">
+      <a class="gallery-card {{ $item->color_class }} {{ $item->drop ? 'drop' : '' }}" href="#" style="background-image: url('{{ image_src($item->image_url) }}');">
         <span class="gallery-card-name">
           <em>{{ $item->title }}</em>@if ($item->subtitle)<br/>{{ $item->subtitle }}@endif
         </span>

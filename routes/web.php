@@ -8,6 +8,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -26,6 +27,8 @@ Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
 Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
@@ -40,12 +43,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account/orders/{order}', [AccountController::class, 'show'])->name('account.orders.show');
 
     Route::post('/products/{product:slug}/reviews', [ProductReviewController::class, 'store'])->name('reviews.store');
+
+    Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('account.wishlist');
+    Route::post('/wishlist/{product:slug}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::view('dashboard', 'dashboard')->name('dashboard')->middleware('admin');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::redirect('/', '/admin/products');
 
         Route::prefix('products')->name('products.')->group(function () {
@@ -77,6 +83,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::prefix('messages')->name('messages.')->group(function () {
             Route::livewire('/', 'pages::admin.messages.index')->name('index');
+        });
+
+        Route::prefix('coupons')->name('coupons.')->group(function () {
+            Route::livewire('/', 'pages::admin.coupons.index')->name('index');
+            Route::livewire('create', 'pages::admin.coupons.create')->name('create');
+            Route::livewire('{coupon}/edit', 'pages::admin.coupons.edit')->name('edit');
         });
     });
 });

@@ -6,11 +6,15 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new #[Title('New Category')] class extends Component {
+    use WithFileUploads;
+
     public string $title = '';
     public string $slug = '';
     public ?string $image_url = null;
+    public $image;
     public int $sort_order = 0;
 
     public function updatedTitle(string $value): void
@@ -25,9 +29,21 @@ new #[Title('New Category')] class extends Component {
         $validated = $this->validate([
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')],
-            'image_url' => ['required', 'url', 'max:2048'],
+            'image_url' => ['nullable', 'string', 'max:2048'],
+            'image' => ['nullable', 'image', 'max:4096'],
             'sort_order' => ['integer', 'min:0'],
         ]);
+
+        if ($this->image) {
+            $validated['image_url'] = $this->image->store('categories', 'public');
+        }
+
+        if (empty($validated['image_url'])) {
+            $this->addError('image', __('Please upload an image or provide a URL.'));
+            return;
+        }
+
+        unset($validated['image']);
 
         Category::create($validated);
 
@@ -49,7 +65,17 @@ new #[Title('New Category')] class extends Component {
                 <flux:input wire:model="slug" :label="__('Slug')" required />
             </div>
 
-            <flux:input wire:model="image_url" :label="__('Image URL')" type="url" placeholder="https://..." required />
+            <div class="grid gap-5 md:grid-cols-2">
+                <div>
+                    <flux:label>{{ __('Upload image') }}</flux:label>
+                    <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
+                    @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                    @if ($image)
+                        <div class="mt-2"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" /></div>
+                    @endif
+                </div>
+                <flux:input wire:model="image_url" :label="__('…or external URL')" placeholder="https://..." />
+            </div>
 
             <flux:input wire:model="sort_order" :label="__('Sort order')" type="number" min="0" />
 

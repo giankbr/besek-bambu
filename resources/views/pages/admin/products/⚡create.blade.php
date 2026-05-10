@@ -8,13 +8,17 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new #[Title('New Product')] class extends Component {
+    use WithFileUploads;
+
     public string $name = '';
     public string $slug = '';
     public ?string $description = null;
     public string $icon = '';
     public ?string $image_url = null;
+    public $image;
     public string $price = '0';
     public int $stock = 0;
     public int $rating = 5;
@@ -43,7 +47,8 @@ new #[Title('New Product')] class extends Component {
             'slug' => ['required', 'string', 'max:255', Rule::unique('products', 'slug')],
             'description' => ['nullable', 'string'],
             'icon' => ['required', 'string', 'max:8'],
-            'image_url' => ['nullable', 'url', 'max:2048'],
+            'image_url' => ['nullable', 'string', 'max:2048'],
+            'image' => ['nullable', 'image', 'max:4096'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'rating' => ['required', 'integer', 'between:1,5'],
@@ -52,6 +57,12 @@ new #[Title('New Product')] class extends Component {
             'is_active' => ['boolean'],
             'sort_order' => ['integer', 'min:0'],
         ]);
+
+        if ($this->image) {
+            $validated['image_url'] = $this->image->store('products', 'public');
+        }
+
+        unset($validated['image']);
 
         Product::create($validated);
 
@@ -81,7 +92,17 @@ new #[Title('New Product')] class extends Component {
                 <flux:input wire:model="stock" :label="__('Stock')" type="number" min="0" required />
             </div>
 
-            <flux:input wire:model="image_url" :label="__('Image URL')" type="url" placeholder="https://..." />
+            <div class="grid gap-5 md:grid-cols-2">
+                <div>
+                    <flux:label>{{ __('Upload image') }}</flux:label>
+                    <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
+                    @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                    @if ($image)
+                        <div class="mt-2"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" /></div>
+                    @endif
+                </div>
+                <flux:input wire:model="image_url" :label="__('…or external URL')" type="url" placeholder="https://..." />
+            </div>
 
             <div class="grid gap-5 md:grid-cols-3">
                 <flux:select wire:model="category_id" :label="__('Category')" placeholder="{{ __('— None —') }}">

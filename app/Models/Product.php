@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Product extends Model
 {
@@ -45,5 +46,17 @@ class Product extends Model
     public function reviewsCount(): int
     {
         return $this->approvedReviews()->count();
+    }
+
+    public function isInWishlistOf(?int $userId): bool
+    {
+        if (! $userId) {
+            return false;
+        }
+
+        return DB::table('wishlist_items')
+            ->where('user_id', $userId)
+            ->where('product_id', $this->id)
+            ->exists();
     }
 }

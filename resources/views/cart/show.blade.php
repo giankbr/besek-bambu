@@ -31,7 +31,7 @@
               <li class="cart-item">
                 <a class="cart-item__media {{ $item->product->color_class }}" href="{{ route('shop.product', $item->product) }}">
                   @if ($item->product->image_url)
-                    <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" />
+                    <img src="{{ image_src($item->product->image_url) }}" alt="{{ $item->product->name }}" />
                   @else
                     <span class="cart-item__icon">{{ $item->product->icon }}</span>
                   @endif
@@ -67,13 +67,35 @@
               <span>Subtotal</span>
               <strong>{{ idr($subtotal) }}</strong>
             </div>
+
+            @if ($coupon)
+              <div class="cart-summary__row" style="color:#1f7a3a">
+                <span>Discount ({{ $coupon->code }})</span>
+                <strong>− {{ idr($discount) }}</strong>
+              </div>
+              <form method="post" action="{{ route('cart.coupon.remove') }}" style="margin-bottom:8px">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="cart-link-btn">Remove coupon</button>
+              </form>
+            @else
+              <form method="post" action="{{ route('cart.coupon.apply') }}" class="cart-coupon">
+                @csrf
+                <label for="coupon-code">Promo code</label>
+                <div class="cart-coupon__row">
+                  <input id="coupon-code" type="text" name="code" placeholder="Enter code" maxlength="64" />
+                  <button type="submit" class="cart-link-btn">Apply</button>
+                </div>
+              </form>
+            @endif
+
             <div class="cart-summary__row cart-summary__row--muted">
               <span>Shipping</span>
               <span>Calculated at checkout</span>
             </div>
             <div class="cart-summary__total">
               <span>Total</span>
-              <strong>{{ idr($subtotal) }}</strong>
+              <strong>{{ idr(max(0, $subtotal - $discount)) }}</strong>
             </div>
             <a class="hero-cta cart-summary__cta" href="{{ route('checkout.show') }}">Proceed to checkout</a>
             <a class="cart-link-btn" href="{{ route('shop.index') }}">Continue shopping</a>

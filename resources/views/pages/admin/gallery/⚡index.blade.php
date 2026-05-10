@@ -74,7 +74,7 @@ new #[Title('Gallery')] class extends Component {
                     <flux:table.row :key="$item->id">
                         <flux:table.cell>
                             @if ($item->image_url)
-                                <img src="{{ $item->image_url }}" alt="" class="h-12 w-12 rounded-lg object-cover" />
+                                <img src="{{ image_src($item->image_url) }}" alt="" class="h-12 w-12 rounded-lg object-cover" />
                             @endif
                         </flux:table.cell>
                         <flux:table.cell><div class="font-medium">{{ $item->title }}</div></flux:table.cell>

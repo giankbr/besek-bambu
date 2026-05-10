@@ -1779,3 +1779,29 @@ a.product:hover { transform: translateY(-2px); }
   .about-grid,
   .contact-grid { grid-template-columns: 1fr; }
 }
+
+/* === Cart coupon === */
+.cart-coupon { margin: 12px 0; font-size: 13px; }
+.cart-coupon label { display:block; margin-bottom: 4px; color: var(--muted); }
+.cart-coupon__row { display: flex; gap: 6px; }
+.cart-coupon__row input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  font: inherit;
+  background: white;
+}
+
+.checkout-form select {
+  padding: 12px 14px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+  width: 100%;
+}
+
+/* === Wishlist === */
+.product-detail__wishlist { margin-top: 12px; display: inline-block; }
+.wishlist-cell { display: flex; flex-direction: column; }

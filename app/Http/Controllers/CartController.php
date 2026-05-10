@@ -13,6 +13,8 @@ class CartController extends Controller
         return view('cart.show', [
             'items' => $cart->items(),
             'subtotal' => $cart->subtotal(),
+            'coupon' => $cart->coupon(),
+            'discount' => $cart->discount(),
         ]);
     }
 
@@ -47,5 +49,27 @@ class CartController extends Controller
         $cart->remove($product);
 
         return redirect()->route('cart.show')->with('status', 'Item removed.');
+    }
+
+    public function applyCoupon(Request $request, CartService $cart)
+    {
+        $data = $request->validate([
+            'code' => ['required', 'string', 'max:64'],
+        ]);
+
+        try {
+            $coupon = $cart->applyCoupon(strtoupper(trim($data['code'])));
+        } catch (\DomainException $e) {
+            return redirect()->route('cart.show')->with('status', $e->getMessage());
+        }
+
+        return redirect()->route('cart.show')->with('status', "Coupon {$coupon->code} applied.");
+    }
+
+    public function removeCoupon(CartService $cart)
+    {
+        $cart->clearCoupon();
+
+        return redirect()->route('cart.show')->with('status', 'Coupon removed.');
     }
 }

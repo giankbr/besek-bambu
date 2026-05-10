@@ -7,8 +7,11 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new #[Title('Edit Product')] class extends Component {
+    use WithFileUploads;
+
     public Product $product;
 
     public string $name = '';
@@ -16,6 +19,7 @@ new #[Title('Edit Product')] class extends Component {
     public ?string $description = null;
     public string $icon = '';
     public ?string $image_url = null;
+    public $image;
     public string $price = '0';
     public int $stock = 0;
     public int $rating = 5;
@@ -54,7 +58,8 @@ new #[Title('Edit Product')] class extends Component {
             'slug' => ['required', 'string', 'max:255', Rule::unique('products', 'slug')->ignore($this->product->id)],
             'description' => ['nullable', 'string'],
             'icon' => ['required', 'string', 'max:8'],
-            'image_url' => ['nullable', 'url', 'max:2048'],
+            'image_url' => ['nullable', 'string', 'max:2048'],
+            'image' => ['nullable', 'image', 'max:4096'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'rating' => ['required', 'integer', 'between:1,5'],
@@ -64,10 +69,20 @@ new #[Title('Edit Product')] class extends Component {
             'sort_order' => ['integer', 'min:0'],
         ]);
 
+        if ($this->image) {
+            if ($this->product->image_url && ! str_starts_with($this->product->image_url, 'http')) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($this->product->image_url);
+            }
+            $validated['image_url'] = $this->image->store('products', 'public');
+        }
+
+        unset($validated['image']);
+
         $this->product->update($validated);
+        $this->image = null;
+        $this->image_url = $this->product->fresh()->image_url;
 
         Flux::toast(variant: 'success', text: __('Product updated.'));
-        $this->redirectRoute('admin.products.index', navigate: true);
     }
 }; ?>
 
@@ -92,7 +107,19 @@ new #[Title('Edit Product')] class extends Component {
                 <flux:input wire:model="stock" :label="__('Stock')" type="number" min="0" required />
             </div>
 
-            <flux:input wire:model="image_url" :label="__('Image URL')" type="url" placeholder="https://..." />
+            <div class="grid gap-5 md:grid-cols-2">
+                <div>
+                    <flux:label>{{ __('Upload image') }}</flux:label>
+                    <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
+                    @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                    @if ($image)
+                        <div class="mt-2"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" /></div>
+                    @elseif ($image_url)
+                        <div class="mt-2"><img src="{{ image_src($image_url) }}" class="h-24 rounded-lg" /></div>
+                    @endif
+                </div>
+                <flux:input wire:model="image_url" :label="__('…or external URL / path')" placeholder="https://..." />
+            </div>
 
             <div class="grid gap-5 md:grid-cols-3">
                 <flux:select wire:model="category_id" :label="__('Category')" placeholder="{{ __('— None —') }}">

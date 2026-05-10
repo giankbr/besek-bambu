@@ -37,6 +37,22 @@
             </li>
           @endforeach
         </ul>
+        <div class="cart-summary__row">
+          <span>Subtotal</span>
+          <strong>{{ idr($order->subtotal) }}</strong>
+        </div>
+        @if ((float) $order->discount > 0)
+          <div class="cart-summary__row" style="color:#1f7a3a">
+            <span>Discount{{ $order->coupon_code ? " ({$order->coupon_code})" : '' }}</span>
+            <strong>− {{ idr($order->discount) }}</strong>
+          </div>
+        @endif
+        @if ((float) $order->shipping_cost > 0)
+          <div class="cart-summary__row">
+            <span>Shipping</span>
+            <strong>{{ idr($order->shipping_cost) }}</strong>
+          </div>
+        @endif
         <div class="cart-summary__total">
           <span>Total</span>
           <strong>{{ idr($order->total) }}</strong>

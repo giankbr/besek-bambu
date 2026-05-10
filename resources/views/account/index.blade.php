@@ -20,6 +20,7 @@
           <ul class="account-nav">
             <li><a class="account-nav__item account-nav__item--active" href="{{ route('account.index') }}">Overview</a></li>
             <li><a class="account-nav__item" href="{{ route('account.orders') }}">My orders</a></li>
+            <li><a class="account-nav__item" href="{{ route('account.wishlist') }}">Wishlist</a></li>
             <li><a class="account-nav__item" href="{{ route('profile.edit') }}">Profile settings</a></li>
             <li>
               <form method="post" action="{{ route('logout') }}">

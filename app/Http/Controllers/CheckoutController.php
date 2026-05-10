@@ -6,12 +6,13 @@ use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
 use App\Services\MidtransService;
+use App\Services\ShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
-    public function show(CartService $cart)
+    public function show(CartService $cart, ShippingService $shipping)
     {
         if ($cart->items()->isEmpty()) {
             return redirect()->route('cart.show')->with('status', 'Your cart is empty.');
@@ -20,6 +21,9 @@ class CheckoutController extends Controller
         return view('checkout.show', [
             'items' => $cart->items(),
             'subtotal' => $cart->subtotal(),
+            'discount' => $cart->discount(),
+            'coupon' => $cart->coupon(),
+            'regions' => $shipping->regions(),
         ]);
     }
 
@@ -30,6 +34,7 @@ class CheckoutController extends Controller
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:30'],
             'shipping_address' => ['required', 'string', 'max:1000'],
+            'shipping_region' => ['required', 'string', 'in:'.implode(',', array_keys(ShippingService::REGIONS))],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 

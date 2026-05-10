@@ -14,12 +14,15 @@ class Order extends Model
 
     protected $fillable = [
         'number', 'user_id', 'customer_name', 'customer_email', 'customer_phone',
-        'shipping_address', 'notes', 'subtotal', 'total', 'status',
+        'shipping_address', 'shipping_region', 'shipping_cost',
+        'notes', 'subtotal', 'discount', 'coupon_code', 'total', 'status',
         'payment_method', 'payment_status', 'payment_token', 'payment_url', 'paid_at',
     ];
 
     protected $casts = [
         'subtotal' => 'decimal:2',
+        'shipping_cost' => 'decimal:2',
+        'discount' => 'decimal:2',
         'total' => 'decimal:2',
         'paid_at' => 'datetime',
     ];

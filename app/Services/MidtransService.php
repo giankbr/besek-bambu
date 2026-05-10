@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Mail\OrderPaid;
 use App\Models\Order;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Midtrans\Snap;
@@ -83,7 +86,9 @@ class MidtransService
             'payment_method' => $paymentType ?: $order->payment_method,
         ];
 
-        if ($paymentStatus === 'paid' && $order->payment_status !== 'paid') {
+        $becamePaid = $paymentStatus === 'paid' && $order->payment_status !== 'paid';
+
+        if ($becamePaid) {
             $update['paid_at'] = now();
             if ($order->status === 'pending') {
                 $update['status'] = 'paid';
@@ -91,5 +96,13 @@ class MidtransService
         }
 
         $order->update($update);
+
+        if ($becamePaid) {
+            try {
+                Mail::to($order->customer_email)->send(new OrderPaid($order->fresh('items')));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send order paid email', ['order' => $order->number, 'error' => $e->getMessage()]);
+            }
+        }
     }
 }

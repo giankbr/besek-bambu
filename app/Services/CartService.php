@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Support\Collection;
 
 class CartService
 {
     private const SESSION_KEY = 'cart';
+
+    private const COUPON_KEY = 'cart_coupon';
 
     public function items(): Collection
     {
@@ -78,6 +81,7 @@ class CartService
     public function clear(): void
     {
         session()->forget(self::SESSION_KEY);
+        session()->forget(self::COUPON_KEY);
     }
 
     public function count(): int
@@ -88,6 +92,58 @@ class CartService
     public function subtotal(): float
     {
         return (float) $this->items()->sum('line_total');
+    }
+
+    public function applyCoupon(string $code): Coupon
+    {
+        $coupon = Coupon::where('code', $code)->where('is_active', true)->first();
+
+        if (! $coupon) {
+            throw new \DomainException('Coupon code is invalid.');
+        }
+
+        if (! $coupon->isUsable($this->subtotal())) {
+            throw new \DomainException('Coupon cannot be applied to this order.');
+        }
+
+        session([self::COUPON_KEY => $coupon->code]);
+
+        return $coupon;
+    }
+
+    public function clearCoupon(): void
+    {
+        session()->forget(self::COUPON_KEY);
+    }
+
+    public function coupon(): ?Coupon
+    {
+        $code = session(self::COUPON_KEY);
+
+        if (! $code) {
+            return null;
+        }
+
+        $coupon = Coupon::where('code', $code)->first();
+
+        if (! $coupon || ! $coupon->isUsable($this->subtotal())) {
+            $this->clearCoupon();
+
+            return null;
+        }
+
+        return $coupon;
+    }
+
+    public function discount(): float
+    {
+        $coupon = $this->coupon();
+
+        if (! $coupon) {
+            return 0.0;
+        }
+
+        return (float) $coupon->calculateDiscount($this->subtotal());
     }
 
     private function raw(): array

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMessageReceived;
 use App\Models\ContactMessage;
 use App\Models\GalleryItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PageController extends Controller
 {
@@ -41,7 +44,17 @@ class PageController extends Controller
             'message' => ['required', 'string', 'min:10', 'max:5000'],
         ]);
 
-        ContactMessage::create($data);
+        $message = ContactMessage::create($data);
+
+        $adminEmail = config('mail.admin_address') ?: config('mail.from.address');
+
+        if ($adminEmail) {
+            try {
+                Mail::to($adminEmail)->send(new ContactMessageReceived($message));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send contact notification', ['error' => $e->getMessage()]);
+            }
+        }
 
         return redirect()->route('contact')->with('status', 'Thanks! We received your message and will reply soon.');
     }

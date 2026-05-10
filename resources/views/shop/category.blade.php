@@ -6,7 +6,7 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <div class="cat-banner" style="background-image: linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.5)), url('{{ $category->image_url }}');">
+      <div class="cat-banner" style="background-image: linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.5)), url('{{ image_src($category->image_url) }}');">
         <div class="cat-banner__inner">
           <div class="eyebrow eyebrow--light">Category</div>
           <h1 class="cat-banner__title"><em>{{ $category->title }}</em></h1>

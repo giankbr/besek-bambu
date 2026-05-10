@@ -17,7 +17,7 @@
       <div class="eyebrow">Almost there</div>
       <h1 class="section-title cart-title"><em>Checkout</em></h1>
 
-      <form method="post" action="{{ route('checkout.store') }}" class="checkout-grid">
+      <form method="post" action="{{ route('checkout.store') }}" class="checkout-grid" x-data='{ region: @js(old("shipping_region", "java")), regions: @js($regions) }'>
         @csrf
         <div class="checkout-form">
           <h2 class="checkout-section-title">Contact</h2>
@@ -46,6 +46,15 @@
             @error('shipping_address')<span class="form-error">{{ $message }}</span>@enderror
           </label>
           <label>
+            Region
+            <select name="shipping_region" x-model="region" required>
+              @foreach ($regions as $key => $r)
+                <option value="{{ $key }}" {{ old('shipping_region', 'java') === $key ? 'selected' : '' }}>{{ $r['label'] }} — {{ idr($r['cost']) }}</option>
+              @endforeach
+            </select>
+            @error('shipping_region')<span class="form-error">{{ $message }}</span>@enderror
+          </label>
+          <label>
             Notes (optional)
             <textarea name="notes" rows="2" placeholder="Special instructions...">{{ old('notes') }}</textarea>
           </label>
@@ -65,13 +74,19 @@
             <span>Subtotal</span>
             <strong>{{ idr($subtotal) }}</strong>
           </div>
-          <div class="cart-summary__row cart-summary__row--muted">
+          @if ($coupon)
+            <div class="cart-summary__row" style="color:#1f7a3a">
+              <span>Discount ({{ $coupon->code }})</span>
+              <strong>− {{ idr($discount) }}</strong>
+            </div>
+          @endif
+          <div class="cart-summary__row">
             <span>Shipping</span>
-            <span>Free trial</span>
+            <strong x-text="formatRp(regions[region].cost)">{{ idr($regions['java']['cost']) }}</strong>
           </div>
           <div class="cart-summary__total">
             <span>Total</span>
-            <strong>{{ idr($subtotal) }}</strong>
+            <strong x-text="formatRp({{ max(0, $subtotal - $discount) }} + regions[region].cost)">{{ idr(max(0, $subtotal - $discount) + $regions['java']['cost']) }}</strong>
           </div>
 
           <button type="submit" class="hero-cta cart-summary__cta">Place order</button>
@@ -82,4 +97,11 @@
 
     <x-site-footer />
   </main>
+
+  @push('scripts')
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script>
+      window.formatRp = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
+    </script>
+  @endpush
 @endsection

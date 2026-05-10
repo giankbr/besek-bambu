@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@besek.test',
             'password' => bcrypt('password'),
+            'is_admin' => true,
         ]);
 
         $this->call([

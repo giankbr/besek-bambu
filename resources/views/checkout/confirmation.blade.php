@@ -18,13 +18,29 @@
             @foreach ($order->items as $item)
               <li>
                 <span class="checkout-item__name">{{ $item->product_icon }} {{ $item->product_name }} <small>× {{ $item->quantity }}</small></span>
-                <span>Rp {{ number_format((float) $item->line_total, 0, ',', '.') }}</span>
+                <span>{{ idr($item->line_total) }}</span>
               </li>
             @endforeach
           </ul>
+          <div class="cart-summary__row">
+            <span>Subtotal</span>
+            <strong>{{ idr($order->subtotal) }}</strong>
+          </div>
+          @if ((float) $order->discount > 0)
+            <div class="cart-summary__row" style="color:#1f7a3a">
+              <span>Discount{{ $order->coupon_code ? " ({$order->coupon_code})" : '' }}</span>
+              <strong>− {{ idr($order->discount) }}</strong>
+            </div>
+          @endif
+          @if ((float) $order->shipping_cost > 0)
+            <div class="cart-summary__row">
+              <span>Shipping</span>
+              <strong>{{ idr($order->shipping_cost) }}</strong>
+            </div>
+          @endif
           <div class="cart-summary__total">
             <span>Total</span>
-            <strong>Rp {{ number_format((float) $order->total, 0, ',', '.') }}</strong>
+            <strong>{{ idr($order->total) }}</strong>
           </div>
 
           <h2 class="confirmation-section-title">Shipping to</h2>

@@ -21,7 +21,7 @@
       <div class="product-detail">
         <div class="product-detail__media {{ $product->color_class }}">
           @if ($product->image_url)
-            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" />
+            <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" />
           @else
             <div class="product-detail__icon">{{ $product->icon }}</div>
           @endif
@@ -66,6 +66,17 @@
               {{ $product->stock === 0 ? 'Sold out' : 'Add to cart' }}
             </button>
           </form>
+
+          @auth
+            <form method="post" action="{{ route('wishlist.toggle', $product) }}" class="product-detail__wishlist">
+              @csrf
+              <button type="submit" class="cart-link-btn">
+                {{ $product->isInWishlistOf(auth()->id()) ? '♥ Saved to wishlist' : '♡ Save to wishlist' }}
+              </button>
+            </form>
+          @else
+            <a class="cart-link-btn product-detail__wishlist" href="{{ route('login') }}">♡ Save to wishlist</a>
+          @endauth
         </div>
       </div>
     </section>
