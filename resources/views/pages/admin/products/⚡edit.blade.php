@@ -29,6 +29,10 @@ new #[Title('Edit Product')] class extends Component {
     public ?int $category_id = null;
     public bool $is_active = true;
     public int $sort_order = 0;
+    public ?string $meta_title = null;
+    public ?string $meta_description = null;
+    public ?string $og_image = null;
+    public $og_image_upload = null;
 
     public function mount(Product $product): void
     {
@@ -45,6 +49,9 @@ new #[Title('Edit Product')] class extends Component {
         $this->category_id = $product->category_id;
         $this->is_active = $product->is_active;
         $this->sort_order = $product->sort_order;
+        $this->meta_title = $product->meta_title;
+        $this->meta_description = $product->meta_description;
+        $this->og_image = $product->og_image;
     }
 
     #[Computed]
@@ -70,6 +77,10 @@ new #[Title('Edit Product')] class extends Component {
                 'category_id' => ['nullable', 'exists:categories,id'],
                 'is_active' => ['boolean'],
                 'sort_order' => ['integer', 'min:0'],
+                'meta_title' => ['nullable', 'string', 'max:160'],
+                'meta_description' => ['nullable', 'string', 'max:320'],
+                'og_image' => ['nullable', 'string', 'max:2048'],
+                'og_image_upload' => ['nullable', 'image', 'max:4096'],
             ]);
 
             if ($this->image) {
@@ -79,11 +90,20 @@ new #[Title('Edit Product')] class extends Component {
                 $validated['image_url'] = $this->image->store('products', 'public');
             }
 
-            unset($validated['image']);
+            if ($this->og_image_upload) {
+                if ($this->product->og_image && ! str_starts_with($this->product->og_image, 'http')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($this->product->og_image);
+                }
+                $validated['og_image'] = $this->og_image_upload->store('products/og', 'public');
+            }
+
+            unset($validated['image'], $validated['og_image_upload']);
 
             $this->product->update($validated);
             $this->image = null;
+            $this->og_image_upload = null;
             $this->image_url = $this->product->fresh()->image_url;
+            $this->og_image = $this->product->fresh()->og_image;
 
             Flux::toast(variant: 'success', text: __('Product updated.'));
         } catch (ValidationException $e) {
@@ -231,6 +251,41 @@ new #[Title('Edit Product')] class extends Component {
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:input wire:model="sort_order" :label="__('Sort order')" type="number" min="0" />
                 <flux:checkbox wire:model="is_active" :label="__('Active (visible on storefront)')" />
+            </div>
+
+            <flux:separator />
+
+            <div>
+                <flux:heading size="lg">{{ __('SEO') }}</flux:heading>
+                <flux:subheading>{{ __('Customise how this product appears in search engines and social previews.') }}</flux:subheading>
+            </div>
+
+            <flux:input
+                wire:model="meta_title"
+                :label="__('Meta title')"
+                maxlength="160"
+                :description="($meta_title ? strlen($meta_title) : 0).' / 160. '.__('Leave blank to use the product name.')"
+            />
+
+            <flux:textarea
+                wire:model="meta_description"
+                :label="__('Meta description')"
+                rows="3"
+                maxlength="320"
+                :description="($meta_description ? strlen($meta_description) : 0).' / 320. '.__('Recommended 120–160 characters.')"
+            />
+
+            <div class="grid gap-3">
+                <flux:label>{{ __('Open Graph image') }}</flux:label>
+                @if ($og_image)
+                    <div class="flex items-center gap-3">
+                        <img src="{{ image_src($og_image) }}" alt="OG" class="h-24 w-40 rounded-lg border border-zinc-200 object-cover dark:border-zinc-700" />
+                    </div>
+                @endif
+                <input type="file" wire:model="og_image_upload" accept="image/*" class="block w-full text-sm" />
+                @error('og_image_upload')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                <flux:input wire:model="og_image" :label="__('…or external URL / path')" placeholder="https://..." />
+                <flux:text size="sm" class="text-zinc-500">{{ __('Recommended size 1200×630. Falls back to product image if blank.') }}</flux:text>
             </div>
 
             <div class="flex items-center gap-3">

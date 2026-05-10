@@ -16,6 +16,7 @@ class Product extends Model
         'name', 'slug', 'description', 'icon', 'image_url',
         'price', 'stock', 'is_active', 'category_id',
         'rating', 'color_class', 'sort_order',
+        'meta_title', 'meta_description', 'og_image',
     ];
 
     public function getLoggableAttributes(): array

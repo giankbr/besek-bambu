@@ -1,9 +1,12 @@
 @extends('layouts.storefront')
 
-@section('title', $product->name . ' — Besek Bambu')
-@section('meta_description', \Illuminate\Support\Str::limit($product->description ?? 'Handcrafted bamboo kitchenware. ' . $product->name, 155))
-@if ($heroSrc = $product->image_url ? image_src($product->image_url) : null)
-  @section('meta_image', $heroSrc)
+@section('title', $product->meta_title ?: ($product->name . ' — Besek Bambu'))
+@section('meta_description', $product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->description ?? ('Handcrafted bamboo kitchenware. ' . $product->name)), 155))
+@php
+  $ogSrc = $product->og_image ? image_src($product->og_image) : ($product->image_url ? image_src($product->image_url) : null);
+@endphp
+@if ($ogSrc)
+  @section('meta_image', $ogSrc)
 @endif
 
 @push('head')

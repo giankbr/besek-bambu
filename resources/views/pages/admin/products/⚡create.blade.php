@@ -27,6 +27,10 @@ new #[Title('New Product')] class extends Component {
     public ?int $category_id = null;
     public bool $is_active = true;
     public int $sort_order = 0;
+    public ?string $meta_title = null;
+    public ?string $meta_description = null;
+    public ?string $og_image = null;
+    public $og_image_upload = null;
 
     public function updatedName(string $value): void
     {
@@ -58,13 +62,21 @@ new #[Title('New Product')] class extends Component {
                 'category_id' => ['nullable', 'exists:categories,id'],
                 'is_active' => ['boolean'],
                 'sort_order' => ['integer', 'min:0'],
+                'meta_title' => ['nullable', 'string', 'max:160'],
+                'meta_description' => ['nullable', 'string', 'max:320'],
+                'og_image' => ['nullable', 'string', 'max:2048'],
+                'og_image_upload' => ['nullable', 'image', 'max:4096'],
             ]);
 
             if ($this->image) {
                 $validated['image_url'] = $this->image->store('products', 'public');
             }
 
-            unset($validated['image']);
+            if ($this->og_image_upload) {
+                $validated['og_image'] = $this->og_image_upload->store('products/og', 'public');
+            }
+
+            unset($validated['image'], $validated['og_image_upload']);
 
             Product::create($validated);
 
@@ -133,6 +145,36 @@ new #[Title('New Product')] class extends Component {
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:input wire:model="sort_order" :label="__('Sort order')" type="number" min="0" />
                 <flux:checkbox wire:model="is_active" :label="__('Active (visible on storefront)')" />
+            </div>
+
+            <flux:separator />
+
+            <div>
+                <flux:heading size="lg">{{ __('SEO') }}</flux:heading>
+                <flux:subheading>{{ __('Optional. Defaults to product name and description if blank.') }}</flux:subheading>
+            </div>
+
+            <flux:input
+                wire:model="meta_title"
+                :label="__('Meta title')"
+                maxlength="160"
+                :description="($meta_title ? strlen($meta_title) : 0).' / 160'"
+            />
+
+            <flux:textarea
+                wire:model="meta_description"
+                :label="__('Meta description')"
+                rows="3"
+                maxlength="320"
+                :description="($meta_description ? strlen($meta_description) : 0).' / 320. '.__('Recommended 120–160 characters.')"
+            />
+
+            <div class="grid gap-3">
+                <flux:label>{{ __('Open Graph image') }}</flux:label>
+                <input type="file" wire:model="og_image_upload" accept="image/*" class="block w-full text-sm" />
+                @error('og_image_upload')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                <flux:input wire:model="og_image" :label="__('…or external URL / path')" placeholder="https://..." />
+                <flux:text size="sm" class="text-zinc-500">{{ __('Recommended size 1200×630.') }}</flux:text>
             </div>
 
             <div class="flex items-center gap-3">
