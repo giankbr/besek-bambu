@@ -14,20 +14,21 @@ class Product extends Model
 
     protected $fillable = [
         'name', 'slug', 'description', 'icon', 'image_url',
-        'price', 'stock', 'is_active', 'category_id',
+        'price', 'stock', 'weight', 'is_active', 'category_id',
         'rating', 'color_class', 'sort_order',
         'meta_title', 'meta_description', 'og_image',
     ];
 
     public function getLoggableAttributes(): array
     {
-        return ['name', 'slug', 'price', 'stock', 'is_active', 'category_id', 'sort_order'];
+        return ['name', 'slug', 'price', 'stock', 'weight', 'is_active', 'category_id', 'sort_order'];
     }
 
     protected $casts = [
         'price' => 'decimal:2',
         'rating' => 'integer',
         'stock' => 'integer',
+        'weight' => 'integer',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];

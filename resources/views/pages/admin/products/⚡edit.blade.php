@@ -24,6 +24,7 @@ new #[Title('Edit Product')] class extends Component {
     public $extraImages = [];
     public string $price = '0';
     public int $stock = 0;
+    public ?int $weight = null;
     public int $rating = 5;
     public string $color_class = 'p-1';
     public ?int $category_id = null;
@@ -44,6 +45,7 @@ new #[Title('Edit Product')] class extends Component {
         $this->image_url = $product->image_url;
         $this->price = (string) $product->price;
         $this->stock = $product->stock;
+        $this->weight = $product->weight;
         $this->rating = $product->rating;
         $this->color_class = $product->color_class;
         $this->category_id = $product->category_id;
@@ -72,6 +74,7 @@ new #[Title('Edit Product')] class extends Component {
                 'image' => ['nullable', 'image', 'max:4096'],
                 'price' => ['required', 'numeric', 'min:0'],
                 'stock' => ['required', 'integer', 'min:0'],
+                'weight' => ['nullable', 'integer', 'min:0', 'max:1000000'],
                 'rating' => ['required', 'integer', 'between:1,5'],
                 'color_class' => ['required', Rule::in(['p-1', 'p-2', 'p-3', 'p-4'])],
                 'category_id' => ['nullable', 'exists:categories,id'],
@@ -218,10 +221,19 @@ new #[Title('Edit Product')] class extends Component {
 
             <flux:textarea wire:model="description" :label="__('Description')" rows="3" />
 
-            <div class="grid gap-5 md:grid-cols-3">
+            <div class="grid gap-5 md:grid-cols-4">
                 <flux:input wire:model="icon" :label="__('Icon (emoji)')" required maxlength="8" />
                 <flux:input wire:model="price" :label="__('Price (IDR)')" type="number" step="1" min="0" required />
                 <flux:input wire:model="stock" :label="__('Stock')" type="number" min="0" required />
+                <flux:input
+                    wire:model="weight"
+                    :label="__('Weight (gram)')"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="1000"
+                    description="{{ __('Required when using RajaOngkir.') }}"
+                />
             </div>
 
             <livewire:admin.media-picker

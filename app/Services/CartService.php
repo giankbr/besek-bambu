@@ -94,6 +94,23 @@ class CartService
         return (float) $this->items()->sum('line_total');
     }
 
+    /**
+     * Total cart weight in grams. Items without a weight contribute the
+     * default fallback so RajaOngkir always receives a positive value.
+     */
+    public function totalWeight(int $defaultPerItem = 1000): int
+    {
+        return (int) $this->items()->reduce(function (int $carry, $item) use ($defaultPerItem) {
+            $weight = (int) ($item->product->weight ?? 0);
+
+            if ($weight <= 0) {
+                $weight = $defaultPerItem;
+            }
+
+            return $carry + ($weight * (int) $item->quantity);
+        }, 0);
+    }
+
     public function applyCoupon(string $code): Coupon
     {
         $coupon = Coupon::where('code', $code)->where('is_active', true)->first();
