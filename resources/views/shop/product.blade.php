@@ -185,11 +185,24 @@
             <p class="product-detail__desc">{{ $product->description }}</p>
           @endif
 
-          <div class="product-detail__stock">
+          @php
+            $moq = max(1, (int) ($product->min_order_quantity ?? 1));
+            $leadDays = (int) ($product->production_lead_days ?? 0);
+            $waNumber = preg_replace('/\D+/', '', (string) (setting('whatsapp_order_number') ?: setting('store_phone') ?: ''));
+            $waText = rawurlencode("Halo, saya mau tanya: {$product->name} (".route('shop.product', $product).')');
+          @endphp
+
+          <div class="product-detail__stock" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
             @if ($product->stock > 0)
               <span class="stock-pill stock-pill--in">In stock · {{ $product->stock }} available</span>
             @else
               <span class="stock-pill stock-pill--out">Sold out</span>
+            @endif
+            @if ($moq > 1)
+              <span class="stock-pill" style="background:#fff8e1;color:#8a6d11">Min. order {{ $moq }} pcs</span>
+            @endif
+            @if ($leadDays > 0)
+              <span class="stock-pill" style="background:#eaf2ff;color:#1e4faf">Lead time {{ $leadDays }} hari kerja</span>
             @endif
           </div>
 
@@ -198,12 +211,24 @@
             <input type="hidden" name="product_id" value="{{ $product->id }}" />
             <div class="qty">
               <label for="qty">Qty</label>
-              <input id="qty" type="number" name="quantity" value="1" min="1" max="{{ max(1, $product->stock) }}" {{ $product->stock === 0 ? 'disabled' : '' }} />
+              <input id="qty" type="number" name="quantity" value="{{ $moq }}" min="{{ $moq }}" step="1" max="{{ max($moq, $product->stock) }}" {{ $product->stock === 0 ? 'disabled' : '' }} />
             </div>
             <button type="submit" class="hero-cta" {{ $product->stock === 0 ? 'disabled' : '' }}>
               {{ $product->stock === 0 ? 'Sold out' : 'Add to cart' }}
             </button>
           </form>
+
+          @if ($waNumber)
+            <a
+              href="https://wa.me/{{ $waNumber }}?text={{ $waText }}"
+              target="_blank"
+              rel="noopener"
+              class="cart-link-btn"
+              style="margin-top:8px;background:#25D366;color:#fff;border-color:#25D366"
+            >
+              💬 Tanya / Order via WhatsApp
+            </a>
+          @endif
 
           @auth
             <form method="post" action="{{ route('wishlist.toggle', $product) }}" class="product-detail__wishlist">

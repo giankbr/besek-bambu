@@ -19,6 +19,7 @@ class Product extends Model
         'rating', 'color_class', 'sort_order',
         'meta_title', 'meta_description', 'og_image',
         'low_stock_notified_at',
+        'min_order_quantity', 'production_lead_days',
     ];
 
     public function getLoggableAttributes(): array
@@ -34,6 +35,8 @@ class Product extends Model
         'is_active' => 'boolean',
         'sort_order' => 'integer',
         'low_stock_notified_at' => 'datetime',
+        'min_order_quantity' => 'integer',
+        'production_lead_days' => 'integer',
     ];
 
     protected static function booted(): void

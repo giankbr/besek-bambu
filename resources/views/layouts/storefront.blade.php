@@ -77,6 +77,7 @@
 </head>
 <body class="storefront-body">
 @yield('content')
+<x-floating-whatsapp />
 @stack('scripts')
 </body>
 </html>

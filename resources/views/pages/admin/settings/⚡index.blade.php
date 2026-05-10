@@ -29,6 +29,8 @@ new #[Title('Store settings')] class extends Component {
     public string $social_whatsapp = '';
     public string $social_tiktok = '';
 
+    public string $whatsapp_order_number = '';
+
     public array $shipping_zones = [];
 
     public string $shipping_provider = ShippingService::PROVIDER_FLAT;
@@ -36,6 +38,10 @@ new #[Title('Store settings')] class extends Component {
     public string $shipping_origin_city_id = '';
     public string $shipping_origin_label = '';
     public array $shipping_couriers = [];
+
+    public bool $pickup_enabled = false;
+    public string $pickup_address = '';
+    public string $pickup_note = '';
 
     public string $origin_search = '';
     public array $origin_results = [];
@@ -72,6 +78,8 @@ new #[Title('Store settings')] class extends Component {
         $this->social_whatsapp = (string) Setting::get('social_whatsapp', '');
         $this->social_tiktok = (string) Setting::get('social_tiktok', '');
 
+        $this->whatsapp_order_number = (string) Setting::get('whatsapp_order_number', '');
+
         $zones = Setting::get('shipping_zones', []);
         $this->shipping_zones = is_array($zones) && count($zones) > 0
             ? array_values(array_map(fn ($z) => [
@@ -86,6 +94,10 @@ new #[Title('Store settings')] class extends Component {
         $this->shipping_origin_label = (string) Setting::get('shipping_origin_label', '');
         $couriers = Setting::get('shipping_couriers', []);
         $this->shipping_couriers = is_array($couriers) ? array_values($couriers) : [];
+
+        $this->pickup_enabled = (bool) Setting::get('pickup_enabled', false);
+        $this->pickup_address = (string) Setting::get('pickup_address', '');
+        $this->pickup_note = (string) Setting::get('pickup_note', '');
 
         $this->tax_rate = (string) Setting::get('tax_rate', '0');
         $this->tax_inclusive = (bool) Setting::get('tax_inclusive', false);
@@ -125,6 +137,7 @@ new #[Title('Store settings')] class extends Component {
                 'store_phone' => ['nullable', 'string', 'max:50'],
                 'store_address' => ['nullable', 'string', 'max:1000'],
                 'logo_upload' => ['nullable', 'image', 'max:2048'],
+                'whatsapp_order_number' => ['nullable', 'string', 'max:32'],
             ]);
 
             if ($this->logo_upload) {
@@ -144,6 +157,8 @@ new #[Title('Store settings')] class extends Component {
             Setting::put('social_facebook', $this->social_facebook);
             Setting::put('social_whatsapp', $this->social_whatsapp);
             Setting::put('social_tiktok', $this->social_tiktok);
+
+            Setting::put('whatsapp_order_number', $this->whatsapp_order_number);
 
             Flux::toast(variant: 'success', text: __('Settings saved.'));
         } catch (ValidationException $e) {
@@ -184,6 +199,9 @@ new #[Title('Store settings')] class extends Component {
                 'shipping_zones' => ['array'],
                 'shipping_zones.*.name' => ['required_with:shipping_zones.*.cost', 'string', 'max:120'],
                 'shipping_zones.*.cost' => ['required_with:shipping_zones.*.name', 'numeric', 'min:0'],
+                'pickup_enabled' => ['boolean'],
+                'pickup_address' => ['nullable', 'string', 'max:1000'],
+                'pickup_note' => ['nullable', 'string', 'max:500'],
             ]);
 
             if ($this->shipping_provider === ShippingService::PROVIDER_RAJAONGKIR) {
@@ -219,6 +237,10 @@ new #[Title('Store settings')] class extends Component {
             Setting::put('shipping_origin_label', $this->shipping_origin_label);
             Setting::put('shipping_couriers', array_values($this->shipping_couriers));
             Setting::put('shipping_zones', $clean);
+
+            Setting::put('pickup_enabled', $this->pickup_enabled);
+            Setting::put('pickup_address', $this->pickup_address);
+            Setting::put('pickup_note', $this->pickup_note);
 
             $this->shipping_zones = array_map(fn ($z) => [
                 'name' => $z['name'],
@@ -441,6 +463,13 @@ new #[Title('Store settings')] class extends Component {
                     <flux:input wire:model="store_phone" :label="__('Phone / WhatsApp')" />
                 </div>
 
+                <flux:input
+                    wire:model="whatsapp_order_number"
+                    :label="__('WhatsApp order number')"
+                    placeholder="6281234567890"
+                    description="{{ __('International format without + or spaces. Powers the floating WhatsApp button and per-product Tanya/Order CTA. Falls back to Phone above if blank.') }}"
+                />
+
                 <flux:textarea wire:model="store_address" :label="__('Business address')" rows="3" />
 
                 <div class="grid gap-3">
@@ -618,6 +647,35 @@ new #[Title('Store settings')] class extends Component {
                     <div class="mt-4 flex items-center gap-3">
                         <flux:button variant="ghost" icon="plus" wire:click="addZone" type="button">{{ __('Add zone') }}</flux:button>
                     </div>
+                </div>
+
+                <flux:separator />
+
+                <div>
+                    <flux:heading size="lg">{{ __('Self-pickup') }}</flux:heading>
+                    <flux:text class="mt-1 text-zinc-500">
+                        {{ __('Let local customers skip shipping and collect their order from your workshop.') }}
+                    </flux:text>
+
+                    <div class="mt-3">
+                        <flux:checkbox wire:model.live="pickup_enabled" :label="__('Allow self-pickup at checkout')" />
+                    </div>
+
+                    @if ($pickup_enabled)
+                        <flux:textarea
+                            wire:model="pickup_address"
+                            :label="__('Pickup address')"
+                            rows="3"
+                            class="mt-3"
+                            :placeholder="store_address() ?: __('Defaults to store address from General')"
+                        />
+                        <flux:input
+                            wire:model="pickup_note"
+                            :label="__('Pickup note (optional)')"
+                            placeholder="{{ __('Open Mon-Sat 9-17, please confirm via WhatsApp first') }}"
+                            class="mt-3"
+                        />
+                    @endif
                 </div>
 
                 <div>

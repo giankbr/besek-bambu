@@ -41,6 +41,9 @@ class CheckoutController extends Controller
                 && $shipping->originId()
                 && $shipping->enabledCouriers() !== [],
             'totalWeight' => $cart->totalWeight(),
+            'pickupEnabled' => $shipping->pickupEnabled(),
+            'pickupAddress' => $shipping->pickupAddress(),
+            'pickupNote' => $shipping->pickupNote(),
         ]);
     }
 
@@ -62,9 +65,14 @@ class CheckoutController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
         ];
 
-        $usingRajaOngkir = $shipping->isRajaOngkir() && $request->input('shipping_mode') === 'rajaongkir';
+        $mode = (string) $request->input('shipping_mode', '');
+        $usingRajaOngkir = $shipping->isRajaOngkir() && $mode === 'rajaongkir';
+        $usingPickup = $shipping->pickupEnabled() && $mode === 'pickup';
 
-        if ($usingRajaOngkir) {
+        if ($usingPickup) {
+            $rules['shipping_address'] = ['nullable', 'string', 'max:1000'];
+            $rules['shipping_region'] = ['nullable', 'string'];
+        } elseif ($usingRajaOngkir) {
             $rules['shipping_city_id'] = ['required', 'string', 'max:32'];
             $rules['shipping_city_name'] = ['required', 'string', 'max:255'];
             $rules['shipping_courier'] = ['required', 'string', Rule::in($shipping->enabledCouriers())];
@@ -78,7 +86,12 @@ class CheckoutController extends Controller
 
         $data = $request->validate($rules);
         $data['payment_method'] = $data['payment_method'] ?? $methodKeys[0];
-        $data['shipping_mode'] = $usingRajaOngkir ? 'rajaongkir' : 'flat';
+        $data['shipping_mode'] = $usingPickup ? 'pickup' : ($usingRajaOngkir ? 'rajaongkir' : 'flat');
+
+        if ($usingPickup) {
+            $data['shipping_address'] = $shipping->pickupAddress();
+            $data['shipping_region'] = 'pickup';
+        }
 
         try {
             $order = $checkout->place($data);

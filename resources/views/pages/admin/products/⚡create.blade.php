@@ -23,6 +23,8 @@ new #[Title('New Product')] class extends Component {
     public string $price = '0';
     public int $stock = 0;
     public ?int $weight = null;
+    public int $min_order_quantity = 1;
+    public int $production_lead_days = 0;
     public int $rating = 5;
     public string $color_class = 'p-1';
     public ?int $category_id = null;
@@ -59,6 +61,8 @@ new #[Title('New Product')] class extends Component {
                 'price' => ['required', 'numeric', 'min:0'],
                 'stock' => ['required', 'integer', 'min:0'],
                 'weight' => ['nullable', 'integer', 'min:0', 'max:1000000'],
+                'min_order_quantity' => ['required', 'integer', 'min:1', 'max:10000'],
+                'production_lead_days' => ['required', 'integer', 'min:0', 'max:365'],
                 'rating' => ['required', 'integer', 'between:1,5'],
                 'color_class' => ['required', Rule::in(['p-1', 'p-2', 'p-3', 'p-4'])],
                 'category_id' => ['nullable', 'exists:categories,id'],
@@ -128,6 +132,25 @@ new #[Title('New Product')] class extends Component {
                     step="1"
                     placeholder="1000"
                     description="{{ __('Required when using RajaOngkir.') }}"
+                />
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <flux:input
+                    wire:model="min_order_quantity"
+                    :label="__('Minimum order quantity (MOQ)')"
+                    type="number"
+                    min="1"
+                    required
+                    description="{{ __('Smallest pack the customer must order. Set to 1 if sold per piece.') }}"
+                />
+                <flux:input
+                    wire:model="production_lead_days"
+                    :label="__('Production lead time (days)')"
+                    type="number"
+                    min="0"
+                    required
+                    description="{{ __('Extra days needed before dispatch. 0 means ready stock.') }}"
                 />
             </div>
 

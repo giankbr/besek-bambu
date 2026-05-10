@@ -107,6 +107,21 @@ class ShippingService
         return new RajaOngkirClient((string) setting('shipping_rajaongkir_api_key'));
     }
 
+    public function pickupEnabled(): bool
+    {
+        return (bool) setting('pickup_enabled', false);
+    }
+
+    public function pickupAddress(): string
+    {
+        return (string) (setting('pickup_address') ?: setting('store_address') ?: '');
+    }
+
+    public function pickupNote(): string
+    {
+        return (string) setting('pickup_note', '');
+    }
+
     /**
      * @return array<string, array{label: string, cost: int}>
      */

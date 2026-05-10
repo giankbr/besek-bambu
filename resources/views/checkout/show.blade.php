@@ -38,6 +38,8 @@
           "defaultRegion" => $defaultRegion,
           "totalBeforeShipping" => $totalBeforeShipping,
           "totalWeight" => $totalWeight,
+          "pickupEnabled" => $pickupEnabled,
+          "pickupAddress" => $pickupAddress,
           "csrf" => csrf_token(),
           "urls" => [
             "search" => route("shipping.destinations"),
@@ -46,7 +48,7 @@
         ]))'
       >
         @csrf
-        <input type="hidden" name="shipping_mode" :value="useRajaOngkir ? 'rajaongkir' : 'flat'" />
+        <input type="hidden" name="shipping_mode" :value="mode === 'pickup' ? 'pickup' : (useRajaOngkir ? 'rajaongkir' : 'flat')" />
 
         <div class="checkout-form">
           <h2 class="checkout-section-title">Contact</h2>
@@ -69,12 +71,40 @@
           </label>
 
           <h2 class="checkout-section-title">Shipping</h2>
-          <label>
-            Address
-            <textarea name="shipping_address" rows="3" required placeholder="Street, building number, postal code...">{{ old('shipping_address') }}</textarea>
-            @error('shipping_address')<span class="form-error">{{ $message }}</span>@enderror
-          </label>
 
+          @if ($pickupEnabled)
+            <div class="checkout-payment-methods" style="margin-bottom:0.75rem">
+              <label class="checkout-payment-method">
+                <input type="radio" name="checkout_mode" value="ship" x-model="mode" />
+                <span><strong>🚚 Ship to my address</strong><small style="display:block;color:#7d6f5f">Calculated based on destination</small></span>
+              </label>
+              <label class="checkout-payment-method">
+                <input type="radio" name="checkout_mode" value="pickup" x-model="mode" />
+                <span><strong>🏪 Self-pickup at workshop</strong><small style="display:block;color:#7d6f5f">Free — collect at our location</small></span>
+              </label>
+            </div>
+          @endif
+
+          <div x-show="mode === 'pickup'" x-cloak>
+            <div class="confirmation-card" style="background:#eef7ee;margin-bottom:0.75rem">
+              <p class="confirmation-meta" style="margin:0 0 4px;font-weight:600">Pickup location</p>
+              <p class="confirmation-meta" style="margin:0;white-space:pre-line">{{ $pickupAddress ?: 'Address not configured yet.' }}</p>
+              @if ($pickupNote)
+                <p class="confirmation-meta" style="margin:8px 0 0;color:#7d6f5f">{{ $pickupNote }}</p>
+              @endif
+            </div>
+            <input type="hidden" name="shipping_address" :value="pickupAddress" />
+          </div>
+
+          <div x-show="mode !== 'pickup'" x-cloak>
+            <label>
+              Address
+              <textarea name="shipping_address" rows="3" :required="mode !== 'pickup'" placeholder="Street, building number, postal code...">{{ old('shipping_address') }}</textarea>
+              @error('shipping_address')<span class="form-error">{{ $message }}</span>@enderror
+            </label>
+          </div>
+
+          <div x-show="mode !== 'pickup'" x-cloak>
           @if ($useRajaOngkir)
             <div style="position:relative">
               <label>
@@ -158,7 +188,7 @@
           @else
             <label>
               Region
-              <select name="shipping_region" x-model="region" required>
+              <select name="shipping_region" x-model="region" :required="mode !== 'pickup'">
                 @foreach ($regions as $key => $r)
                   <option value="{{ $key }}" {{ old('shipping_region', $defaultRegion) === $key ? 'selected' : '' }}>{{ $r['label'] }} — {{ idr($r['cost']) }}</option>
                 @endforeach
@@ -166,6 +196,7 @@
               @error('shipping_region')<span class="form-error">{{ $message }}</span>@enderror
             </label>
           @endif
+          </div>
 
           <label>
             Notes (optional)
@@ -257,6 +288,9 @@
         useRajaOngkir: config.useRajaOngkir,
         regions: config.regions,
         region: config.defaultRegion,
+        mode: 'ship',
+        pickupEnabled: !!config.pickupEnabled,
+        pickupAddress: config.pickupAddress || '',
 
         destQuery: '',
         destResults: [],
@@ -361,10 +395,12 @@
         },
 
         shippingCost() {
+          if (this.mode === 'pickup') return 0
           return this.useRajaOngkir ? Number(this.selectedCost || 0) : Number(this.regions[this.region].cost)
         },
 
         canSubmit() {
+          if (this.mode === 'pickup') return true
           if (!this.useRajaOngkir) return true
           return !!this.selectedDest && !!this.selectedCourier && !!this.selectedService && this.selectedCost > 0
         },

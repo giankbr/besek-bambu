@@ -47,6 +47,14 @@ class CartService
     {
         $cart = $this->raw();
         $current = $cart[$product->id] ?? 0;
+        $moq = max(1, (int) ($product->min_order_quantity ?? 1));
+
+        // Snap to MOQ on first add so the customer never ends up
+        // below the minimum the artisan accepts.
+        if ($current === 0 && $quantity < $moq) {
+            $quantity = $moq;
+        }
+
         $next = max(1, $current + $quantity);
 
         if ($product->stock > 0) {
@@ -66,8 +74,14 @@ class CartService
             unset($cart[$productId]);
         } else {
             $product = Product::find($productId);
-            if ($product && $product->stock > 0) {
-                $quantity = min($quantity, $product->stock);
+            if ($product) {
+                $moq = max(1, (int) ($product->min_order_quantity ?? 1));
+                if ($quantity < $moq) {
+                    $quantity = $moq;
+                }
+                if ($product->stock > 0) {
+                    $quantity = min($quantity, $product->stock);
+                }
             }
             $cart[$productId] = $quantity;
         }

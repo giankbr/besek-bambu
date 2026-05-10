@@ -36,10 +36,14 @@ class CheckoutService
         $subtotal = $this->cart->subtotal();
         $coupon = $this->cart->coupon();
         $discount = $this->cart->discount();
-        $usingRajaOngkir = ($customer['shipping_mode'] ?? 'flat') === 'rajaongkir';
-        $shippingCost = $usingRajaOngkir
-            ? (int) ($customer['shipping_cost'] ?? 0)
-            : $this->shipping->costFor($customer['shipping_region'] ?? null);
+        $mode = $customer['shipping_mode'] ?? 'flat';
+        $usingRajaOngkir = $mode === 'rajaongkir';
+        $usingPickup = $mode === 'pickup';
+        $shippingCost = match (true) {
+            $usingPickup => 0,
+            $usingRajaOngkir => (int) ($customer['shipping_cost'] ?? 0),
+            default => $this->shipping->costFor($customer['shipping_region'] ?? null),
+        };
         $tax = $this->cart->tax();
         $taxRate = $this->cart->taxRate();
         $taxInclusive = $this->cart->taxIsInclusive();
@@ -48,7 +52,7 @@ class CheckoutService
             ? max(0, $subtotal - $discount) + $shippingCost
             : max(0, $subtotal - $discount) + $tax + $shippingCost;
 
-        $order = DB::transaction(function () use ($items, $subtotal, $discount, $tax, $taxRate, $taxInclusive, $shippingCost, $total, $coupon, $customer, $usingRajaOngkir) {
+        $order = DB::transaction(function () use ($items, $subtotal, $discount, $tax, $taxRate, $taxInclusive, $shippingCost, $total, $coupon, $customer, $usingRajaOngkir, $usingPickup) {
             $paymentMethod = $customer['payment_method'] ?? null;
             $paymentStatus = match ($paymentMethod) {
                 'cod' => 'pending',
@@ -56,9 +60,11 @@ class CheckoutService
                 default => 'unpaid',
             };
 
-            $regionLabel = $usingRajaOngkir
-                ? trim(($customer['shipping_courier'] ?? '').' '.($customer['shipping_service'] ?? ''))
-                : ($customer['shipping_region'] ?? null);
+            $regionLabel = match (true) {
+                $usingPickup => 'Self-pickup',
+                $usingRajaOngkir => trim(($customer['shipping_courier'] ?? '').' '.($customer['shipping_service'] ?? '')),
+                default => $customer['shipping_region'] ?? null,
+            };
 
             $order = Order::create([
                 'number' => $this->generateNumber(),
