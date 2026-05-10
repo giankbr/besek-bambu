@@ -11,44 +11,34 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
-                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
+                <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                    {{ __('Dashboard') }}
+                </flux:sidebar.item>
 
-                <flux:sidebar.group :heading="__('Catalog')" class="grid">
-                    <flux:sidebar.item icon="cube" :href="route('admin.products.index')" :current="request()->routeIs('admin.products.*')" wire:navigate>
-                        {{ __('Products') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="folder" :href="route('admin.categories.index')" :current="request()->routeIs('admin.categories.*')" wire:navigate>
-                        {{ __('Categories') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
+                <flux:sidebar.item icon="cube" :href="route('admin.products.index')" :current="request()->routeIs('admin.products.*')" wire:navigate>
+                    {{ __('Products') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="folder" :href="route('admin.categories.index')" :current="request()->routeIs('admin.categories.*')" wire:navigate>
+                    {{ __('Categories') }}
+                </flux:sidebar.item>
 
-                <flux:sidebar.group :heading="__('Sales')" class="grid">
-                    <flux:sidebar.item icon="shopping-bag" :href="route('admin.orders.index')" :current="request()->routeIs('admin.orders.*')" wire:navigate>
-                        {{ __('Orders') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="ticket" :href="route('admin.coupons.index')" :current="request()->routeIs('admin.coupons.*')" wire:navigate>
-                        {{ __('Coupons') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
+                <flux:sidebar.item icon="shopping-bag" :href="route('admin.orders.index')" :current="request()->routeIs('admin.orders.*')" wire:navigate>
+                    {{ __('Orders') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="ticket" :href="route('admin.coupons.index')" :current="request()->routeIs('admin.coupons.*')" wire:navigate>
+                    {{ __('Coupons') }}
+                </flux:sidebar.item>
 
-                <flux:sidebar.group :heading="__('Engagement')" class="grid">
-                    <flux:sidebar.item icon="star" :href="route('admin.reviews.index')" :current="request()->routeIs('admin.reviews.*')" wire:navigate>
-                        {{ __('Reviews') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="envelope" :href="route('admin.messages.index')" :current="request()->routeIs('admin.messages.*')" wire:navigate>
-                        {{ __('Messages') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
+                <flux:sidebar.item icon="star" :href="route('admin.reviews.index')" :current="request()->routeIs('admin.reviews.*')" wire:navigate>
+                    {{ __('Reviews') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="envelope" :href="route('admin.messages.index')" :current="request()->routeIs('admin.messages.*')" wire:navigate>
+                    {{ __('Messages') }}
+                </flux:sidebar.item>
 
-                <flux:sidebar.group :heading="__('Content')" class="grid">
-                    <flux:sidebar.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>
-                        {{ __('Gallery') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
+                <flux:sidebar.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>
+                    {{ __('Gallery') }}
+                </flux:sidebar.item>
             </flux:sidebar.nav>
 
             <flux:spacer />
