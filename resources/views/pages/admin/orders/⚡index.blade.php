@@ -184,9 +184,14 @@ new #[Title('Orders')] class extends Component {
                 <flux:heading size="xl">{{ __('Orders') }}</flux:heading>
                 <flux:subheading>{{ __('All customer orders.') }}</flux:subheading>
             </div>
-            <flux:button wire:click="exportCsv" variant="ghost" icon="arrow-down-tray">
-                {{ __('Export CSV') }}
-            </flux:button>
+            <div class="flex flex-wrap gap-2">
+                <flux:button wire:click="exportCsv" variant="ghost" icon="arrow-down-tray">
+                    {{ __('Export CSV') }}
+                </flux:button>
+                <flux:button :href="route('admin.orders.create')" variant="primary" icon="plus" wire:navigate>
+                    {{ __('New manual order') }}
+                </flux:button>
+            </div>
         </div>
 
         <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-5">

@@ -87,6 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::livewire('/', 'pages::admin.orders.index')->name('index');
+            Route::livewire('create', 'pages::admin.orders.create')->name('create');
             Route::livewire('{order}', 'pages::admin.orders.show')->name('show');
         });
 

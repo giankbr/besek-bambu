@@ -31,7 +31,7 @@
               <li class="cart-item">
                 <a class="cart-item__media {{ $item->product->color_class }}" href="{{ route('shop.product', $item->product) }}">
                   @if ($item->product->image_url)
-                    <img src="{{ image_src($item->product->image_url) }}" alt="{{ $item->product->name }}" />
+                    <img src="{{ image_src($item->product->image_url) }}" alt="{{ $item->product->name }}" loading="lazy" decoding="async" />
                   @else
                     <span class="cart-item__icon">{{ $item->product->icon }}</span>
                   @endif

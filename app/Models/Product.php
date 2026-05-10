@@ -106,9 +106,16 @@ class Product extends Model
             return false;
         }
 
-        return DB::table('wishlist_items')
-            ->where('user_id', $userId)
-            ->where('product_id', $this->id)
-            ->exists();
+        // Memoise the user's full wishlist set once per request so a
+        // grid of N product cards does not trigger N exists() queries.
+        static $cache = [];
+        if (! array_key_exists($userId, $cache)) {
+            $cache[$userId] = DB::table('wishlist_items')
+                ->where('user_id', $userId)
+                ->pluck('product_id')
+                ->all();
+        }
+
+        return in_array($this->id, $cache[$userId], true);
     }
 }

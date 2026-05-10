@@ -37,7 +37,13 @@
       </form>
       @auth
         @php
-          $wishCount = \Illuminate\Support\Facades\DB::table('wishlist_items')->where('user_id', auth()->id())->count();
+          // Cache 60s per user — wishlist count is fine to be slightly
+          // stale and this avoids a DB roundtrip on every page render.
+          $wishCount = \Illuminate\Support\Facades\Cache::remember(
+            'nav.wish.'.auth()->id(),
+            60,
+            fn () => \Illuminate\Support\Facades\DB::table('wishlist_items')->where('user_id', auth()->id())->count(),
+          );
         @endphp
         <a href="{{ route('account.wishlist') }}" aria-label="Wishlist" title="Wishlist">♥ {{ $wishCount }}</a>
         <a href="{{ route('account.index') }}" aria-label="Account">{{ auth()->user()->name }}</a>

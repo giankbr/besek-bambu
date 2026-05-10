@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\CartSnapshot;
 use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CartService
 {
@@ -52,6 +55,7 @@ class CartService
 
         $cart[$product->id] = $next;
         session([self::SESSION_KEY => $cart]);
+        $this->snapshot();
     }
 
     public function update(int $productId, int $quantity): void
@@ -69,6 +73,7 @@ class CartService
         }
 
         session([self::SESSION_KEY => $cart]);
+        $this->snapshot();
     }
 
     public function remove(int $productId): void
@@ -76,12 +81,64 @@ class CartService
         $cart = $this->raw();
         unset($cart[$productId]);
         session([self::SESSION_KEY => $cart]);
+        $this->snapshot();
     }
 
     public function clear(): void
     {
         session()->forget(self::SESSION_KEY);
         session()->forget(self::COUPON_KEY);
+        $this->forgetSnapshot();
+    }
+
+    /**
+     * Persist the current cart for the authenticated user so that an
+     * abandoned-cart job can recover it later. Anonymous carts are
+     * not stored because we have no contact channel for them.
+     */
+    private function snapshot(): void
+    {
+        $userId = Auth::id();
+        if (! $userId) {
+            return;
+        }
+
+        $items = $this->raw();
+
+        try {
+            if (empty($items)) {
+                CartSnapshot::query()->where('user_id', $userId)->delete();
+
+                return;
+            }
+
+            CartSnapshot::query()->updateOrCreate(
+                ['user_id' => $userId],
+                [
+                    'items' => $items,
+                    'subtotal' => $this->subtotal(),
+                    'last_seen_at' => now(),
+                    'recovery_sent_at' => null,
+                ],
+            );
+        } catch (\Throwable $e) {
+            // Snapshotting must never break the user-facing flow.
+            Log::warning('Cart snapshot failed', ['error' => $e->getMessage()]);
+        }
+    }
+
+    private function forgetSnapshot(): void
+    {
+        $userId = Auth::id();
+        if (! $userId) {
+            return;
+        }
+
+        try {
+            CartSnapshot::query()->where('user_id', $userId)->delete();
+        } catch (\Throwable $e) {
+            Log::warning('Cart snapshot delete failed', ['error' => $e->getMessage()]);
+        }
     }
 
     public function count(): int

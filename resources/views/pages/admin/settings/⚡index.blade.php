@@ -56,6 +56,8 @@ new #[Title('Store settings')] class extends Component {
     public int $stock_alert_threshold = 5;
     public string $stock_alert_email = '';
 
+    public bool $require_admin_2fa = false;
+
     public function mount(): void
     {
         $this->store_name = (string) Setting::get('store_name', config('app.name'));
@@ -98,6 +100,8 @@ new #[Title('Store settings')] class extends Component {
 
         $this->stock_alert_threshold = (int) Setting::get('stock_alert_threshold', 5);
         $this->stock_alert_email = (string) Setting::get('stock_alert_email', '');
+
+        $this->require_admin_2fa = (bool) Setting::get('require_admin_2fa', false);
     }
 
     public function addZone(): void
@@ -374,12 +378,28 @@ new #[Title('Store settings')] class extends Component {
         }
     }
 
+    public function saveSecurity(): void
+    {
+        try {
+            $this->validate([
+                'require_admin_2fa' => ['boolean'],
+            ]);
+
+            Setting::put('require_admin_2fa', $this->require_admin_2fa);
+
+            Flux::toast(variant: 'success', text: __('Security settings saved.'));
+        } catch (\Throwable $e) {
+            Flux::toast(variant: 'danger', heading: __('Failed to save'), text: $e->getMessage());
+        }
+    }
+
     public array $tabs = [
         'general' => 'General',
         'shipping' => 'Shipping',
         'tax' => 'Tax',
         'payment' => 'Payment',
         'email' => 'Email',
+        'security' => 'Security',
     ];
 }; ?>
 
@@ -674,6 +694,33 @@ new #[Title('Store settings')] class extends Component {
 
                 <div>
                     <flux:button type="submit" variant="primary">{{ __('Save email') }}</flux:button>
+                </div>
+            </form>
+        @endif
+
+        @if ($tab === 'security')
+            <form wire:submit="saveSecurity" class="grid w-full gap-5">
+                <flux:heading size="lg">{{ __('Admin two-factor authentication') }}</flux:heading>
+                <flux:text size="sm" class="text-zinc-500">
+                    {{ __('When enabled, admin users without a confirmed authenticator app will be redirected to set up 2FA before accessing /admin pages.') }}
+                </flux:text>
+
+                <flux:checkbox
+                    wire:model="require_admin_2fa"
+                    :label="__('Require 2FA for all admin accounts')"
+                />
+
+                @php
+                    $hasOwn2fa = ! is_null(auth()->user()->two_factor_confirmed_at);
+                @endphp
+                @if ($require_admin_2fa && ! $hasOwn2fa)
+                    <flux:callout variant="warning">
+                        {{ __('You have not finished setting up 2FA on your own account. Once you save, you will be redirected to /settings/security on next request.') }}
+                    </flux:callout>
+                @endif
+
+                <div>
+                    <flux:button type="submit" variant="primary">{{ __('Save security') }}</flux:button>
                 </div>
             </form>
         @endif

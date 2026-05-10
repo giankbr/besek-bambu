@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class WishlistController extends Controller
@@ -47,6 +48,8 @@ class WishlistController extends Controller
             ]);
             $message = 'Added to your wishlist.';
         }
+
+        Cache::forget('nav.wish.'.$userId);
 
         return back()->with('status', $message);
     }
