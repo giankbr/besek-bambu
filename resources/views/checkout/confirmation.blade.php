@@ -64,7 +64,22 @@
             @endif
           </div>
 
-          @if ($order->canBePaid())
+          @php
+            $bankInfo = setting('payment_bank_info');
+          @endphp
+
+          @if ($order->payment_method === 'manual_transfer' && $order->canBePaid() && $bankInfo)
+            <h2 class="confirmation-section-title">Bank transfer instructions</h2>
+            <p class="confirmation-meta" style="white-space:pre-line">{{ $bankInfo }}</p>
+            <p class="confirmation-meta">Please transfer <strong>{{ idr($order->total) }}</strong> and reply with the transfer proof, mentioning order <strong>{{ $order->number }}</strong>.</p>
+          @endif
+
+          @if ($order->payment_method === 'cod' && $order->canBePaid())
+            <h2 class="confirmation-section-title">Cash on delivery</h2>
+            <p class="confirmation-meta">Please prepare <strong>{{ idr($order->total) }}</strong> in cash. Our courier will collect payment at delivery.</p>
+          @endif
+
+          @if ($order->canBePaid() && $order->payment_method === 'midtrans' && setting('payment_midtrans', true) && config('services.midtrans.server_key'))
             <div class="confirmation-actions" style="margin-top:1.25rem">
               <a class="hero-cta" href="{{ route('payment.pay', $order) }}">Pay now</a>
             </div>

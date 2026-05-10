@@ -17,6 +17,11 @@ class PaymentController extends Controller
                 ->with('status', 'This order cannot be paid.');
         }
 
+        if (! setting('payment_midtrans', true) || ! config('services.midtrans.server_key')) {
+            return redirect()->route('checkout.confirmation', $order)
+                ->with('status', 'Online payment is currently disabled. Please follow the instructions on this page.');
+        }
+
         if (! $order->payment_token) {
             $midtrans->createSnapToken($order);
             $order->refresh();

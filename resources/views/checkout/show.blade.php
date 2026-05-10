@@ -66,6 +66,26 @@
             Notes (optional)
             <textarea name="notes" rows="2" placeholder="Special instructions...">{{ old('notes') }}</textarea>
           </label>
+
+          @if (count($paymentMethods) > 0)
+            <h2 class="checkout-section-title">Payment</h2>
+            @if (count($paymentMethods) === 1)
+              @php $onlyKey = array_key_first($paymentMethods); @endphp
+              <input type="hidden" name="payment_method" value="{{ $onlyKey }}" />
+              <p class="confirmation-meta" style="margin-top:0">{{ $paymentMethods[$onlyKey] }}</p>
+            @else
+              <div class="checkout-payment-methods">
+                @php $defaultMethod = old('payment_method', array_key_first($paymentMethods)); @endphp
+                @foreach ($paymentMethods as $key => $label)
+                  <label class="checkout-payment-method">
+                    <input type="radio" name="payment_method" value="{{ $key }}" {{ $defaultMethod === $key ? 'checked' : '' }} />
+                    <span>{{ $label }}</span>
+                  </label>
+                @endforeach
+              </div>
+              @error('payment_method')<span class="form-error">{{ $message }}</span>@enderror
+            @endif
+          @endif
         </div>
 
         <aside class="cart-summary checkout-summary">

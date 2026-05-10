@@ -45,6 +45,13 @@ class CheckoutService
             : max(0, $subtotal - $discount) + $tax + $shippingCost;
 
         $order = DB::transaction(function () use ($items, $subtotal, $discount, $tax, $taxRate, $taxInclusive, $shippingCost, $total, $coupon, $customer) {
+            $paymentMethod = $customer['payment_method'] ?? null;
+            $paymentStatus = match ($paymentMethod) {
+                'cod' => 'pending',
+                'manual_transfer' => 'pending',
+                default => 'unpaid',
+            };
+
             $order = Order::create([
                 'number' => $this->generateNumber(),
                 'user_id' => Auth::id(),
@@ -63,6 +70,8 @@ class CheckoutService
                 'subtotal' => $subtotal,
                 'total' => $total,
                 'status' => 'pending',
+                'payment_method' => $paymentMethod,
+                'payment_status' => $paymentStatus,
             ]);
 
             if ($coupon) {

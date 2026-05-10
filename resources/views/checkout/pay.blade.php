@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Pay order ' . $order->number . ' — Besek Bambu')
+@section('title', 'Pay order ' . $order->number . ' — '.store_name())
 
 @push('head')
   <script src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"

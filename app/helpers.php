@@ -84,6 +84,38 @@ if (! function_exists('store_socials')) {
     }
 }
 
+if (! function_exists('enabled_payment_methods')) {
+    /**
+     * @return array<string, string> map of method key => label for enabled methods
+     */
+    function enabled_payment_methods(): array
+    {
+        $candidates = [
+            'midtrans' => [
+                'enabled' => (bool) setting('payment_midtrans', true) && (bool) config('services.midtrans.server_key'),
+                'label' => 'Online payment (card / bank transfer / e-wallet / QRIS)',
+            ],
+            'manual_transfer' => [
+                'enabled' => (bool) setting('payment_manual_transfer', false),
+                'label' => 'Manual bank transfer',
+            ],
+            'cod' => [
+                'enabled' => (bool) setting('payment_cod', false),
+                'label' => 'Cash on delivery',
+            ],
+        ];
+
+        $out = [];
+        foreach ($candidates as $key => $info) {
+            if ($info['enabled']) {
+                $out[$key] = $info['label'];
+            }
+        }
+
+        return $out;
+    }
+}
+
 if (! function_exists('image_src')) {
     function image_src(?string $value): ?string
     {
