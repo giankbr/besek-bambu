@@ -106,6 +106,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::livewire('/', 'pages::admin.customers.index')->name('index');
             Route::livewire('show', 'pages::admin.customers.show')->name('show');
         });
+
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::livewire('/', 'pages::admin.reports.index')->name('index');
+        });
     });
 });
 

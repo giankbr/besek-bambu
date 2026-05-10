@@ -20,6 +20,9 @@
                 <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="chart-bar" :href="route('admin.reports.index')" :current="request()->routeIs('admin.reports.*')" wire:navigate>
+                    {{ __('Reports') }}
+                </flux:sidebar.item>
 
                 <div class="{{ $dividerClass }}"></div>
                 <div class="{{ $headingClass }}">{{ __('Catalog') }}</div>
