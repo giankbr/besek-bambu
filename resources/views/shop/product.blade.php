@@ -193,35 +193,72 @@
               'is_default' => (bool) $v->is_default,
             ])->values()->all();
             $defaultVariant = $product->defaultVariant();
+            $tiersPayload = $product->priceTiers->map(fn ($t) => [
+              'min' => (int) $t->min_quantity,
+              'price' => (float) $t->unit_price,
+            ])->values()->all();
+            $hasTiers = ! empty($tiersPayload);
           @endphp
 
           <div
             x-data='{
               variants: @php echo json_encode($variantsPayload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); @endphp,
+              tiers: @php echo json_encode($tiersPayload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); @endphp,
               hasVariants: @json($hasVariants),
+              hasTiers: @json($hasTiers),
               basePrice: @json((float) $product->price),
               baseStock: @json((int) $product->stock),
               moq: {{ $moq }},
               variantId: {{ $defaultVariant?->id ?? 'null' }},
+              qty: {{ $moq }},
               get current() {
                 if (!this.hasVariants) return { price: this.basePrice, stock: this.baseStock };
                 return this.variants.find(v => v.id === this.variantId) || this.variants[0] || { price: this.basePrice, stock: 0 };
               },
-              get displayPrice() { return new Intl.NumberFormat("id-ID").format(Math.round(this.current.price)); },
+              get tierPrice() {
+                if (!this.tiers.length) return null;
+                const sorted = [...this.tiers].sort((a, b) => a.min - b.min);
+                const match = [...sorted].reverse().find(t => t.min <= this.qty);
+                return match ? match.price : null;
+              },
+              get effectivePrice() {
+                const tp = this.tierPrice;
+                return tp !== null ? tp : this.current.price;
+              },
+              get savingsPct() {
+                const tp = this.tierPrice;
+                if (tp === null || tp >= this.current.price) return 0;
+                return Math.round((1 - tp / this.current.price) * 100);
+              },
+              get displayPrice() { return new Intl.NumberFormat("id-ID").format(Math.round(this.effectivePrice)); },
+              get displayBase() { return new Intl.NumberFormat("id-ID").format(Math.round(this.current.price)); },
               get availableStock() { return Number(this.current.stock || 0); },
               get effectiveMax() { return Math.max(this.moq, this.availableStock || this.moq); },
+              get lineTotal() { return new Intl.NumberFormat("id-ID").format(Math.round(this.effectivePrice * this.qty)); },
               pickVariant(id) {
                 this.variantId = id;
-                this.$nextTick(() => {
-                  if (this.$refs.qtyInput) {
-                    const cap = this.availableStock > 0 ? this.availableStock : this.moq;
-                    this.$refs.qtyInput.value = Math.min(Math.max(this.moq, Number(this.$refs.qtyInput.value) || this.moq), cap);
-                  }
-                });
+                this.$nextTick(() => this.clampQty());
+              },
+              clampQty() {
+                const cap = this.availableStock > 0 ? this.availableStock : this.moq;
+                this.qty = Math.min(Math.max(this.moq, Number(this.qty) || this.moq), cap);
               },
             }'
+            x-init="$watch(\'qty\', () => clampQty())"
           >
-            <div class="product-detail__price">Rp <span x-text="displayPrice">{{ number_format((float) $product->price, 0, ',', '.') }}</span></div>
+            <div class="product-detail__price">
+              Rp <span x-text="displayPrice">{{ number_format((float) $product->price, 0, ',', '.') }}</span>
+              <template x-if="savingsPct > 0">
+                <span style="margin-left:8px;font-size:0.75em;color:#1f7a3a;background:#eaf6ed;padding:2px 8px;border-radius:999px">
+                  Hemat <span x-text="savingsPct"></span>%
+                </span>
+              </template>
+              <template x-if="savingsPct > 0">
+                <small style="display:block;color:#7d6f5f;font-weight:400;font-size:0.7em;margin-top:2px">
+                  <s>Rp <span x-text="displayBase"></span></s>/pcs (harga normal)
+                </small>
+              </template>
+            </div>
 
             @if ($product->description)
               <p class="product-detail__desc">{{ $product->description }}</p>
@@ -264,6 +301,28 @@
               @endif
             </div>
 
+            @if ($hasTiers)
+              <div style="margin:12px 0;padding:12px;border:1px dashed #d6cdb8;border-radius:8px;background:#fdfbf6">
+                <div style="font-weight:600;font-size:0.9rem;margin-bottom:6px">Bulk pricing</div>
+                <table style="width:100%;font-size:0.85rem">
+                  <thead style="color:#7d6f5f">
+                    <tr><th style="text-align:left;padding:2px 0">Quantity</th><th style="text-align:right;padding:2px 0">Per unit</th></tr>
+                  </thead>
+                  <tbody>
+                    @foreach ($product->priceTiers as $i => $t)
+                      @php
+                        $next = $product->priceTiers[$i + 1] ?? null;
+                        $rangeLabel = $next
+                          ? $t->min_quantity.'-'.($next->min_quantity - 1).' pcs'
+                          : '≥ '.$t->min_quantity.' pcs';
+                      @endphp
+                      <tr><td style="padding:2px 0">{{ $rangeLabel }}</td><td style="text-align:right;padding:2px 0">{{ idr($t->unit_price) }}</td></tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
+            @endif
+
             <form action="{{ route('cart.add') }}" method="post" class="product-detail__cta">
               @csrf
               <input type="hidden" name="product_id" value="{{ $product->id }}" />
@@ -274,10 +333,9 @@
                 <label for="qty">Qty</label>
                 <input
                   id="qty"
-                  x-ref="qtyInput"
+                  x-model.number="qty"
                   type="number"
                   name="quantity"
-                  value="{{ $moq }}"
                   :min="moq"
                   :max="effectiveMax"
                   step="1"
@@ -286,6 +344,9 @@
               </div>
               <button type="submit" class="hero-cta" :disabled="availableStock === 0" x-text="availableStock === 0 ? 'Sold out' : 'Add to cart'">Add to cart</button>
             </form>
+            <div style="margin-top:6px;color:#7d6f5f;font-size:0.85rem">
+              Estimasi total: <strong>Rp <span x-text="lineTotal"></span></strong>
+            </div>
           </div>
 
           @if ($waNumber)

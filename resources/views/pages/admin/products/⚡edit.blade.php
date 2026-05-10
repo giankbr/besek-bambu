@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductPriceTier;
 use App\Models\ProductVariant;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
@@ -39,6 +40,7 @@ new #[Title('Edit Product')] class extends Component {
     public $og_image_upload = null;
 
     public array $variants = [];
+    public array $tiers = [];
 
     public function mount(Product $product): void
     {
@@ -72,6 +74,78 @@ new #[Title('Edit Product')] class extends Component {
             'sort_order' => (int) $v->sort_order,
             'is_default' => (bool) $v->is_default,
         ])->toArray();
+
+        $this->tiers = $product->priceTiers()->orderBy('min_quantity')->get()->map(fn ($t) => [
+            'id' => $t->id,
+            'min_quantity' => (int) $t->min_quantity,
+            'unit_price' => (string) $t->unit_price,
+        ])->toArray();
+    }
+
+    public function addTier(): void
+    {
+        $nextMin = 1;
+        if (! empty($this->tiers)) {
+            $nextMin = max(array_map(fn ($t) => (int) ($t['min_quantity'] ?? 0), $this->tiers)) + 10;
+        }
+        $this->tiers[] = [
+            'id' => null,
+            'min_quantity' => $nextMin,
+            'unit_price' => (string) (float) $this->price,
+        ];
+    }
+
+    public function removeTier(int $index): void
+    {
+        if (! isset($this->tiers[$index])) {
+            return;
+        }
+        $tier = $this->tiers[$index];
+        if (! empty($tier['id'])) {
+            ProductPriceTier::whereKey($tier['id'])->delete();
+        }
+        array_splice($this->tiers, $index, 1);
+        $this->tiers = array_values($this->tiers);
+    }
+
+    public function saveTiers(): void
+    {
+        try {
+            $this->validate([
+                'tiers' => ['array'],
+                'tiers.*.min_quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+                'tiers.*.unit_price' => ['required', 'numeric', 'min:0'],
+            ]);
+
+            // Sort and dedupe min_quantity to keep the table clean.
+            usort($this->tiers, fn ($a, $b) => (int) $a['min_quantity'] <=> (int) $b['min_quantity']);
+
+            foreach ($this->tiers as $i => $t) {
+                $payload = [
+                    'product_id' => $this->product->id,
+                    'min_quantity' => (int) $t['min_quantity'],
+                    'unit_price' => (float) $t['unit_price'],
+                ];
+
+                if (! empty($t['id'])) {
+                    ProductPriceTier::whereKey($t['id'])->update($payload);
+                } else {
+                    $created = ProductPriceTier::create($payload);
+                    $this->tiers[$i]['id'] = $created->id;
+                }
+            }
+
+            Flux::toast(variant: 'success', text: __('Bulk pricing saved.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the tier rows.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(variant: 'danger', heading: __('Failed to save'), text: $e->getMessage());
+        }
     }
 
     public function addVariant(): void
@@ -476,6 +550,43 @@ new #[Title('Edit Product')] class extends Component {
             <div class="mt-3 flex items-center gap-2">
                 <flux:button type="button" variant="ghost" icon="plus" wire:click="addVariant">{{ __('Add variant') }}</flux:button>
                 <flux:button type="button" variant="primary" wire:click="saveVariants">{{ __('Save variants') }}</flux:button>
+            </div>
+        </div>
+
+        <flux:separator class="my-2" />
+
+        <div class="w-full">
+            <flux:heading size="lg">{{ __('Bulk (tier) pricing') }}</flux:heading>
+            <flux:subheading>
+                {{ __('Reward larger orders with a lower per-unit price. The highest tier whose minimum quantity is met wins. Applies across all variants of this product.') }}
+            </flux:subheading>
+
+            <div class="mt-4 grid gap-3">
+                @foreach ($tiers as $i => $t)
+                    <div class="grid items-end gap-2 rounded-lg border border-zinc-200 p-3 md:grid-cols-12">
+                        <div class="md:col-span-4">
+                            <flux:input wire:model="tiers.{{ $i }}.min_quantity" :label="__('Min quantity')" type="number" min="1" />
+                            @error("tiers.$i.min_quantity")<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                        </div>
+                        <div class="md:col-span-6">
+                            <flux:input wire:model="tiers.{{ $i }}.unit_price" :label="__('Unit price (IDR)')" type="number" min="0" step="1" />
+                            @error("tiers.$i.unit_price")<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
+                        </div>
+                        <div class="md:col-span-2 flex items-center justify-end">
+                            <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="removeTier({{ $i }})" wire:confirm="{{ __('Delete this tier?') }}" />
+                        </div>
+                    </div>
+                @endforeach
+                @if (count($tiers) === 0)
+                    <flux:text class="text-zinc-500">
+                        {{ __('No bulk tiers yet. Add a row like "min 50 → 1.625 IDR/pc" to enable wholesale discounts.') }}
+                    </flux:text>
+                @endif
+            </div>
+
+            <div class="mt-3 flex items-center gap-2">
+                <flux:button type="button" variant="ghost" icon="plus" wire:click="addTier">{{ __('Add tier') }}</flux:button>
+                <flux:button type="button" variant="primary" wire:click="saveTiers">{{ __('Save tiers') }}</flux:button>
             </div>
         </div>
 

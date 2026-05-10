@@ -37,7 +37,7 @@ class CartService
         $productIds = array_unique(array_map(fn ($e) => (int) ($e['product_id'] ?? 0), $cart));
         $variantIds = array_unique(array_filter(array_map(fn ($e) => (int) ($e['variant_id'] ?? 0), $cart)));
 
-        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $products = Product::with('priceTiers')->whereIn('id', $productIds)->get()->keyBy('id');
         $variants = $variantIds
             ? ProductVariant::whereIn('id', $variantIds)->get()->keyBy('id')
             : collect();
@@ -53,17 +53,21 @@ class CartService
                     ? $variants->get((int) $entry['variant_id'])
                     : null;
 
-                $price = $variant ? $variant->effectivePrice() : (float) $product->price;
                 $qty = (int) $entry['quantity'];
+                $basePrice = $variant ? $variant->effectivePrice() : (float) $product->price;
+                $unitPrice = $product->unitPriceForQuantity($qty, $variant);
+                $tierApplied = $unitPrice < $basePrice;
 
                 return (object) [
                     'key' => $key,
                     'product' => $product,
                     'variant' => $variant,
                     'variant_label' => $variant?->label,
-                    'unit_price' => $price,
+                    'unit_price' => $unitPrice,
+                    'base_price' => $basePrice,
+                    'tier_applied' => $tierApplied,
                     'quantity' => $qty,
-                    'line_total' => round($price * $qty, 2),
+                    'line_total' => round($unitPrice * $qty, 2),
                 ];
             })
             ->filter()

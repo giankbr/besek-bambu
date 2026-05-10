@@ -41,7 +41,15 @@
                   @if ($item->variant_label)
                     <div class="cart-item__variant" style="color:#7d6f5f;font-size:0.9rem">Size: <strong>{{ $item->variant_label }}</strong></div>
                   @endif
-                  <div class="cart-item__price">{{ idr($item->unit_price) }}</div>
+                  <div class="cart-item__price">
+                    {{ idr($item->unit_price) }}
+                    @if (! empty($item->tier_applied) && $item->base_price > $item->unit_price)
+                      <small style="color:#1f7a3a;display:inline-block;margin-left:6px">
+                        <s style="color:#7d6f5f">{{ idr($item->base_price) }}</s>
+                        · Hemat {{ round((1 - $item->unit_price / $item->base_price) * 100) }}%
+                      </small>
+                    @endif
+                  </div>
 
                   @php
                     $itemStockCap = $item->variant ? (int) $item->variant->stock : (int) $item->product->stock;

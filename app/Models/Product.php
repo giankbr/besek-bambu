@@ -114,6 +114,34 @@ class Product extends Model
         return (int) $this->stock;
     }
 
+    public function priceTiers(): HasMany
+    {
+        return $this->hasMany(ProductPriceTier::class)->orderBy('min_quantity');
+    }
+
+    /**
+     * Resolve the per-unit price for a given quantity.
+     * Tiers are inclusive: the highest tier whose min_quantity is
+     * less-than-or-equal to qty wins. Without tiers, falls back to the
+     * variant price (when supplied) or the product's base price.
+     */
+    public function unitPriceForQuantity(int $qty, ?ProductVariant $variant = null): float
+    {
+        $base = $variant ? $variant->effectivePrice() : (float) $this->price;
+
+        $tiers = $this->relationLoaded('priceTiers') ? $this->priceTiers : $this->priceTiers()->get();
+        if ($tiers->isEmpty()) {
+            return $base;
+        }
+
+        $applicable = $tiers
+            ->filter(fn ($t) => (int) $t->min_quantity <= $qty)
+            ->sortByDesc('min_quantity')
+            ->first();
+
+        return $applicable ? (float) $applicable->unit_price : $base;
+    }
+
     public function primaryImage(): ?string
     {
         $primary = $this->images()->where('is_primary', true)->first()

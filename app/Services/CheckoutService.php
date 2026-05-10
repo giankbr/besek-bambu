@@ -118,7 +118,9 @@ class CheckoutService
                     throw new \DomainException("Sorry, only {$availableStock} of {$itemLabel} are available.");
                 }
 
-                $unitPrice = $variant ? $variant->effectivePrice() : $product->price;
+                // Re-resolve the price under lock so a tier change between
+                // cart render and place doesn't leak the old number.
+                $unitPrice = $product->unitPriceForQuantity((int) $item->quantity, $variant);
 
                 $order->items()->create([
                     'product_id' => $product->id,
@@ -128,7 +130,7 @@ class CheckoutService
                     'product_icon' => $product->icon,
                     'price' => $unitPrice,
                     'quantity' => $item->quantity,
-                    'line_total' => $item->line_total,
+                    'line_total' => round($unitPrice * (int) $item->quantity, 2),
                 ]);
 
                 if ($variant) {
