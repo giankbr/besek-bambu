@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
@@ -51,6 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account', [AccountController::class, 'index'])->name('account.index');
     Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
     Route::get('/account/orders/{order}', [AccountController::class, 'show'])->name('account.orders.show');
+    Route::get('/account/orders/{order}/track', [AccountController::class, 'track'])->name('account.orders.track');
+    Route::get('/account/orders/{order}/invoice', [InvoiceController::class, 'show'])->name('account.orders.invoice');
     Route::post('/account/orders/{order}/cancel', [AccountController::class, 'cancel'])->name('account.orders.cancel');
 
     Route::post('/products/{product:slug}/reviews', [ProductReviewController::class, 'store'])->name('reviews.store');

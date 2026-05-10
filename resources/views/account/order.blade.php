@@ -89,6 +89,19 @@
         @endif
 
         <h2 class="confirmation-section-title" style="margin-top:1.5rem">Tracking</h2>
+
+        @if ($order->hasTracking())
+          <div style="margin:0.5rem 0 1rem;padding:0.75rem 1rem;background:#eef7ee;border:1px solid #c8e6cb;border-radius:0.5rem">
+            <p class="confirmation-meta" style="margin:0">
+              <strong>{{ strtoupper($order->shipping_courier) }} {{ $order->shipping_service }}</strong>
+            </p>
+            <p class="confirmation-meta" style="margin:0">
+              AWB: <code style="font-family:monospace">{{ $order->tracking_number }}</code>
+            </p>
+            <a href="{{ route('account.orders.track', $order) }}" class="cart-link-btn" style="margin-top:0.5rem;display:inline-block">Track package →</a>
+          </div>
+        @endif
+
         <ol class="order-timeline">
           <li class="order-timeline__step {{ in_array($order->status, ['pending','paid','shipped','delivered']) ? 'is-done' : '' }}">
             <strong>Order placed</strong>
@@ -100,17 +113,18 @@
           </li>
           <li class="order-timeline__step {{ in_array($order->status, ['shipped','delivered']) ? 'is-done' : '' }}">
             <strong>Shipped</strong>
-            <span>{{ $order->status === 'shipped' || $order->status === 'delivered' ? 'Your order is on the way' : '—' }}</span>
+            <span>{{ $order->shipped_at?->format('M d, Y · H:i') ?? ($order->status === 'shipped' ? 'Your order is on the way' : '—') }}</span>
           </li>
           <li class="order-timeline__step {{ $order->status === 'delivered' ? 'is-done' : '' }}">
             <strong>Delivered</strong>
-            <span>{{ $order->status === 'delivered' ? 'Enjoy your purchase!' : '—' }}</span>
+            <span>{{ $order->delivered_at?->format('M d, Y · H:i') ?? ($order->status === 'delivered' ? 'Enjoy your purchase!' : '—') }}</span>
           </li>
         </ol>
       </div>
 
       <div class="confirmation-actions">
         <a class="cart-link-btn" href="{{ route('account.orders') }}">← Back to orders</a>
+        <a class="cart-link-btn" href="{{ route('account.orders.invoice', $order) }}" target="_blank" rel="noopener">Download invoice</a>
       </div>
     </section>
 

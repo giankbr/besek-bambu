@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\ShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
@@ -67,5 +69,42 @@ class AccountController extends Controller
         });
 
         return redirect()->route('account.orders.show', $order)->with('status', 'Order cancelled.');
+    }
+
+    public function track(Order $order, ShippingService $shipping)
+    {
+        abort_if($order->user_id !== Auth::id(), 404);
+
+        $tracking = [];
+        $error = null;
+
+        if (! $order->hasTracking()) {
+            $error = 'No tracking number is set for this order yet.';
+        } else {
+            try {
+                $client = $shipping->rajaOngkirClient();
+                if (! $client->isConfigured()) {
+                    $error = 'Live tracking is unavailable right now.';
+                } else {
+                    $tracking = $client->trackWaybill(
+                        $order->tracking_number,
+                        $order->shipping_courier,
+                        $order->customer_phone,
+                    );
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Customer tracking failed', [
+                    'order' => $order->number,
+                    'error' => $e->getMessage(),
+                ]);
+                $error = $e->getMessage();
+            }
+        }
+
+        return view('account.track', [
+            'order' => $order,
+            'tracking' => $tracking,
+            'error' => $error,
+        ]);
     }
 }

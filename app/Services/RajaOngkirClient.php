@@ -133,6 +133,41 @@ class RajaOngkirClient
     }
 
     /**
+     * Track a shipment by airwaybill (AWB) number. Most couriers
+     * require the last 5 digits of the recipient's phone number for
+     * verification, but it is sent as 0 when unknown so the request
+     * still validates.
+     *
+     * @return array{summary?: array<string, mixed>, details?: array<string, mixed>, delivery_status?: array<string, mixed>, manifest?: array<int, array<string, mixed>>}
+     */
+    public function trackWaybill(string $awb, string $courier, ?string $lastPhoneNumber = null): array
+    {
+        $awb = trim($awb);
+        $courier = strtolower(trim($courier));
+
+        if ($awb === '' || $courier === '') {
+            throw new \DomainException('Waybill number and courier are required.');
+        }
+
+        $payload = [
+            'awb' => $awb,
+            'courier' => $courier,
+            'last_phone_number' => $lastPhoneNumber !== null && $lastPhoneNumber !== ''
+                ? (int) substr(preg_replace('/\D/', '', $lastPhoneNumber), -5)
+                : 0,
+        ];
+
+        $cacheKey = sprintf('rajaongkir.v2.track.%s.%s.%s', $awb, $courier, md5(json_encode($payload)));
+
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($payload): array {
+            $response = $this->request('POST', '/track/waybill', $payload);
+            $data = $response->json('data');
+
+            return is_array($data) ? $data : [];
+        });
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      */
     private function request(string $method, string $path, array $payload = []): Response

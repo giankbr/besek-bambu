@@ -40,6 +40,11 @@
                 <div>
                   <strong>{{ $order->number }}</strong>
                   <div class="confirmation-meta">{{ $order->created_at->format('M d, Y · H:i') }} · {{ $order->items_count }} items</div>
+                  @if ($order->hasTracking())
+                    <div class="confirmation-meta" style="font-size:12px">
+                      {{ strtoupper($order->shipping_courier) }} · <code style="font-family:monospace">{{ $order->tracking_number }}</code>
+                    </div>
+                  @endif
                 </div>
                 <div class="account-order-row__right">
                   <strong>{{ idr($order->total) }}</strong>

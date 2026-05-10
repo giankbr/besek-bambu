@@ -20,6 +20,7 @@ class Order extends Model
         'shipping_address', 'shipping_region', 'shipping_cost',
         'shipping_province', 'shipping_city_id', 'shipping_city_name',
         'shipping_courier', 'shipping_service', 'shipping_etd', 'shipping_weight',
+        'tracking_number', 'shipped_at', 'delivered_at',
         'notes', 'subtotal', 'discount', 'tax', 'tax_rate', 'tax_inclusive',
         'coupon_code', 'total', 'status',
         'payment_method', 'payment_status', 'payment_token', 'payment_url', 'paid_at',
@@ -27,7 +28,7 @@ class Order extends Model
 
     public function getLoggableAttributes(): array
     {
-        return ['status', 'payment_status', 'payment_method', 'paid_at', 'total', 'shipping_cost'];
+        return ['status', 'payment_status', 'payment_method', 'paid_at', 'total', 'shipping_cost', 'tracking_number'];
     }
 
     protected $casts = [
@@ -39,7 +40,14 @@ class Order extends Model
         'tax_inclusive' => 'boolean',
         'total' => 'decimal:2',
         'paid_at' => 'datetime',
+        'shipped_at' => 'datetime',
+        'delivered_at' => 'datetime',
     ];
+
+    public function hasTracking(): bool
+    {
+        return ! empty($this->tracking_number) && ! empty($this->shipping_courier);
+    }
 
     public function items(): HasMany
     {
