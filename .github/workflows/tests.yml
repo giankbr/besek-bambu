@@ -1,18 +1,21 @@
 name: tests
 
+# Auto-triggers disabled. Run manually from the Actions tab when needed.
+# To re-enable, uncomment the push/pull_request blocks below.
 on:
-  push:
-    branches:
-      - develop
-      - main
-      - master
-      - workos
-  pull_request:
-    branches:
-      - develop
-      - main
-      - master
-      - workos
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - develop
+  #     - main
+  #     - master
+  #     - workos
+  # pull_request:
+  #   branches:
+  #     - develop
+  #     - main
+  #     - master
+  #     - workos
 
 jobs:
   ci:
