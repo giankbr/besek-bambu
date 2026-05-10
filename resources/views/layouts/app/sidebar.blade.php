@@ -10,11 +10,19 @@
                 <flux:sidebar.collapse />
             </flux:sidebar.header>
 
+            @php
+                $headingClass = 'in-data-flux-sidebar-collapsed-desktop:hidden px-2 pt-3 pb-1 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400';
+                $dividerClass = 'not-in-data-flux-sidebar-collapsed-desktop:hidden mx-2 my-2 border-t border-zinc-200 dark:border-zinc-700';
+            @endphp
+
             <flux:sidebar.nav>
+                <div class="{{ $headingClass }}">{{ __('Platform') }}</div>
                 <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:sidebar.item>
 
+                <div class="{{ $dividerClass }}"></div>
+                <div class="{{ $headingClass }}">{{ __('Catalog') }}</div>
                 <flux:sidebar.item icon="cube" :href="route('admin.products.index')" :current="request()->routeIs('admin.products.*')" wire:navigate>
                     {{ __('Products') }}
                 </flux:sidebar.item>
@@ -22,6 +30,8 @@
                     {{ __('Categories') }}
                 </flux:sidebar.item>
 
+                <div class="{{ $dividerClass }}"></div>
+                <div class="{{ $headingClass }}">{{ __('Sales') }}</div>
                 <flux:sidebar.item icon="shopping-bag" :href="route('admin.orders.index')" :current="request()->routeIs('admin.orders.*')" wire:navigate>
                     {{ __('Orders') }}
                 </flux:sidebar.item>
@@ -29,6 +39,8 @@
                     {{ __('Coupons') }}
                 </flux:sidebar.item>
 
+                <div class="{{ $dividerClass }}"></div>
+                <div class="{{ $headingClass }}">{{ __('Engagement') }}</div>
                 <flux:sidebar.item icon="star" :href="route('admin.reviews.index')" :current="request()->routeIs('admin.reviews.*')" wire:navigate>
                     {{ __('Reviews') }}
                 </flux:sidebar.item>
@@ -36,6 +48,8 @@
                     {{ __('Messages') }}
                 </flux:sidebar.item>
 
+                <div class="{{ $dividerClass }}"></div>
+                <div class="{{ $headingClass }}">{{ __('Content') }}</div>
                 <flux:sidebar.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>
                     {{ __('Gallery') }}
                 </flux:sidebar.item>
