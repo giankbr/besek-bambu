@@ -3,6 +3,50 @@
 @section('title', 'FAQ — Besek Bambu')
 @section('meta_description', 'Pertanyaan umum tentang besek bambu: cara perawatan, metode pembayaran, estimasi pengiriman, dan kebijakan pemesanan.')
 
+@push('head')
+  @php
+    $faqSchema = [
+      '@context' => 'https://schema.org',
+      '@type' => 'FAQPage',
+      'mainEntity' => [
+        [
+          '@type' => 'Question',
+          'name' => 'How are your products made?',
+          'acceptedAnswer' => [
+            '@type' => 'Answer',
+            'text' => 'Every piece is hand-woven by artisans in Yogyakarta from naturally harvested bamboo. Production takes between 2–7 days per item, depending on size and complexity.',
+          ],
+        ],
+        [
+          '@type' => 'Question',
+          'name' => 'How do I care for my besek?',
+          'acceptedAnswer' => [
+            '@type' => 'Answer',
+            'text' => 'Wipe clean with a damp cloth and dry in the shade. Avoid prolonged exposure to water or direct sunlight. With proper care, a besek can last for many years.',
+          ],
+        ],
+        [
+          '@type' => 'Question',
+          'name' => 'What payment methods do you accept?',
+          'acceptedAnswer' => [
+            '@type' => 'Answer',
+            'text' => 'We accept major credit cards, bank transfers, e-wallets, and QRIS via Midtrans.',
+          ],
+        ],
+        [
+          '@type' => 'Question',
+          'name' => 'How long does shipping take?',
+          'acceptedAnswer' => [
+            '@type' => 'Answer',
+            'text' => 'Within Java, shipping usually takes 2–4 business days, while other islands generally take 4–7 business days.',
+          ],
+        ],
+      ],
+    ];
+  @endphp
+  <script type="application/ld+json">{!! json_encode($faqSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
+
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">

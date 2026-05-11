@@ -3,6 +3,28 @@
 @section('title', 'Katalog Besek Bambu — '.store_name())
 @section('meta_description', 'Lihat katalog besek bambu berbagai ukuran dan model. Tersedia untuk kebutuhan hampers, seserahan, souvenir, dan kemasan produk ramah lingkungan.')
 
+@push('head')
+  @php
+    $itemList = $products->values()->map(function ($product, $index) {
+      return [
+        '@type' => 'ListItem',
+        'position' => $index + 1,
+        'url' => route('shop.product', $product),
+        'name' => $product->name,
+      ];
+    })->all();
+
+    $itemListSchema = [
+      '@context' => 'https://schema.org',
+      '@type' => 'ItemList',
+      'name' => 'Katalog Besek Bambu',
+      'numberOfItems' => count($itemList),
+      'itemListElement' => $itemList,
+    ];
+  @endphp
+  <script type="application/ld+json">{!! json_encode($itemListSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
+
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">
