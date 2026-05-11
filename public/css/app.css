@@ -1565,32 +1565,32 @@ a.product:hover {
   font-weight: 600;
 }
 
-/* Page hero: flat panel, breadcrumb rail + title stack */
+/* Page hero: card panel, breadcrumb + divider + title (storefront reference) */
 .page-head {
-  margin-bottom: clamp(20px, 3vw, 28px);
-  padding: clamp(14px, 2.2vw, 20px) clamp(16px, 2.5vw, 22px) clamp(18px, 2.5vw, 24px);
+  margin-bottom: clamp(20px, 3vw, 32px);
+  padding: clamp(20px, 3vw, 28px) clamp(22px, 3vw, 32px) clamp(22px, 3vw, 30px);
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow:
-    inset 3px 0 0 0 var(--green-deep),
-    0 1px 2px rgba(31, 42, 38, 0.04);
+    0 1px 2px rgba(31, 42, 38, 0.04),
+    0 8px 24px rgba(31, 42, 38, 0.06);
 }
 
 .page-head--compact {
   margin-bottom: clamp(12px, 2vw, 20px);
-  padding-block: 12px 14px;
+  padding: clamp(14px, 2vw, 18px) clamp(18px, 2.5vw, 24px);
 }
 
 .page-head__crumbs {
-  padding-bottom: 12px;
-  margin-bottom: 14px;
+  padding-bottom: clamp(14px, 2vw, 18px);
+  margin-bottom: clamp(16px, 2.2vw, 22px);
   border-bottom: 1px solid var(--line);
 }
 
 .page-head--compact .page-head__crumbs {
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .page-head--compact:not(:has(.page-head__eyebrow)) .page-head__crumbs {
@@ -1602,12 +1602,12 @@ a.product:hover {
 .page-head__main {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
 .page-head__main .page-head__eyebrow {
-  margin-bottom: 0;
+  margin-bottom: 2px;
 }
 
 .page-head__crumbs-list {
@@ -1617,47 +1617,47 @@ a.product:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 4px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  gap: 0;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--muted);
 }
 
 .page-head__crumbs-item {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 0;
 }
 
 .page-head__crumbs-item:not(:last-child)::after {
-  content: "/";
+  content: "›";
+  display: inline-block;
+  margin-inline: 0.35em 0.45em;
   font-weight: 400;
-  letter-spacing: 0;
-  opacity: 0.38;
-  color: var(--muted);
+  font-size: 1em;
+  line-height: 1;
+  color: #c4c9c5;
 }
 
 .page-head__crumbs a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px 4px 8px;
-  margin: -4px -6px;
+  display: inline;
+  padding: 0;
+  margin: 0;
   color: var(--muted);
   text-decoration: none;
-  border-radius: 999px;
-  transition: color 0.15s ease, background 0.15s ease;
-}
-
-.page-head__crumbs-item:first-child .page-head__crumbs a {
-  padding-inline-start: 10px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
 }
 
 .page-head__crumbs a:hover {
-  color: var(--green-deep);
-  background: rgba(44, 74, 58, 0.08);
+  color: var(--ink);
+}
+
+.page-head__crumbs a:focus-visible {
+  outline: 2px solid var(--green-deep);
+  outline-offset: 3px;
 }
 
 .page-head__crumbs-target {
@@ -1665,30 +1665,41 @@ a.product:hover {
 }
 
 .page-head__crumbs-current {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  margin: -4px 0;
-  border-radius: 999px;
-  color: var(--green-deep);
-  background: var(--green-soft);
+  display: inline;
+  padding: 0;
+  margin: 0;
   font-weight: 600;
+  color: var(--green-deep);
+  background: none;
+  border: none;
+  border-radius: 0;
 }
 
 .page-head__eyebrow {
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   font-size: 11px;
   font-weight: 600;
-  color: var(--muted);
+  color: #9ca3a0;
 }
 
 .page-head__heading .page-head__title,
 .page-head__heading .cart-title {
   margin-bottom: 0;
   max-width: none;
+  font-size: clamp(1.65rem, 4.2vw, 2.125rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.page-head__heading .page-head__title em,
+.page-head__heading .cart-title em {
+  font-style: italic;
+  font-weight: 400;
 }
 
 /* Product detail */
