@@ -46,6 +46,11 @@ Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confir
 
 Route::prefix('shipping')->name('shipping.')->group(function () {
     Route::get('destinations', [ShippingController::class, 'searchDestinations'])->name('destinations');
+    Route::post('resolve-destination', [ShippingController::class, 'resolveDestination'])->name('resolveDestination');
+    Route::get('wilayah/provinces', [ShippingController::class, 'provinces'])->name('wilayah.provinces');
+    Route::get('wilayah/regencies/{provinceCode}', [ShippingController::class, 'regencies'])->name('wilayah.regencies');
+    Route::get('wilayah/districts/{regencyCode}', [ShippingController::class, 'districts'])->name('wilayah.districts');
+    Route::get('wilayah/villages/{districtCode}', [ShippingController::class, 'villages'])->name('wilayah.villages');
     Route::post('cost', [ShippingController::class, 'cost'])->name('cost');
 });
 

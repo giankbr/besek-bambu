@@ -73,6 +73,7 @@ class CheckoutController extends Controller
             $rules['shipping_address'] = ['nullable', 'string', 'max:1000'];
             $rules['shipping_region'] = ['nullable', 'string'];
         } elseif ($usingRajaOngkir) {
+            $rules['shipping_province'] = ['required', 'string', 'max:255'];
             $rules['shipping_city_id'] = ['required', 'string', 'max:32'];
             $rules['shipping_city_name'] = ['required', 'string', 'max:255'];
             $rules['shipping_courier'] = ['required', 'string', Rule::in($shipping->enabledCouriers())];

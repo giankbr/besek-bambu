@@ -42,7 +42,12 @@
           "pickupAddress" => $pickupAddress,
           "csrf" => csrf_token(),
           "urls" => [
-            "search" => route("shipping.destinations"),
+          "search" => route("shipping.destinations"),
+          "resolveDestination" => route("shipping.resolveDestination"),
+          "provinces" => route("shipping.wilayah.provinces"),
+          "regencies" => route("shipping.wilayah.regencies", ["provinceCode" => "__PROVINCE__"]),
+          "districts" => route("shipping.wilayah.districts", ["regencyCode" => "__REGENCY__"]),
+          "villages" => route("shipping.wilayah.villages", ["districtCode" => "__DISTRICT__"]),
             "cost" => route("shipping.cost"),
           ],
         ]))'
@@ -106,54 +111,60 @@
 
           <div x-show="mode !== 'pickup'" x-cloak>
           @if ($useRajaOngkir)
-            <div style="position:relative">
+            <div>
               <label>
-                Destination (district / city)
-                <input
-                  type="text"
-                  x-model="destQuery"
-                  @input.debounce.350ms="searchDestinations()"
-                  @focus="showDestResults = true"
-                  @click.outside="showDestResults = false"
-                  placeholder="Type at least 2 characters (e.g. 'sleman', 'kebayoran')"
-                  autocomplete="off"
-                  :readonly="!!selectedDest"
-                  required
-                />
+                Province
+                <select x-model="provinceCode" @change="onProvinceChange()" :disabled="mode === 'pickup' || loadingProvinces || resolvingDestination || loadingServices" required>
+                  <option value="">Select province</option>
+                  <template x-for="row in provinces" :key="row.code">
+                    <option :value="row.code" x-text="row.name"></option>
+                  </template>
+                </select>
               </label>
+              <label>
+                City / Regency
+                <select x-model="regencyCode" @change="onRegencyChange()" :disabled="!provinceCode || mode === 'pickup' || loadingRegencies || resolvingDestination || loadingServices" required>
+                  <option value="">Select city / regency</option>
+                  <template x-for="row in regencies" :key="row.code">
+                    <option :value="row.code" x-text="row.name"></option>
+                  </template>
+                </select>
+              </label>
+              <label>
+                District
+                <select x-model="districtCode" @change="onDistrictChange()" :disabled="!regencyCode || mode === 'pickup' || loadingDistricts || resolvingDestination || loadingServices" required>
+                  <option value="">Select district</option>
+                  <template x-for="row in districts" :key="row.code">
+                    <option :value="row.code" x-text="row.name"></option>
+                  </template>
+                </select>
+              </label>
+              <label>
+                Village
+                <select x-model="villageCode" @change="onVillageChange()" :disabled="!districtCode || mode === 'pickup' || loadingVillages || resolvingDestination || loadingServices" required>
+                  <option value="">Select village</option>
+                  <template x-for="row in villages" :key="row.code">
+                    <option :value="row.code" x-text="row.name"></option>
+                  </template>
+                </select>
+              </label>
+              <p class="confirmation-meta" style="margin-top:0.5rem" x-show="loadingProvinces || loadingRegencies || loadingDistricts || loadingVillages" x-cloak>
+                Loading area data…
+              </p>
+
+              <input type="hidden" name="shipping_province" :value="selectedProvinceName" />
               <input type="hidden" name="shipping_city_id" :value="selectedDest ? selectedDest.id : ''" />
-              <input type="hidden" name="shipping_city_name" :value="selectedDest ? selectedDest.label : ''" />
-
-              <div
-                x-show="showDestResults && (destLoading || destResults.length > 0 || destError)"
-                style="position:absolute;left:0;right:0;z-index:20;margin-top:4px;max-height:18rem;overflow-y:auto;background:#fff;border:1px solid #e5e0d6;border-radius:0.5rem;box-shadow:0 8px 16px rgba(0,0,0,0.08)"
-                x-cloak
-              >
-                <div x-show="destLoading" style="padding:0.5rem 0.75rem;font-size:0.875rem;color:#7d6f5f">Searching…</div>
-                <div x-show="!destLoading && destError" style="padding:0.5rem 0.75rem;font-size:0.875rem;color:#b91c1c" x-text="destError"></div>
-                <template x-for="r in destResults" :key="r.id">
-                  <button
-                    type="button"
-                    @click="pickDest(r)"
-                    style="display:block;width:100%;padding:0.5rem 0.75rem;text-align:left;font-size:0.875rem;border:0;background:transparent;cursor:pointer"
-                    @mouseover="$el.style.background='#f7f3ec'"
-                    @mouseleave="$el.style.background='transparent'"
-                  >
-                    <div style="font-weight:600" x-text="r.label"></div>
-                    <div style="font-size:0.75rem;color:#7d6f5f" x-text="'ID: ' + r.id"></div>
-                  </button>
-                </template>
-              </div>
-
-              <div
-                x-show="selectedDest"
-                style="margin-top:0.5rem;padding:0.5rem 0.75rem;font-size:0.875rem;background:#f1f8f3;border:1px solid #c8e6cb;border-radius:0.375rem;display:flex;align-items:center;justify-content:space-between"
-              >
-                <span x-text="selectedDest && selectedDest.label"></span>
-                <button type="button" @click="clearDest()" style="background:transparent;border:0;color:#1f7a3a;cursor:pointer;font-weight:600">Change</button>
-              </div>
+              <input type="hidden" name="shipping_city_name" :value="selectedRegencyName" />
 
               @error('shipping_city_id')<span class="form-error">{{ $message }}</span>@enderror
+              @error('shipping_province')<span class="form-error">{{ $message }}</span>@enderror
+
+              <div x-show="resolvingDestination" class="confirmation-meta" style="margin-top:0.75rem">
+                Matching destination to courier area…
+              </div>
+
+              <div x-show="destinationError" class="form-error" style="margin-top:0.5rem" x-text="destinationError"></div>
+              <div x-show="destinationInfo" class="confirmation-meta" style="margin-top:0.5rem;color:#1f7a3a" x-text="destinationInfo"></div>
 
               <div x-show="loadingServices" class="confirmation-meta" style="margin-top:0.75rem">
                 Calculating shipping cost…
@@ -292,11 +303,21 @@
         pickupEnabled: !!config.pickupEnabled,
         pickupAddress: config.pickupAddress || '',
 
-        destQuery: '',
-        destResults: [],
-        destLoading: false,
-        showDestResults: false,
-        destError: '',
+        provinces: [],
+        regencies: [],
+        districts: [],
+        villages: [],
+        provinceCode: '',
+        regencyCode: '',
+        districtCode: '',
+        villageCode: '',
+        loadingProvinces: false,
+        loadingRegencies: false,
+        loadingDistricts: false,
+        loadingVillages: false,
+        destinationError: '',
+        destinationInfo: '',
+        resolvingDestination: false,
         selectedDest: null,
 
         services: [],
@@ -307,46 +328,170 @@
         selectedCost: 0,
         selectedEtd: '',
 
-        async searchDestinations() {
-          this.destError = ''
-          if (this.destQuery.trim().length < 2) {
-            this.destResults = []
-            return
-          }
-          this.destLoading = true
+        get selectedProvinceName() {
+          const row = this.provinces.find((r) => r.code === this.provinceCode)
+          return row ? row.name : ''
+        },
+
+        get selectedRegencyName() {
+          const row = this.regencies.find((r) => r.code === this.regencyCode)
+          return row ? row.name : ''
+        },
+
+        get selectedDistrictName() {
+          const row = this.districts.find((r) => r.code === this.districtCode)
+          return row ? row.name : ''
+        },
+
+        makeWilayahUrl(template, code, token) {
+          return template.replace(token, encodeURIComponent(code))
+        },
+
+        async loadProvinces() {
+          this.loadingProvinces = true
           try {
-            const res = await fetch(`${config.urls.search}?q=${encodeURIComponent(this.destQuery)}&limit=15`, {
-              headers: { 'Accept': 'application/json' },
-            })
+            const res = await fetch(config.urls.provinces, { headers: { 'Accept': 'application/json' } })
             const json = await res.json()
-            this.destResults = Array.isArray(json.results) ? json.results : []
-            if (this.destResults.length === 0) {
-              this.destError = json.message || 'No matches. Try the city or postal code.'
-            }
+            this.provinces = Array.isArray(json.results) ? json.results : []
           } catch (e) {
-            this.destError = 'Search failed. Please try again.'
+            this.provinces = []
+            this.destinationError = 'Failed to load provinces. Please refresh this page.'
           } finally {
-            this.destLoading = false
+            this.loadingProvinces = false
           }
         },
 
-        pickDest(r) {
-          this.selectedDest = r
-          this.destQuery = r.label
-          this.showDestResults = false
-          this.destResults = []
-          this.loadServices()
+        async onProvinceChange() {
+          this.regencyCode = ''
+          this.districtCode = ''
+          this.villageCode = ''
+          this.regencies = []
+          this.districts = []
+          this.villages = []
+          this.clearDest()
+          if (!this.provinceCode) return
+          this.loadingRegencies = true
+          try {
+            const url = this.makeWilayahUrl(config.urls.regencies, this.provinceCode, '__PROVINCE__')
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } })
+            const json = await res.json()
+            this.regencies = Array.isArray(json.results) ? json.results : []
+          } catch (e) {
+            this.destinationError = 'Failed to load cities/regencies.'
+          } finally {
+            this.loadingRegencies = false
+          }
+        },
+
+        async onRegencyChange() {
+          this.districtCode = ''
+          this.villageCode = ''
+          this.districts = []
+          this.villages = []
+          this.clearDest()
+          if (!this.regencyCode) return
+          this.loadingDistricts = true
+          try {
+            const url = this.makeWilayahUrl(config.urls.districts, this.regencyCode, '__REGENCY__')
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } })
+            const json = await res.json()
+            this.districts = Array.isArray(json.results) ? json.results : []
+          } catch (e) {
+            this.destinationError = 'Failed to load districts.'
+          } finally {
+            this.loadingDistricts = false
+          }
+        },
+
+        async onDistrictChange() {
+          this.villageCode = ''
+          this.villages = []
+          this.clearDest()
+          if (!this.districtCode) return
+          this.loadingVillages = true
+          try {
+            const url = this.makeWilayahUrl(config.urls.villages, this.districtCode, '__DISTRICT__')
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } })
+            const json = await res.json()
+            this.villages = Array.isArray(json.results) ? json.results : []
+          } catch (e) {
+            this.destinationError = 'Failed to load villages.'
+          } finally {
+            this.loadingVillages = false
+          }
+        },
+
+        async onVillageChange() {
+          this.clearDest()
+          if (!this.villageCode || !this.provinceCode || !this.regencyCode || !this.districtCode) return
+          await this.resolveDestination()
+          if (this.selectedDest) {
+            await this.loadServices()
+          }
         },
 
         clearDest() {
           this.selectedDest = null
-          this.destQuery = ''
           this.services = []
           this.selectedCourier = ''
           this.selectedService = ''
           this.selectedCost = 0
           this.selectedEtd = ''
           this.servicesError = ''
+          this.destinationError = ''
+          this.destinationInfo = ''
+        },
+
+        async resolveDestination() {
+          this.resolvingDestination = true
+          this.destinationError = ''
+          this.destinationInfo = ''
+          try {
+            const res = await fetch(config.urls.resolveDestination, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': config.csrf,
+                'Accept': 'application/json',
+              },
+              body: JSON.stringify({
+                province_name: this.selectedProvinceName,
+                regency_name: this.selectedRegencyName,
+                district_name: this.selectedDistrictName,
+              }),
+            })
+            const json = await res.json()
+            if (json?.destination?.id) {
+              this.selectedDest = json.destination
+              return
+            }
+            const fallback = await this.fallbackResolveByRegency()
+            if (fallback) {
+              this.selectedDest = fallback
+              this.destinationInfo = 'Destination matched with fallback (regency-level).'
+              return
+            }
+            this.destinationError = json?.message || 'Destination mapping failed. Please choose another district.'
+          } catch (e) {
+            this.destinationError = 'Failed to resolve destination for courier.'
+          } finally {
+            this.resolvingDestination = false
+          }
+        },
+
+        async fallbackResolveByRegency() {
+          if (!this.selectedRegencyName) return null
+          try {
+            const res = await fetch(`${config.urls.search}?q=${encodeURIComponent(this.selectedRegencyName)}&limit=10`, {
+              headers: { 'Accept': 'application/json' },
+            })
+            const json = await res.json()
+            const rows = Array.isArray(json.results) ? json.results : []
+            if (rows.length === 0) return null
+            return rows[0]
+          } catch (e) {
+            return null
+          }
         },
 
         async loadServices() {
@@ -403,6 +548,12 @@
           if (this.mode === 'pickup') return true
           if (!this.useRajaOngkir) return true
           return !!this.selectedDest && !!this.selectedCourier && !!this.selectedService && this.selectedCost > 0
+        },
+
+        init() {
+          if (this.useRajaOngkir) {
+            this.loadProvinces()
+          }
         },
       })
     </script>
