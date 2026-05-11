@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', $category->title . ' — Besek Bambu')
+@section('meta_description', 'Jelajahi kategori '.$category->title.' dari koleksi besek bambu handmade '.store_name().'. Pilihan produk siap kirim ke seluruh Indonesia.')
 
 @section('content')
   <x-navbar />

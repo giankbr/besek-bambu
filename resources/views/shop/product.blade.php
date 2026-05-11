@@ -112,7 +112,7 @@
         $allMedia = $allMedia->values()->all();
         $hasMultiple = count($allMedia) > 1;
       @endphp
-      <x-page-head :crumbs="$productCrumbs" eyebrow="Detail produk" compact />
+      <x-page-head :crumbs="$productCrumbs" eyebrow="Detail produk" compact :schema="false" />
       <div
         class="product-detail"
         x-data='{

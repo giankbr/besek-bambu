@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'FAQ — Besek Bambu')
+@section('meta_description', 'Pertanyaan umum tentang besek bambu: cara perawatan, metode pembayaran, estimasi pengiriman, dan kebijakan pemesanan.')
 
 @section('content')
   <x-navbar />

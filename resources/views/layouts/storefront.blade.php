@@ -14,7 +14,9 @@
   $metaImage = trim($__env->yieldContent('meta_image', store_logo_url() ?: asset('images/og-default.jpg')));
   $canonicalUrl = trim($__env->yieldContent('canonical', url()->current()));
   $ogType = trim($__env->yieldContent('og_type', 'website'));
+  $robots = trim($__env->yieldContent('meta_robots', 'index,follow,max-image-preview:large'));
   $twitterHandle = trim((string) (setting('social_twitter') ?? ''));
+  $storeAddress = preg_replace('/\s+/', ' ', trim((string) setting('store_address')));
   $socials = collect([
     setting('social_instagram'),
     setting('social_facebook'),
@@ -25,6 +27,7 @@
 
 <title>{{ $pageTitle }}</title>
 <meta name="description" content="{{ $metaDescription }}" />
+<meta name="robots" content="{{ $robots }}" />
 <link rel="canonical" href="{{ $canonicalUrl }}" />
 
 <meta property="og:type" content="{{ $ogType }}" />
@@ -65,9 +68,25 @@
       'query-input' => 'required name=search_term_string',
     ],
   ];
+  $localBusinessSchema = array_filter([
+    '@context' => 'https://schema.org',
+    '@type' => 'LocalBusiness',
+    'name' => $brandName,
+    'url' => url('/'),
+    'image' => $metaImage ?: null,
+    'telephone' => store_phone() ?: null,
+    'email' => store_email() ?: null,
+    'address' => $storeAddress !== '' ? [
+      '@type' => 'PostalAddress',
+      'streetAddress' => $storeAddress,
+      'addressCountry' => 'ID',
+    ] : null,
+    'sameAs' => count($socials) > 0 ? $socials : null,
+  ]);
 @endphp
 <script type="application/ld+json">{!! json_encode($orgSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 <script type="application/ld+json">{!! json_encode($siteSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+<script type="application/ld+json">{!! json_encode($localBusinessSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

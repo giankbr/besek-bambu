@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Cart — '.store_name())
+@section('meta_robots', 'noindex,follow')
 
 @section('content')
   <x-navbar />

@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Gallery — Besek Bambu')
+@section('meta_description', 'Lihat inspirasi penggunaan besek bambu handmade untuk hampers, dekorasi acara, dan kemasan produk brand lokal.')
 
 @section('content')
   <x-navbar />

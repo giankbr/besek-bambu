@@ -2,7 +2,47 @@
   'crumbs' => [],
   'eyebrow' => null,
   'compact' => false,
+  'schema' => true,
 ])
+
+@if ($schema && count($crumbs))
+  @push('head')
+    @php
+      $breadcrumbItems = [];
+      foreach ($crumbs as $index => $crumb) {
+        $position = $index + 1;
+        $label = (string) ($crumb['label'] ?? '');
+        if ($label === '') {
+          continue;
+        }
+
+        $itemUrl = $crumb['url'] ?? null;
+        if (! $itemUrl && $position === count($crumbs)) {
+          $itemUrl = url()->current();
+        }
+
+        $item = [
+          '@type' => 'ListItem',
+          'position' => $position,
+          'name' => $label,
+        ];
+
+        if ($itemUrl) {
+          $item['item'] = (string) $itemUrl;
+        }
+
+        $breadcrumbItems[] = $item;
+      }
+
+      $breadcrumbSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => $breadcrumbItems,
+      ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+  @endpush
+@endif
 
 <header @class(['page-head', 'page-head--compact' => $compact])>
   @if (count($crumbs))

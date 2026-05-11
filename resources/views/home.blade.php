@@ -1,5 +1,8 @@
 @extends('layouts.storefront')
 
+@section('title', store_name().' — Besek Bambu Handmade untuk Hantaran & Kemasan')
+@section('meta_description', 'Pesan besek bambu handmade langsung dari pengrajin Indonesia. Cocok untuk hantaran, hampers, dan kemasan ramah lingkungan untuk UMKM maupun acara spesial.')
+
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">

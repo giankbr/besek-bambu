@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Checkout — '.store_name())
+@section('meta_robots', 'noindex,follow')
 
 @php
   $defaultRegion = array_key_first($regions);

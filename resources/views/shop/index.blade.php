@@ -1,5 +1,8 @@
 @extends('layouts.storefront')
 
+@section('title', 'Katalog Besek Bambu — '.store_name())
+@section('meta_description', 'Lihat katalog besek bambu berbagai ukuran dan model. Tersedia untuk kebutuhan hampers, seserahan, souvenir, dan kemasan produk ramah lingkungan.')
+
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">

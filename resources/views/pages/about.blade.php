@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'About — Besek Bambu')
+@section('meta_description', 'Kenali cerita di balik besek bambu handmade kami: proses anyaman tradisional, bahan berkelanjutan, dan komitmen kualitas dari pengrajin lokal Indonesia.')
 
 @section('content')
   <x-navbar />

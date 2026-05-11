@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Contact — '.store_name())
+@section('meta_description', 'Hubungi '.store_name().' untuk pemesanan besek bambu, kebutuhan grosir, custom logo, atau pertanyaan seputar produk dan pengiriman.')
 
 @section('content')
   <x-navbar />
