@@ -6,14 +6,15 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <span class="current">About</span>
-      </nav>
-
-      <div class="eyebrow">Our story</div>
-      <h1 class="section-title cart-title">Made with <em>tradition</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Tentang kami'],
+        ]"
+        eyebrow="Cerita kami"
+      >
+        <h1 class="section-title page-head__title cart-title">Dibuat dengan <em>tradisi</em></h1>
+      </x-page-head>
 
       <div class="about-grid">
         <div>

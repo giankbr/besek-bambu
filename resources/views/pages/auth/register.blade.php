@@ -3,7 +3,6 @@
     <x-auth-header
       :title="__('Buat akun pembeli')"
       :description="__('Satu akun untuk berbelanja, menyimpan wishlist, dan melacak pesanan besek bambu Anda.')"
-      :eyebrow="__('Toko online')"
     />
 
     <x-auth-session-status class="text-center" :status="session('status')" />

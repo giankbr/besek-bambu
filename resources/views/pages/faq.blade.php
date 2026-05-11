@@ -6,14 +6,15 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <span class="current">FAQ</span>
-      </nav>
-
-      <div class="eyebrow">Help center</div>
-      <h1 class="section-title cart-title">Frequently asked <em>questions</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'FAQ'],
+        ]"
+        eyebrow="Pusat bantuan"
+      >
+        <h1 class="section-title page-head__title cart-title">Pertanyaan yang <em>sering diajukan</em></h1>
+      </x-page-head>
 
       <div class="faq-list">
         <details class="faq-item">

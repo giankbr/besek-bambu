@@ -6,20 +6,18 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <a href="{{ route('account.index') }}">Account</a>
-        <span>/</span>
-        <a href="{{ route('account.orders') }}">Orders</a>
-        <span>/</span>
-        <a href="{{ route('account.orders.show', $order) }}">{{ $order->number }}</a>
-        <span>/</span>
-        <span class="current">Tracking</span>
-      </nav>
-
-      <div class="eyebrow">Package tracking</div>
-      <h1 class="section-title cart-title">Tracking <em>{{ $order->number }}</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Akun', 'url' => route('account.index')],
+            ['label' => 'Pesanan', 'url' => route('account.orders')],
+            ['label' => $order->number, 'url' => route('account.orders.show', $order)],
+            ['label' => 'Lacak kiriman'],
+        ]"
+        eyebrow="Status paket"
+      >
+        <h1 class="section-title page-head__title cart-title">Lacak <em>{{ $order->number }}</em></h1>
+      </x-page-head>
 
       <div class="confirmation-card">
         @if ($order->hasTracking())

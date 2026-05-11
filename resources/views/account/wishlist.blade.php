@@ -6,16 +6,16 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <a href="{{ route('account.index') }}">Account</a>
-        <span>/</span>
-        <span class="current">Wishlist</span>
-      </nav>
-
-      <div class="eyebrow">Saved for later</div>
-      <h1 class="section-title cart-title">My <em>wishlist</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Akun', 'url' => route('account.index')],
+            ['label' => 'Wishlist'],
+        ]"
+        eyebrow="Disimpan nanti"
+      >
+        <h1 class="section-title page-head__title cart-title">Wishlist <em>saya</em></h1>
+      </x-page-head>
 
       <div class="account-grid">
         <aside class="account-side">

@@ -82,19 +82,19 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <a href="{{ route('shop.index') }}">Shop</a>
-        @if ($product->category)
-          <span>/</span>
-          <a href="{{ route('shop.category', $product->category) }}">{{ $product->category->title }}</a>
-        @endif
-        <span>/</span>
-        <span class="current">{{ $product->name }}</span>
-      </nav>
-
       @php
+        $productCrumbs = [
+          ['label' => 'Beranda', 'url' => route('home')],
+          ['label' => 'Belanja', 'url' => route('shop.index')],
+        ];
+        if ($product->category) {
+          $productCrumbs[] = [
+            'label' => $product->category->title,
+            'url' => route('shop.category', $product->category),
+          ];
+        }
+        $productCrumbs[] = ['label' => $product->name];
+
         $galleryImages = $product->images;
         $primary = $galleryImages->firstWhere('is_primary', true) ?? $galleryImages->first();
         $heroSrc = $primary ? image_src($primary->path) : ($product->image_url ? image_src($product->image_url) : null);
@@ -112,6 +112,7 @@
         $allMedia = $allMedia->values()->all();
         $hasMultiple = count($allMedia) > 1;
       @endphp
+      <x-page-head :crumbs="$productCrumbs" eyebrow="Detail produk" compact />
       <div
         class="product-detail"
         x-data='{

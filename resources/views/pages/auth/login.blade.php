@@ -3,7 +3,6 @@
     <x-auth-header
       :title="__('Masuk ke akun pembeli')"
       :description="__('Gunakan email dan kata sandi untuk checkout, wishlist, dan riwayat pesanan.')"
-      :eyebrow="__('Toko online')"
     />
 
     <x-auth-session-status class="text-center" :status="session('status')" />

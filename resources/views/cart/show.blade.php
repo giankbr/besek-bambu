@@ -6,14 +6,15 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <span class="current">Cart</span>
-      </nav>
-
-      <div class="eyebrow">Your selection</div>
-      <h1 class="section-title cart-title"><em>Shopping</em> cart</h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Keranjang'],
+        ]"
+        eyebrow="Pilihan Anda"
+      >
+        <h1 class="section-title page-head__title cart-title"><em>Keranjang</em> belanja</h1>
+      </x-page-head>
 
       @if (session('status'))
         <div class="cart-flash">{{ session('status') }}</div>

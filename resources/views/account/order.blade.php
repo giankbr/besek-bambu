@@ -6,18 +6,17 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <a href="{{ route('account.index') }}">Account</a>
-        <span>/</span>
-        <a href="{{ route('account.orders') }}">Orders</a>
-        <span>/</span>
-        <span class="current">{{ $order->number }}</span>
-      </nav>
-
-      <div class="eyebrow">Order detail</div>
-      <h1 class="section-title cart-title">Order <em>{{ $order->number }}</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Akun', 'url' => route('account.index')],
+            ['label' => 'Pesanan', 'url' => route('account.orders')],
+            ['label' => $order->number],
+        ]"
+        eyebrow="Detail pesanan"
+      >
+        <h1 class="section-title page-head__title cart-title">Pesanan <em>{{ $order->number }}</em></h1>
+      </x-page-head>
 
       <div class="confirmation-card">
         <div class="confirmation-status">

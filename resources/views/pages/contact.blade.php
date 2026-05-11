@@ -6,14 +6,15 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <span class="current">Contact</span>
-      </nav>
-
-      <div class="eyebrow">Say hello</div>
-      <h1 class="section-title cart-title">Get in <em>touch</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Kontak'],
+        ]"
+        eyebrow="Halo"
+      >
+        <h1 class="section-title page-head__title cart-title">Hubungi <em>kami</em></h1>
+      </x-page-head>
 
       <div class="contact-grid">
         <div>

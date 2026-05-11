@@ -136,12 +136,37 @@
   }
 
   .nav-links a {
+    position: relative;
     color: inherit;
     text-decoration: none;
-    transition: opacity .15s;
+    transition: color 0.15s ease, opacity 0.15s ease;
   }
 
-  .nav-links a:hover { opacity: .65; }
+  .nav-links a:hover {
+    opacity: 0.72;
+  }
+
+  .nav-links a.is-active {
+    opacity: 1;
+    color: var(--green-deep);
+    font-weight: 600;
+  }
+
+  .nav-links a.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -10px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--green-deep);
+  }
+
+  .nav-links a.is-active:hover {
+    opacity: 0.88;
+    color: var(--green-deep);
+  }
 
   .logo {
     grid-column: 2;
@@ -156,6 +181,20 @@
     min-height: 32px;
     color: inherit;
     text-decoration: none;
+    transition: color 0.15s ease, opacity 0.15s ease;
+  }
+
+  .logo.is-active {
+    color: var(--green-deep);
+  }
+
+  .logo:hover {
+    opacity: 0.75;
+  }
+
+  .logo.is-active:hover {
+    opacity: 0.9;
+    color: var(--green-deep);
   }
 
   .nav-actions {
@@ -169,6 +208,24 @@
   }
 
   .nav-actions a { color: var(--ink); text-decoration: none; }
+
+  .nav-actions__cluster a {
+    transition: color 0.15s ease, opacity 0.15s ease;
+  }
+
+  .nav-actions__cluster a.is-active {
+    color: var(--green-deep);
+    font-weight: 600;
+  }
+
+  .nav-actions__cluster a:hover {
+    opacity: 0.75;
+  }
+
+  .nav-actions__cluster a.is-active:hover {
+    opacity: 0.9;
+    color: var(--green-deep);
+  }
 
   .nav-actions__cluster {
     display: flex;
@@ -473,6 +530,7 @@
 
   .story-band {
     padding-top: 24px;
+    padding-bottom: 8px;
   }
 
   /* ===== Story band ===== */
@@ -499,14 +557,7 @@
     font-weight: 400;
   }
 
-  /* ===== Feature pills ===== */
-  .pills {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    margin: 40px 0 16px;
-  }
-
+  /* ===== Pill badge (invoice, etc.) ===== */
   .pill {
     background: var(--pill);
     border-radius: 999px;
@@ -1218,7 +1269,6 @@
     .hero-content {
       padding: clamp(0.9rem, 3vw, 1.35rem);
     }
-    .pills { flex-wrap: wrap; }
     .reviews-top {
       grid-template-columns: 1fr;
       align-items: start;
@@ -1480,23 +1530,166 @@ a.product:hover {
   border-color: var(--green-deep);
 }
 
-/* Breadcrumbs */
+/* Breadcrumbs (legacy flat markup) */
 .breadcrumbs {
   display: flex;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted);
-  padding: 24px 0 16px;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  padding: 20px 0 14px;
 }
 
 .breadcrumbs a {
   color: var(--muted);
   text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.breadcrumbs a:hover { color: var(--ink); }
-.breadcrumbs .current { color: var(--ink); }
+.breadcrumbs a:hover {
+  color: var(--green-deep);
+}
+
+.breadcrumbs > span:not(.current) {
+  opacity: 0.42;
+  font-weight: 400;
+  user-select: none;
+}
+
+.breadcrumbs .current {
+  color: var(--green-deep);
+  font-weight: 600;
+}
+
+/* Page hero: flat panel, breadcrumb rail + title stack */
+.page-head {
+  margin-bottom: clamp(20px, 3vw, 28px);
+  padding: clamp(14px, 2.2vw, 20px) clamp(16px, 2.5vw, 22px) clamp(18px, 2.5vw, 24px);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow:
+    inset 3px 0 0 0 var(--green-deep),
+    0 1px 2px rgba(31, 42, 38, 0.04);
+}
+
+.page-head--compact {
+  margin-bottom: clamp(12px, 2vw, 20px);
+  padding-block: 12px 14px;
+}
+
+.page-head__crumbs {
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-head--compact .page-head__crumbs {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.page-head--compact:not(:has(.page-head__eyebrow)) .page-head__crumbs {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.page-head__main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.page-head__main .page-head__eyebrow {
+  margin-bottom: 0;
+}
+
+.page-head__crumbs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.page-head__crumbs-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-head__crumbs-item:not(:last-child)::after {
+  content: "/";
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: 0.38;
+  color: var(--muted);
+}
+
+.page-head__crumbs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  margin: -4px -6px;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 999px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.page-head__crumbs-item:first-child .page-head__crumbs a {
+  padding-inline-start: 10px;
+}
+
+.page-head__crumbs a:hover {
+  color: var(--green-deep);
+  background: rgba(44, 74, 58, 0.08);
+}
+
+.page-head__crumbs-target {
+  color: var(--muted);
+}
+
+.page-head__crumbs-current {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  margin: -4px 0;
+  border-radius: 999px;
+  color: var(--green-deep);
+  background: var(--green-soft);
+  font-weight: 600;
+}
+
+.page-head__eyebrow {
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.page-head__heading .page-head__title,
+.page-head__heading .cart-title {
+  margin-bottom: 0;
+  max-width: none;
+}
 
 /* Product detail */
 .product-detail {
@@ -2827,7 +3020,12 @@ a.product:hover {
   align-items: center;
   justify-content: center;
   padding-block: clamp(24px, 5vw, 48px);
-  background: linear-gradient(165deg, #fafafa 0%, #f3f3f1 55%, #f0f0ee 100%);
+  background: var(--bg);
+}
+
+html[data-auth-light="1"] body.auth-storefront-page {
+  background: var(--bg);
+  color: var(--ink);
 }
 
 .auth-storefront-inner {

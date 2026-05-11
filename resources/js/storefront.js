@@ -123,12 +123,30 @@ const initMegaBrandFill = () => {
 }
 
 const initReviewsAutoSlider = () => {
-  document.querySelectorAll('[data-reviews-slider]').forEach((wrap) => {
+  const mount = (wrap) => {
     const track = wrap.querySelector('.reviews-track')
-    if (!track) return
-    const cards = track.querySelectorAll(':scope > .review')
+    if (!track || wrap.dataset.reviewsSliderMounted === '1') return
+
+    let cards = [...track.querySelectorAll(':scope > .review')]
     if (cards.length < 2) return
-    if (track.scrollWidth <= track.clientWidth + 12) return
+
+    const ensureScrollable = () => {
+      if (track.scrollWidth > track.clientWidth + 8) return
+      if (wrap.dataset.reviewsDuplicated === '1') return
+      wrap.dataset.reviewsDuplicated = '1'
+      cards.forEach((card) => {
+        const clone = card.cloneNode(true)
+        clone.setAttribute('aria-hidden', 'true')
+        clone.querySelectorAll('a').forEach((a) => a.setAttribute('tabindex', '-1'))
+        track.appendChild(clone)
+      })
+      cards = [...track.querySelectorAll(':scope > .review')]
+    }
+
+    ensureScrollable()
+    if (track.scrollWidth <= track.clientWidth + 8) return
+
+    wrap.dataset.reviewsSliderMounted = '1'
 
     const section = wrap.closest('.reviews-section') ?? wrap
     let timerId = null
@@ -138,14 +156,21 @@ const initReviewsAutoSlider = () => {
 
     const behavior = () => (prefersReducedMotion() ? 'auto' : 'smooth')
 
+    const scrollToCard = (card) => {
+      const t = track.getBoundingClientRect()
+      const c = card.getBoundingClientRect()
+      const nextLeft = track.scrollLeft + (c.left - t.left) - 4
+      const max = Math.max(0, track.scrollWidth - track.clientWidth)
+      track.scrollTo({
+        left: Math.min(max, Math.max(0, nextLeft)),
+        behavior: behavior(),
+      })
+    }
+
     const goToIndex = (i) => {
       const card = cards[i]
       if (!card) return
-      card.scrollIntoView({
-        block: 'nearest',
-        inline: 'start',
-        behavior: behavior(),
-      })
+      scrollToCard(card)
     }
 
     const step = () => {
@@ -186,15 +211,43 @@ const initReviewsAutoSlider = () => {
       { passive: true },
     )
 
+    const setInViewFromRect = () => {
+      const r = section.getBoundingClientRect()
+      return r.bottom > 0 && r.top < window.innerHeight
+    }
+
+    const syncInView = () => {
+      inView = setInViewFromRect()
+      if (inView && !paused) start()
+      else stop()
+    }
+
     const io = new IntersectionObserver(
       ([entry]) => {
         inView = Boolean(entry?.isIntersecting)
         if (inView && !paused) start()
         else stop()
       },
-      { threshold: 0.12 },
+      { threshold: 0.08, rootMargin: '0px 0px 12% 0px' },
     )
     io.observe(section)
+
+    window.setTimeout(() => {
+      if (!timerId && !paused && setInViewFromRect()) {
+        inView = true
+        start()
+      }
+    }, 800)
+
+    let resizeT = null
+    const onResize = () => {
+      window.clearTimeout(resizeT)
+      resizeT = window.setTimeout(() => {
+        ensureScrollable()
+        syncInView()
+      }, 150)
+    }
+    window.addEventListener('resize', onResize, { passive: true })
 
     const handlePointerEnter = () => {
       paused = true
@@ -202,6 +255,7 @@ const initReviewsAutoSlider = () => {
     }
     const handlePointerLeave = () => {
       paused = false
+      inView = setInViewFromRect()
       if (inView) start()
     }
     wrap.addEventListener('pointerenter', handlePointerEnter)
@@ -210,7 +264,9 @@ const initReviewsAutoSlider = () => {
     wrap.addEventListener('focusin', handlePointerEnter)
     wrap.addEventListener('focusout', (e) => {
       if (!wrap.contains(e.relatedTarget)) {
-        handlePointerLeave()
+        paused = false
+        inView = setInViewFromRect()
+        if (inView) start()
       }
     })
 
@@ -222,7 +278,17 @@ const initReviewsAutoSlider = () => {
       if (inView && !paused) start()
     }
     document.addEventListener('visibilitychange', handleVisibility)
-  })
+  }
+
+  const run = () => {
+    document.querySelectorAll('[data-reviews-slider]').forEach((wrap) => {
+      mount(wrap)
+    })
+  }
+
+  run()
+  window.requestAnimationFrame(() => window.requestAnimationFrame(run))
+  window.addEventListener('load', run, { once: true })
 }
 
 const initGalleryNav = () => {

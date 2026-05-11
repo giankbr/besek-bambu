@@ -6,14 +6,15 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <span class="current">Gallery</span>
-      </nav>
-
-      <div class="eyebrow">Inspiration</div>
-      <h1 class="section-title cart-title">Our <em>gallery</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Galeri'],
+        ]"
+        eyebrow="Inspirasi"
+      >
+        <h1 class="section-title page-head__title cart-title">Galeri <em>kami</em></h1>
+      </x-page-head>
       <p class="confirmation__lead" style="max-width:640px;margin-bottom:32px">Scenes, drops, and moments featuring our handcrafted bamboo pieces.</p>
 
       @if ($items->isEmpty())

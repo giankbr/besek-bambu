@@ -1,17 +1,66 @@
 <header class="site-header">
   <div class="container">
     <nav class="navbar">
-      <ul class="nav-links">
-        <li><a href="{{ route('shop.index') }}">Shop</a></li>
-        <li><a href="{{ route('gallery') }}">Gallery</a></li>
-        <li><a href="{{ route('about') }}">About</a></li>
-        <li><a href="{{ route('contact') }}">Contact</a></li>
-      </ul>
       @php
         $brandLogo = store_logo_url();
         $brandName = store_name();
+        $isHome = request()->routeIs('home');
+        $isShop = request()->routeIs('shop.*');
+        $isGallery = request()->routeIs('gallery');
+        $isAbout = request()->routeIs('about');
+        $isContact = request()->routeIs('contact');
+        $isAccountArea = request()->routeIs(
+          'account.*',
+          'profile.*',
+          'appearance.*',
+          'security.*',
+          'login',
+          'register',
+          'password.request',
+          'password.reset',
+          'password.confirm',
+          'verification.notice',
+          'two-factor.*',
+        );
+        $isWishlist = request()->routeIs('account.wishlist');
+        $isCartFlow = request()->routeIs('cart.*', 'checkout.*', 'payment.pay');
       @endphp
-      <a class="logo" href="{{ route('home') }}" aria-label="{{ $brandName }}">
+      <ul class="nav-links">
+        <li>
+          <a
+            href="{{ route('shop.index') }}"
+            class="@if ($isShop) is-active @endif"
+            @if ($isShop) aria-current="page" @endif
+          >Shop</a>
+        </li>
+        <li>
+          <a
+            href="{{ route('gallery') }}"
+            class="@if ($isGallery) is-active @endif"
+            @if ($isGallery) aria-current="page" @endif
+          >Gallery</a>
+        </li>
+        <li>
+          <a
+            href="{{ route('about') }}"
+            class="@if ($isAbout) is-active @endif"
+            @if ($isAbout) aria-current="page" @endif
+          >About</a>
+        </li>
+        <li>
+          <a
+            href="{{ route('contact') }}"
+            class="@if ($isContact) is-active @endif"
+            @if ($isContact) aria-current="page" @endif
+          >Contact</a>
+        </li>
+      </ul>
+      <a
+        class="logo @if ($isHome) is-active @endif"
+        href="{{ route('home') }}"
+        aria-label="{{ $brandName }}"
+        @if ($isHome) aria-current="page" @endif
+      >
         @if ($brandLogo)
           <img src="{{ $brandLogo }}" alt="{{ $brandName }}" style="max-height:32px;width:auto;display:block" />
         @else
@@ -47,12 +96,33 @@
                 fn () => \Illuminate\Support\Facades\DB::table('wishlist_items')->where('user_id', auth()->id())->count(),
               );
             @endphp
-            <a href="{{ route('account.wishlist') }}" aria-label="Wishlist" title="Wishlist">♥ {{ $wishCount }}</a>
-            <a href="{{ route('account.index') }}" aria-label="Account">{{ auth()->user()->name }}</a>
+            <a
+              href="{{ route('account.wishlist') }}"
+              aria-label="Wishlist"
+              title="Wishlist"
+              class="@if ($isWishlist) is-active @endif"
+              @if ($isWishlist) aria-current="page" @endif
+            >♥ {{ $wishCount }}</a>
+            <a
+              href="{{ route('account.index') }}"
+              aria-label="Account"
+              class="@if ($isAccountArea && ! $isWishlist) is-active @endif"
+              @if ($isAccountArea && ! $isWishlist) aria-current="page" @endif
+            >{{ auth()->user()->name }}</a>
           @else
-            <a href="{{ route('login') }}" aria-label="Account">Account</a>
+            <a
+              href="{{ route('login') }}"
+              aria-label="Account"
+              class="@if ($isAccountArea) is-active @endif"
+              @if ($isAccountArea) aria-current="page" @endif
+            >Account</a>
           @endauth
-          <a href="{{ route('cart.show') }}" aria-label="Cart">Cart ({{ app(\App\Services\CartService::class)->count() }})</a>
+          <a
+            href="{{ route('cart.show') }}"
+            aria-label="Cart"
+            class="@if ($isCartFlow) is-active @endif"
+            @if ($isCartFlow) aria-current="page" @endif
+          >Cart ({{ app(\App\Services\CartService::class)->count() }})</a>
         </div>
       </div>
     </nav>

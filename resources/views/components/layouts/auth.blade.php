@@ -2,8 +2,12 @@
   'title' => null,
 ])
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="auth-flux-light" data-auth-light="1">
 <head>
+  <script>
+    document.documentElement.classList.remove('dark')
+    document.documentElement.style.colorScheme = 'light'
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -28,7 +32,6 @@
   />
 
   @vite(['resources/css/app.css', 'resources/js/app.js'])
-  @fluxAppearance
   <link rel="stylesheet" href="{{ asset('css/app.css') }}" />
 </head>
 <body class="storefront-body auth-storefront-page">
@@ -49,5 +52,19 @@
   @endpersist
 
   @fluxScripts
+  <script>
+    ;(function () {
+      const root = document.documentElement
+      root.classList.remove('dark')
+      root.style.colorScheme = 'light'
+      if (root.dataset.authLight !== '1') return
+      const observer = new MutationObserver(() => {
+        if (root.classList.contains('dark')) {
+          root.classList.remove('dark')
+        }
+      })
+      observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    })()
+  </script>
 </body>
 </html>

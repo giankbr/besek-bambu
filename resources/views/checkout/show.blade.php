@@ -11,16 +11,16 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container">
-      <nav class="breadcrumbs">
-        <a href="{{ route('home') }}">Home</a>
-        <span>/</span>
-        <a href="{{ route('cart.show') }}">Cart</a>
-        <span>/</span>
-        <span class="current">Checkout</span>
-      </nav>
-
-      <div class="eyebrow">Almost there</div>
-      <h1 class="section-title cart-title"><em>Checkout</em></h1>
+      <x-page-head
+        :crumbs="[
+            ['label' => 'Beranda', 'url' => route('home')],
+            ['label' => 'Keranjang', 'url' => route('cart.show')],
+            ['label' => 'Checkout'],
+        ]"
+        eyebrow="Hampir selesai"
+      >
+        <h1 class="section-title page-head__title cart-title"><em>Checkout</em></h1>
+      </x-page-head>
 
       @php
         $taxBase = max(0, $subtotal - $discount);
