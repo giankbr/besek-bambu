@@ -1,24 +1,33 @@
-<section class="container">
+<section class="container newsletter-section" aria-labelledby="newsletter-title">
   <div class="newsletter">
-    <div class="news-img-stack">
-      <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=600&q=80" alt="Pot on table" />
-      <img src="https://images.unsplash.com/photo-1591261730799-ee4e6c2d1e1d?auto=format&fit=crop&w=600&q=80" alt="Yellow pan" />
-    </div>
+    <figure class="news-corner news-corner--tl" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />
+    </figure>
+    <figure class="news-corner news-corner--bl" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1591261730799-ee4e6c2d1e1d?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />
+    </figure>
+    <figure class="news-corner news-corner--tr" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />
+    </figure>
+    <figure class="news-corner news-corner--br" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />
+    </figure>
 
     <div class="news-center">
-      <div class="label">Get Recipes</div>
-      <div class="big">10% Off</div>
+      <p class="label">Info &amp; promo</p>
+      <h2 id="newsletter-title" class="big">
+        <span class="big-line">Daftar email</span>
+        <span class="big-accent">diskon 10%</span>
+      </h2>
       <form class="newsletter-form" action="#" method="post" onsubmit="event.preventDefault();">
         @csrf
-        <input type="email" name="email" placeholder="Your Email" required />
-        <button type="submit">Subscribe</button>
+        <label class="newsletter-field">
+          <span class="visually-hidden">Email</span>
+          <input type="email" name="email" placeholder="Email Anda" required autocomplete="email" inputmode="email" />
+        </label>
+        <button type="submit">Daftar</button>
       </form>
-      <div class="sub">Eco-friendly recipes, cooking tips, and a 10% discount on sustainable kitchenware for a greener lifestyle.</div>
-    </div>
-
-    <div class="news-side">
-      <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=600&q=80" alt="Stacked cups" />
-      <img src="https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=600&q=80" alt="People sharing meal" />
+      <p class="sub">Tips packing hantaran, ide isian besek, dan kode diskon untuk pembelian besek anyaman bambu berikutnya.</p>
     </div>
   </div>
 </section>

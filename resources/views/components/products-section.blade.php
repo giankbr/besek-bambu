@@ -3,10 +3,10 @@
 <section class="section container">
   <div class="section-head">
     <div>
-      <div class="eyebrow">Eco Essentials · Planet-Friendly</div>
-      <div class="section-title">Bestselling ✦ <em>Products</em></div>
+      <div class="eyebrow">Pilihan utama · Anyaman bambu</div>
+      <div class="section-title">Produk ✦ <em>terlaris</em></div>
     </div>
-    <a href="{{ route('shop.index') }}" class="view-more">View more →</a>
+    <a href="{{ route('shop.index') }}" class="view-more">Lihat semua →</a>
   </div>
 
   <div class="grid-4">

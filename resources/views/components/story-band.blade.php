@@ -1,11 +1,11 @@
 <section class="container story-band">
   <div class="story">
-    <p>We craft kitchenware you can trust for years to come — through everyday meals and evolving lifestyles. Each piece is thoughtfully made with sustainable materials.</p>
+    <p>Kami hadirkan besek yang bisa dipercaya bertahun-tahun — untuk hantaran, kurban, dan keperluan dapur sehari-hari. Setiap anyaman dibuat dengan penuh perhatian dari bambu pilihan.</p>
   </div>
 
   <div class="pills">
-    <span class="pill">Natural Finish</span>
-    <span class="pill">Eco Innovation</span>
-    <span class="pill">Sustainable Materials</span>
+    <span class="pill">Anyaman rapi</span>
+    <span class="pill">Bambu alami</span>
+    <span class="pill">Ramah lingkungan</span>
   </div>
 </section>

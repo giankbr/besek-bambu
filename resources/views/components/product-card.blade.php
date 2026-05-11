@@ -11,7 +11,7 @@
     <div class="product-stars">{{ str_repeat('★', $product->rating) }}{{ str_repeat('☆', 5 - $product->rating) }}</div>
     <div class="product-foot">
       <span class="product-price">{{ idr($product->price) }}</span>
-      <span class="add-btn">View</span>
+      <span class="add-btn">Lihat</span>
     </div>
   </a>
 

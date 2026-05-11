@@ -4,53 +4,53 @@
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container shop-head">
-      <div class="eyebrow">Eco Essentials · Planet-Friendly</div>
-      <h1 class="section-title shop-title">All <em>Products</em></h1>
+      <div class="eyebrow">Katalog besek · Anyaman bambu</div>
+      <h1 class="section-title shop-title">Semua <em>produk</em></h1>
 
       <form method="get" action="{{ route('shop.index') }}" class="shop-filter">
-        <input type="search" name="q" value="{{ $searchTerm }}" placeholder="Search products..." />
-        <select name="category">
-          <option value="">All categories</option>
+        <input type="search" name="q" value="{{ $searchTerm }}" placeholder="Cari produk…" aria-label="Cari produk" />
+        <select name="category" aria-label="Kategori">
+          <option value="">Semua kategori</option>
           @foreach ($categories as $category)
             <option value="{{ $category->slug }}" @selected($activeCategory === $category->slug)>{{ $category->title }}</option>
           @endforeach
         </select>
-        <select name="sort">
-          <option value="featured" @selected($sort === 'featured')>Featured</option>
-          <option value="newest" @selected($sort === 'newest')>Newest</option>
-          <option value="price-asc" @selected($sort === 'price-asc')>Price: low to high</option>
-          <option value="price-desc" @selected($sort === 'price-desc')>Price: high to low</option>
-          <option value="rating" @selected($sort === 'rating')>Top rated</option>
+        <select name="sort" aria-label="Urutkan">
+          <option value="featured" @selected($sort === 'featured')>Unggulan</option>
+          <option value="newest" @selected($sort === 'newest')>Terbaru</option>
+          <option value="price-asc" @selected($sort === 'price-asc')>Harga: rendah ke tinggi</option>
+          <option value="price-desc" @selected($sort === 'price-desc')>Harga: tinggi ke rendah</option>
+          <option value="rating" @selected($sort === 'rating')>Rating tertinggi</option>
         </select>
-        <button type="submit" class="hero-cta">Apply</button>
+        <button type="submit" class="shop-filter__submit">Terapkan</button>
       </form>
 
       <details class="shop-advanced">
-        <summary>Advanced filters</summary>
+        <summary>Filter lanjutan</summary>
         <form method="get" action="{{ route('shop.index') }}" class="shop-advanced__form">
           <input type="hidden" name="q" value="{{ $searchTerm }}" />
           <input type="hidden" name="category" value="{{ $activeCategory }}" />
           <input type="hidden" name="sort" value="{{ $sort }}" />
           <label>
-            Min price (Rp)
+            Harga min (Rp)
             <input type="number" name="min_price" value="{{ $minPrice ?: '' }}" min="0" />
           </label>
           <label>
-            Max price (Rp)
+            Harga maks (Rp)
             <input type="number" name="max_price" value="{{ $maxPrice ?: '' }}" min="0" />
           </label>
           <label>
-            Min rating
+            Rating minimum
             <select name="min_rating">
-              <option value="">Any</option>
+              <option value="">Semua</option>
               @for ($i = 1; $i <= 5; $i++)
-                <option value="{{ $i }}" @selected($minRating === $i)>{{ str_repeat('★', $i) }} & up</option>
+                <option value="{{ $i }}" @selected($minRating === $i)>{{ str_repeat('★', $i) }} ke atas</option>
               @endfor
             </select>
           </label>
-          <button type="submit" class="cart-link-btn">Apply filters</button>
+          <button type="submit" class="shop-filter__submit">Terapkan filter</button>
           @if ($minPrice || $maxPrice || $minRating)
-            <a class="cart-link-btn" href="{{ route('shop.index', ['q' => $searchTerm, 'category' => $activeCategory, 'sort' => $sort]) }}">Clear</a>
+            <a class="cart-link-btn" href="{{ route('shop.index', ['q' => $searchTerm, 'category' => $activeCategory, 'sort' => $sort]) }}">Hapus filter</a>
           @endif
         </form>
       </details>
@@ -58,18 +58,18 @@
 
     <section class="container">
       @if ($searchTerm)
-        <p class="shop-empty" style="text-align:left;background:#faf6ec;padding:0.75rem 1rem;border-radius:0.5rem;margin-bottom:1rem">
+        <p class="shop-search-notice">
           @if ($products->total() > 0)
-            Showing <strong>{{ $products->total() }}</strong> result{{ $products->total() === 1 ? '' : 's' }} for "<strong>{{ $searchTerm }}</strong>".
+            Menampilkan <strong>{{ $products->total() }}</strong> hasil untuk «<strong>{{ $searchTerm }}</strong>».
           @else
-            No matches for "<strong>{{ $searchTerm }}</strong>". Try a different term or
+            Tidak ada hasil untuk «<strong>{{ $searchTerm }}</strong>». Coba kata lain atau
           @endif
-          <a href="{{ route('shop.index') }}" style="color:#1f7a3a;font-weight:600">clear search</a>.
+          <a href="{{ route('shop.index') }}">hapus pencarian</a>.
         </p>
       @endif
 
       @if ($products->count() === 0)
-        <p class="shop-empty">No products found.</p>
+        <p class="shop-empty">Tidak ada produk.</p>
       @else
         <div class="grid-4 shop-grid">
           @foreach ($products as $product)
@@ -80,9 +80,9 @@
               <div class="product-foot">
                 <span class="product-price">{{ idr($product->price) }}</span>
                 @if ($product->stock > 0)
-                  <span class="add-btn">View</span>
+                  <span class="add-btn">Lihat</span>
                 @else
-                  <span class="add-btn add-btn--disabled">Sold out</span>
+                  <span class="add-btn add-btn--disabled">Habis</span>
                 @endif
               </div>
             </a>

@@ -3,11 +3,11 @@
 <section class="gallery container">
   <div class="gallery-head">
     <div class="gallery-title">
-      Thoughtful, Planet-Prioritizing Ideas<br/>and Inspiration ✧ <em>Gallery</em>
+      Inspirasi &amp; ide<br/>penggunaan besek ✧ <em>Galeri</em>
     </div>
     <div class="gallery-nav">
-      <button aria-label="Previous">←</button>
-      <button aria-label="Next">→</button>
+      <button type="button" aria-label="Sebelumnya">←</button>
+      <button type="button" aria-label="Berikutnya">→</button>
     </div>
   </div>
 

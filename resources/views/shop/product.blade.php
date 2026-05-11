@@ -246,131 +246,147 @@
             }'
             x-init="$watch(\'qty\', () => clampQty())"
           >
-            <div class="product-detail__price">
-              Rp <span x-text="displayPrice">{{ number_format((float) $product->price, 0, ',', '.') }}</span>
-              <template x-if="savingsPct > 0">
-                <span style="margin-left:8px;font-size:0.75em;color:#1f7a3a;background:#eaf6ed;padding:2px 8px;border-radius:999px">
-                  Hemat <span x-text="savingsPct"></span>%
-                </span>
-              </template>
-              <template x-if="savingsPct > 0">
-                <small style="display:block;color:#7d6f5f;font-weight:400;font-size:0.7em;margin-top:2px">
-                  <s>Rp <span x-text="displayBase"></span></s>/pcs (harga normal)
-                </small>
-              </template>
-            </div>
-
-            @if ($product->description)
-              <p class="product-detail__desc">{{ $product->description }}</p>
-            @endif
-
-            @if ($hasVariants)
-              <div style="margin:14px 0">
-                <div style="font-weight:600;font-size:0.95rem;margin-bottom:6px">Pilih ukuran</div>
-                <div style="display:flex;flex-wrap:wrap;gap:8px">
-                  @foreach ($product->variants as $v)
-                    <button
-                      type="button"
-                      @click="pickVariant({{ $v->id }})"
-                      :class="variantId === {{ $v->id }} ? 'variant-chip variant-chip--active' : 'variant-chip'"
-                      {{ $v->stock === 0 ? 'disabled' : '' }}
-                      style="padding:8px 14px;border-radius:999px;border:1px solid #e5e0d6;background:#fff;cursor:pointer;font-weight:600;font-size:0.9rem"
-                    >
-                      {{ $v->label }}
-                      @if ($v->stock === 0)
-                        <small style="color:#b91c1c">— habis</small>
-                      @endif
-                    </button>
-                  @endforeach
-                </div>
+            <div class="product-detail-buy">
+              <div class="product-detail__price">
+                Rp <span x-text="displayPrice">{{ number_format((float) $product->price, 0, ',', '.') }}</span>
+                <template x-if="savingsPct > 0">
+                  <span class="product-detail__price-badge">
+                    Hemat <span x-text="savingsPct"></span>%
+                  </span>
+                </template>
+                <template x-if="savingsPct > 0">
+                  <small class="product-detail__price-note">
+                    <s>Rp <span x-text="displayBase"></span></s> /pcs (harga normal)
+                  </small>
+                </template>
               </div>
-            @endif
 
-            <div class="product-detail__stock" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-              <template x-if="availableStock > 0">
-                <span class="stock-pill stock-pill--in">In stock · <span x-text="availableStock"></span> available</span>
-              </template>
-              <template x-if="availableStock === 0">
-                <span class="stock-pill stock-pill--out">Sold out</span>
-              </template>
-              @if ($moq > 1)
-                <span class="stock-pill" style="background:#fff8e1;color:#8a6d11">Min. order {{ $moq }} pcs</span>
+              @if ($product->description)
+                <p class="product-detail__desc">{{ $product->description }}</p>
               @endif
-              @if ($leadDays > 0)
-                <span class="stock-pill" style="background:#eaf2ff;color:#1e4faf">Lead time {{ $leadDays }} hari kerja</span>
-              @endif
-            </div>
 
-            @if ($hasTiers)
-              <div style="margin:12px 0;padding:12px;border:1px dashed #d6cdb8;border-radius:8px;background:#fdfbf6">
-                <div style="font-weight:600;font-size:0.9rem;margin-bottom:6px">Bulk pricing</div>
-                <table style="width:100%;font-size:0.85rem">
-                  <thead style="color:#7d6f5f">
-                    <tr><th style="text-align:left;padding:2px 0">Quantity</th><th style="text-align:right;padding:2px 0">Per unit</th></tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($product->priceTiers as $i => $t)
-                      @php
-                        $next = $product->priceTiers[$i + 1] ?? null;
-                        $rangeLabel = $next
-                          ? $t->min_quantity.'-'.($next->min_quantity - 1).' pcs'
-                          : '≥ '.$t->min_quantity.' pcs';
-                      @endphp
-                      <tr><td style="padding:2px 0">{{ $rangeLabel }}</td><td style="text-align:right;padding:2px 0">{{ idr($t->unit_price) }}</td></tr>
-                    @endforeach
-                  </tbody>
-                </table>
-              </div>
-            @endif
-
-            <form action="{{ route('cart.add') }}" method="post" class="product-detail__cta">
-              @csrf
-              <input type="hidden" name="product_id" value="{{ $product->id }}" />
               @if ($hasVariants)
-                <input type="hidden" name="variant_id" :value="variantId" />
+                <div class="product-detail-variants">
+                  <div class="product-detail-variants__label">Pilih ukuran</div>
+                  <div class="product-detail-variants__list" role="group" aria-label="Pilih ukuran">
+                    @foreach ($product->variants as $v)
+                      <button
+                        type="button"
+                        class="variant-chip"
+                        @click="pickVariant({{ $v->id }})"
+                        :class="variantId === {{ $v->id }} ? 'variant-chip--active' : ''"
+                        {{ $v->stock === 0 ? 'disabled' : '' }}
+                      >
+                        {{ $v->label }}
+                        @if ($v->stock === 0)
+                          <span class="variant-chip__muted">— habis</span>
+                        @endif
+                      </button>
+                    @endforeach
+                  </div>
+                </div>
               @endif
-              <div class="qty">
-                <label for="qty">Qty</label>
-                <input
-                  id="qty"
-                  x-model.number="qty"
-                  type="number"
-                  name="quantity"
-                  :min="moq"
-                  :max="effectiveMax"
-                  step="1"
-                  :disabled="availableStock === 0"
-                />
+
+              <div class="product-detail__stock product-detail-stock-row">
+                <template x-if="availableStock > 0">
+                  <span class="stock-pill stock-pill--in">Tersedia · <span x-text="availableStock"></span> stok</span>
+                </template>
+                <template x-if="availableStock === 0">
+                  <span class="stock-pill stock-pill--out">Habis</span>
+                </template>
+                @if ($moq > 1)
+                  <span class="stock-pill stock-pill--moq">Min. order {{ $moq }} pcs</span>
+                @endif
+                @if ($leadDays > 0)
+                  <span class="stock-pill stock-pill--lead">Produksi {{ $leadDays }} hari kerja</span>
+                @endif
               </div>
-              <button type="submit" class="hero-cta" :disabled="availableStock === 0" x-text="availableStock === 0 ? 'Sold out' : 'Add to cart'">Add to cart</button>
-            </form>
-            <div style="margin-top:6px;color:#7d6f5f;font-size:0.85rem">
-              Estimasi total: <strong>Rp <span x-text="lineTotal"></span></strong>
+
+              @if ($hasTiers)
+                <div class="product-detail-bulk">
+                  <div class="product-detail-bulk__title">Harga grosir</div>
+                  <table class="product-detail-bulk__table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Kuantitas</th>
+                        <th scope="col">Per unit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach ($product->priceTiers as $i => $t)
+                        @php
+                          $next = $product->priceTiers[$i + 1] ?? null;
+                          $rangeLabel = $next
+                            ? $t->min_quantity.'–'.($next->min_quantity - 1).' pcs'
+                            : '≥ '.$t->min_quantity.' pcs';
+                        @endphp
+                        <tr>
+                          <td>{{ $rangeLabel }}</td>
+                          <td>{{ idr($t->unit_price) }}</td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+              @endif
+
+              <form action="{{ route('cart.add') }}" method="post" class="product-detail__cta">
+                @csrf
+                <input type="hidden" name="product_id" value="{{ $product->id }}" />
+                @if ($hasVariants)
+                  <input type="hidden" name="variant_id" :value="variantId" />
+                @endif
+                <div class="qty">
+                  <label for="qty">Qty</label>
+                  <input
+                    id="qty"
+                    x-model.number="qty"
+                    type="number"
+                    name="quantity"
+                    :min="moq"
+                    :max="effectiveMax"
+                    step="1"
+                    :disabled="availableStock === 0"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="product-detail__add"
+                  :disabled="availableStock === 0"
+                  x-text="availableStock === 0 ? 'Habis' : 'Tambah ke keranjang'"
+                >
+                  Tambah ke keranjang
+                </button>
+              </form>
+              <p class="product-detail-estimate">
+                Estimasi total: <strong>Rp <span x-text="lineTotal"></span></strong>
+              </p>
             </div>
           </div>
 
-          @if ($waNumber)
-            <a
-              href="https://wa.me/{{ $waNumber }}?text={{ $waText }}"
-              target="_blank"
-              rel="noopener"
-              class="cart-link-btn"
-              style="margin-top:8px;background:#25D366;color:#fff;border-color:#25D366"
-            >
-              💬 Tanya / Order via WhatsApp
-            </a>
-          @endif
+          <div class="product-detail__secondary">
+            @if ($waNumber)
+              <a
+                href="https://wa.me/{{ $waNumber }}?text={{ $waText }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="product-detail__wa"
+              >
+                Tanya / pesan via WhatsApp
+              </a>
+            @endif
 
-          @auth
-            <form method="post" action="{{ route('wishlist.toggle', $product) }}" class="product-detail__wishlist">
-              @csrf
-              <button type="submit" class="cart-link-btn">
-                {{ $product->isInWishlistOf(auth()->id()) ? '♥ Saved to wishlist' : '♡ Save to wishlist' }}
-              </button>
-            </form>
-          @else
-            <a class="cart-link-btn product-detail__wishlist" href="{{ route('login') }}">♡ Save to wishlist</a>
-          @endauth
+            @auth
+              <form method="post" action="{{ route('wishlist.toggle', $product) }}" class="product-detail__wishlist">
+                @csrf
+                <button type="submit" class="product-detail__wishlist-btn">
+                  {{ $product->isInWishlistOf(auth()->id()) ? '♥ Sudah di wishlist' : '♡ Simpan ke wishlist' }}
+                </button>
+              </form>
+            @else
+              <a class="product-detail__wishlist-btn product-detail__wishlist" href="{{ route('login') }}">♡ Simpan ke wishlist</a>
+            @endauth
+          </div>
         </div>
       </div>
     </section>
