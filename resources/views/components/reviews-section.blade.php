@@ -15,7 +15,7 @@
       </p>
     </header>
 
-    <div class="reviews-track-wrap">
+    <div class="reviews-track-wrap" data-reviews-slider>
       <div class="reviews-track" role="list">
         @foreach ($reviews as $review)
           @php

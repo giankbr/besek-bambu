@@ -1,9 +1,11 @@
 @props([
-    'title',
-    'description',
+  'title',
+  'description',
+  'eyebrow' => null,
 ])
 
-<div class="flex w-full flex-col text-center">
-    <flux:heading size="xl">{{ $title }}</flux:heading>
-    <flux:subheading>{{ $description }}</flux:subheading>
-</div>
+<header class="auth-storefront-intro">
+  <p class="eyebrow auth-storefront-eyebrow">{{ $eyebrow ?? __('Toko online') }}</p>
+  <h1 class="section-title auth-storefront-heading">{{ $title }}</h1>
+  <p class="auth-storefront-lead">{{ $description }}</p>
+</header>

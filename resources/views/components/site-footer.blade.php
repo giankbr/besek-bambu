@@ -24,8 +24,16 @@
     </div>
   </div>
 
-  <div class="mega-logo">
-    <div class="word">{{ $brandName }}</div>
+  <div class="mega-logo" data-mega-brand>
+    <div class="word mega-brand" aria-label="{{ $brandName }}">
+      @foreach (array_values(array_filter(explode(' ', $brandName))) as $index => $part)
+        <span class="mega-brand__line">
+          <span
+            class="mega-brand__fill @if ($index > 0) mega-brand__fill--accent @endif"
+          >{{ $part }}</span>
+        </span>
+      @endforeach
+    </div>
     <div class="socials">
       @if (count($socials) > 0)
         @foreach ($socials as $key => $url)

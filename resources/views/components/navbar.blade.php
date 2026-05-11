@@ -15,7 +15,7 @@
         @if ($brandLogo)
           <img src="{{ $brandLogo }}" alt="{{ $brandName }}" style="max-height:32px;width:auto;display:block" />
         @else
-          besek
+          {{ \Illuminate\Support\Str::lower($brandName) }}
         @endif
       </a>
       <div class="nav-actions">
