@@ -1,10 +1,10 @@
 @props(['categories'])
 
-<section class="section container">
+<section class="section">
   <div class="section-head">
     <div>
       <div class="eyebrow">Jelajahi koleksi besek kami</div>
-      <div class="section-title">✦ <em>Kategori</em></div>
+      <div class="section-title"><em>Kategori</em></div>
     </div>
   </div>
 

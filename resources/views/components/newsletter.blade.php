@@ -1,4 +1,4 @@
-<section class="container newsletter-section" aria-labelledby="newsletter-title">
+<section class="newsletter-section" aria-labelledby="newsletter-title">
   <div class="newsletter">
     <figure class="news-corner news-corner--tl" aria-hidden="true">
       <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />

@@ -12,7 +12,7 @@
 <footer class="container">
   <div class="foot-band">
     <div>
-      <p class="foot-tag">{{ $tagline }} ✧ <em>besek bambu</em></p>
+      <p class="foot-tag">{{ $tagline }}, <em>besek bambu</em></p>
       <a class="join-btn" href="{{ route('shop.index') }}">Belanja sekarang ↗</a>
     </div>
     <div class="foot-cols">

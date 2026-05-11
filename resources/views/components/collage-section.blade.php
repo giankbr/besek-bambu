@@ -1,4 +1,4 @@
-<section class="collage-wrap container">
+<section class="collage-wrap">
   <div class="collage">
     <img class="c-side" src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=600&q=80" alt="Suasana dapur dengan peralatan masak" />
     <img class="c-main" src="https://images.unsplash.com/photo-1528712306091-ed0763094c98?auto=format&fit=crop&w=900&q=80" alt="Hidangan dan wadah di meja" />

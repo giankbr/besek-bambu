@@ -3,9 +3,11 @@
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">
-    <section class="container shop-head">
-      <div class="eyebrow">Katalog besek · Anyaman bambu</div>
-      <h1 class="section-title shop-title">Semua <em>produk</em></h1>
+    <section class="container shop-page">
+      <div class="shop-head">
+        <div class="eyebrow">Katalog besek · Anyaman bambu</div>
+        <h1 class="section-title shop-title">Semua <em>produk</em></h1>
+      </div>
 
       <form method="get" action="{{ route('shop.index') }}" class="shop-filter">
         <input type="search" name="q" value="{{ $searchTerm }}" placeholder="Cari produk…" aria-label="Cari produk" />
@@ -54,9 +56,7 @@
           @endif
         </form>
       </details>
-    </section>
 
-    <section class="container">
       @if ($searchTerm)
         <p class="shop-search-notice">
           @if ($products->total() > 0)

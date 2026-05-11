@@ -78,6 +78,7 @@
 <body class="storefront-body">
 @yield('content')
 <x-floating-whatsapp />
+@vite(['resources/js/storefront.js'])
 @stack('scripts')
 </body>
 </html>

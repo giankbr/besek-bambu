@@ -395,7 +395,7 @@
       <div class="section-head">
         <div>
           <div class="eyebrow">Customer reviews</div>
-          <div class="section-title">What buyers ✦ <em>say</em></div>
+          <div class="section-title">What buyers <em>say</em></div>
         </div>
       </div>
 
@@ -475,7 +475,7 @@
         <div class="section-head">
           <div>
             <div class="eyebrow">You may also like</div>
-            <div class="section-title">Related ✦ <em>Products</em></div>
+            <div class="section-title">Related <em>Products</em></div>
           </div>
         </div>
         <div class="grid-4">

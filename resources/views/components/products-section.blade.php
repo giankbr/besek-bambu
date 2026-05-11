@@ -1,10 +1,10 @@
 @props(['products'])
 
-<section class="section container">
+<section class="section">
   <div class="section-head">
     <div>
       <div class="eyebrow">Pilihan utama · Anyaman bambu</div>
-      <div class="section-title">Produk ✦ <em>terlaris</em></div>
+      <div class="section-title">Produk <em>terlaris</em></div>
     </div>
     <a href="{{ route('shop.index') }}" class="view-more">Lihat semua →</a>
   </div>

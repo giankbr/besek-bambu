@@ -1,6 +1,6 @@
 @props(['reviews'])
 
-<section class="container reviews-section" aria-labelledby="reviews-heading">
+<section class="reviews-section" aria-labelledby="reviews-heading">
   <div class="reviews">
     <header class="reviews-top">
       <div class="reviews-intro">
