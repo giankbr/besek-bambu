@@ -3,77 +3,62 @@
 @section('title', 'My wishlist — Besek Bambu')
 
 @section('content')
-  <x-navbar />
-  <main id="main-content" class="page-main">
-    <section class="container">
-      <x-page-head
-        :crumbs="[
-            ['label' => 'Beranda', 'url' => route('home')],
-            ['label' => 'Akun', 'url' => route('account.index')],
-            ['label' => 'Wishlist'],
-        ]"
-        eyebrow="Disimpan nanti"
-      >
-        <h1 class="section-title page-head__title cart-title">Wishlist <em>saya</em></h1>
-      </x-page-head>
+  <x-account-page
+    active="wishlist"
+    :crumbs="[
+        ['label' => 'Beranda', 'url' => route('home')],
+        ['label' => 'Akun', 'url' => route('account.index')],
+        ['label' => 'Wishlist'],
+    ]"
+    eyebrow="Disimpan nanti"
+  >
+    <x-slot:heading>
+      <h1 class="section-title page-head__title cart-title">Wishlist <em>saya</em></h1>
+    </x-slot:heading>
 
-      <div class="account-grid">
-        <aside class="account-side">
-          <ul class="account-nav">
-            <li><a class="account-nav__item" href="{{ route('account.index') }}">Overview</a></li>
-            <li><a class="account-nav__item" href="{{ route('account.orders') }}">My orders</a></li>
-            <li><a class="account-nav__item account-nav__item--active" href="{{ route('account.wishlist') }}">Wishlist</a></li>
-            <li><a class="account-nav__item" href="{{ route('profile.edit') }}">Profile settings</a></li>
-            <li>
-              <form method="post" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="account-nav__item account-nav__item--button">Sign out</button>
-              </form>
-            </li>
-          </ul>
-        </aside>
+    @if (session('status'))
+      <div class="cart-flash" role="status">{{ session('status') }}</div>
+    @endif
 
-        <div class="account-main">
-          @if (session('status'))
-            <div class="confirmation-card" style="margin-bottom:1rem;background:#eef7ee">
-              <p class="confirmation-meta" style="margin:0">{{ session('status') }}</p>
-            </div>
-          @endif
-
-          @if ($products->isEmpty())
-            <div class="confirmation-card">
-              <p class="confirmation-meta">Your wishlist is empty.</p>
-              <a class="hero-cta" href="{{ route('shop.index') }}">Browse products</a>
-            </div>
-          @else
-            <div class="grid-4">
-              @foreach ($products as $product)
-                <div class="wishlist-cell">
-                  <x-product-card :product="$product" />
-                  <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-                    @if ($product->stock > 0)
-                      <form method="post" action="{{ route('cart.add') }}">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}" />
-                        <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="cart-link-btn">Add to cart</button>
-                      </form>
-                    @else
-                      <span class="cart-link-btn" style="opacity:.6;cursor:not-allowed">Sold out</span>
-                    @endif
-                    <form method="post" action="{{ route('wishlist.toggle', $product) }}">
-                      @csrf
-                      <button type="submit" class="cart-link-btn cart-link-btn--danger">Remove</button>
-                    </form>
-                  </div>
-                </div>
-              @endforeach
-            </div>
-          @endif
+    <section class="confirmation-card account-panel account-orders-panel">
+      <div class="account-section-head">
+        <div>
+          <p class="confirmation-section-title">Wishlist</p>
+          <h2 class="account-card-title">Produk tersimpan</h2>
         </div>
       </div>
-    </section>
 
-    <x-site-footer />
-  </main>
+      @if ($products->isEmpty())
+        <div class="account-empty-state">
+          <p class="account-empty-state__title">Wishlist masih kosong.</p>
+          <p class="confirmation-meta">Simpan produk favorit Anda untuk dibeli nanti.</p>
+          <a class="hero-cta" href="{{ route('shop.index') }}">Browse products</a>
+        </div>
+      @else
+        <div class="account-wishlist-grid grid-4">
+          @foreach ($products as $product)
+            <div class="wishlist-cell">
+              <x-product-card :product="$product" />
+              <div class="wishlist-cell__actions">
+                @if ($product->stock > 0)
+                  <form method="post" action="{{ route('cart.add') }}">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button type="submit" class="cart-link-btn">Add to cart</button>
+                  </form>
+                @else
+                  <span class="cart-link-btn cart-link-btn--disabled">Sold out</span>
+                @endif
+                <form method="post" action="{{ route('wishlist.toggle', $product) }}">
+                  @csrf
+                  <button type="submit" class="cart-link-btn cart-link-btn--danger">Remove</button>
+                </form>
+              </div>
+            </div>
+          @endforeach
+        </div>
+      @endif
+    </section>
+  </x-account-page>
 @endsection

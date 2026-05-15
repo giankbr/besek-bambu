@@ -281,7 +281,6 @@
     width: 100%;
     max-width: none;
     margin-inline: 0;
-    padding-inline: 0;
   }
 
   .hero {
@@ -323,17 +322,17 @@
   .hero-content {
     position: relative;
     z-index: 1;
-    max-width: min(36rem, 100%);
-    padding: clamp(0.35rem, 1.2vw, 0.5rem) clamp(0.85rem, 3vw, 1.35rem);
-    margin-bottom: clamp(0.15rem, 0.75vw, 0.35rem);
+    max-width: min(32rem, 100%);
+    padding: clamp(0.25rem, 1vw, 0.5rem) 0;
+    margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
   }
 
   .hero-heading {
-    font-size: clamp(1.65rem, 4.2vw, 2.75rem);
+    font-size: clamp(1.75rem, 4.5vw, 2.5rem);
     font-weight: 500;
-    line-height: 1.22;
+    line-height: 1.2;
     letter-spacing: -0.02em;
-    margin: 0 0 1rem;
+    margin: 0 0 0.75rem;
     text-shadow:
       0 1px 2px rgba(0, 0, 0, 0.85),
       0 2px 12px rgba(0, 0, 0, 0.65),
@@ -347,10 +346,12 @@
 
   .hero-heading__accent {
     display: block;
-    margin-top: 0.2em;
-    font-size: 0.92em;
+    margin-top: 0.3rem;
+    font-size: 0.9em;
     font-weight: 500;
+    line-height: 1.3;
     opacity: 0.96;
+    white-space: nowrap;
   }
 
   .hero-heading__accent em {
@@ -359,11 +360,11 @@
   }
 
   .hero-lead {
+    margin: 0 0 1.1rem;
+    max-width: 28rem;
     font-size: clamp(0.9rem, 2.1vw, 0.97rem);
-    line-height: 1.62;
+    line-height: 1.6;
     opacity: 0.98;
-    margin: 0 0 1.25rem;
-    max-width: 26rem;
     text-shadow:
       0 1px 2px rgba(0, 0, 0, 0.8),
       0 2px 18px rgba(0, 0, 0, 0.5);
@@ -1306,17 +1307,16 @@
       margin-top: 1.25rem;
     }
     .hero-content {
-      padding: clamp(0.65rem, 2.5vw, 1rem);
+      max-width: 100%;
       margin-bottom: 0;
     }
     .hero-heading {
-      font-size: clamp(1.4rem, 4.8vw, 2rem);
+      font-size: clamp(1.5rem, 4.8vw, 2rem);
       margin-bottom: 0.65rem;
-      line-height: 1.16;
     }
     .hero-lead {
-      margin-bottom: 0.9rem;
       max-width: 100%;
+      margin-bottom: 0.9rem;
     }
     .mega-logo {
       flex-direction: column;
@@ -1406,27 +1406,24 @@
       border-radius: 16px;
     }
     .page-hero-shell .hero {
-      padding-inline: 0;
       border-radius: 16px;
     }
     .hero-heading {
-      font-size: clamp(1.25rem, 6.2vw, 1.55rem);
-      margin-bottom: 0.45rem;
+      font-size: clamp(1.35rem, 6vw, 1.65rem);
+      margin-bottom: 0.5rem;
     }
     .hero-heading__accent {
-      margin-top: 0.12em;
+      margin-top: 0.2rem;
+      font-size: clamp(0.8rem, 3.6vw, 0.95em);
     }
     .hero-lead {
       font-size: 0.8125rem;
-      line-height: 1.48;
-      margin-bottom: 0.7rem;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
     }
     .hero-cta {
       padding: 9px 18px;
       font-size: 13px;
-    }
-    .hero-content {
-      padding: 0.5rem 0.85rem 0.35rem;
     }
     .mega-logo .word.mega-brand {
       font-size: clamp(36px, 14vw, 72px);
@@ -2655,12 +2652,50 @@ a.product:hover {
 /* === Account pages === */
 .account-grid {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: minmax(240px, 300px) 1fr;
   gap: 32px;
+  align-items: start;
   margin-top: 32px;
+  padding-bottom: clamp(3rem, 8vw, 5rem);
 }
 
 .account-side { position: sticky; top: 24px; align-self: start; }
+
+.account-side--panel {
+  background: linear-gradient(180deg, rgba(233,239,226,0.9), rgba(255,255,255,0.96));
+  border: 1px solid rgba(44,74,58,0.08);
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(31,42,38,0.08);
+  padding: 16px;
+}
+
+.account-side__intro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 6px 18px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(44,74,58,0.1);
+}
+
+.account-side__label {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.account-avatar {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--green-deep);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
 
 .account-nav {
   list-style: none;
@@ -2684,6 +2719,7 @@ a.product:hover {
 
 .account-nav__item--active {
   background: var(--card, #ffffff);
+  box-shadow: 0 8px 22px rgba(31,42,38,0.08);
   font-weight: 600;
 }
 
@@ -2696,7 +2732,139 @@ a.product:hover {
   font: inherit;
 }
 
-.account-main { min-width: 0; }
+.account-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.account-main > .cart-flash {
+  margin: 0;
+}
+
+.account-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.account-panel,
+.account-profile-card,
+.account-status-card,
+.account-orders-panel,
+.account-profile-form {
+  border: 1px solid rgba(44,74,58,0.08);
+  box-shadow: 0 18px 50px rgba(31,42,38,0.08);
+  margin: 0;
+}
+
+.account-profile-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.account-card-title {
+  font-size: clamp(22px, 3vw, 32px);
+  line-height: 1.1;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.account-status-card {
+  background: var(--green-deep);
+  color: #ffffff;
+}
+
+.account-status-card .confirmation-section-title,
+.account-status-card .confirmation-meta {
+  color: rgba(255,255,255,0.76);
+}
+
+.account-status-card__value {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  line-height: 1;
+  margin: 12px 0 6px;
+}
+
+.account-orders-panel {
+  padding: 24px 28px;
+}
+
+.account-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 10px;
+}
+
+.account-section-head .confirmation-section-title {
+  margin-bottom: 8px;
+}
+
+.account-empty-state {
+  background: var(--green-soft);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.account-empty-state__title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.account-empty-state .hero-cta {
+  margin-top: 14px;
+}
+
+.account-profile-form {
+  padding: 24px 28px;
+}
+
+.account-profile-form__lead {
+  margin-bottom: 1.25rem;
+}
+
+.account-profile-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.account-pagination {
+  margin-top: 1.5rem;
+}
+
+.account-wishlist-grid {
+  margin-top: 0.5rem;
+}
+
+.wishlist-cell__actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cart-link-btn--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.account-order-row__tracking {
+  font-size: 12px;
+}
+
+.account-order-row__tracking code {
+  font-family: monospace;
+}
 
 .account-order-row {
   display: flex;
@@ -2727,10 +2895,44 @@ a.product:hover {
   color: inherit;
   margin: 0 0 12px;
   padding: 18px 24px;
-  transition: transform .15s ease;
+  border: 1px solid rgba(44,74,58,0.08);
+  box-shadow: 0 12px 32px rgba(31,42,38,0.06);
+  border-radius: 16px;
+  background: var(--card);
+  transition: transform .15s ease, box-shadow .15s ease;
 }
 
-.account-order-card:hover { transform: translateY(-1px); }
+.account-order-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(31,42,38,0.1);
+}
+
+.account-order-card--inline {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.account-order-card--inline:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.account-order-card--inline + .account-order-card--inline {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.account-order-card--inline .account-order-row {
+  padding: 16px 0;
+}
+
+.account-order-card--inline:hover .account-order-row strong,
+.account-order-card--inline:hover .cart-item__name {
+  color: var(--green-deep);
+}
 
 .order-timeline {
   list-style: none;
@@ -2763,6 +2965,12 @@ a.product:hover {
 @media (max-width: 800px) {
   .account-grid { grid-template-columns: 1fr; }
   .account-side { position: static; }
+  .account-overview { grid-template-columns: 1fr; }
+  .account-profile-card,
+  .account-section-head {
+    flex-direction: column;
+  }
+  .account-orders-panel { padding: 20px; }
 }
 
 /* === Product reviews === */

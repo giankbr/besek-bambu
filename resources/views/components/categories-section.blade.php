@@ -3,8 +3,7 @@
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="eyebrow">Jelajahi koleksi besek kami</div>
-      <div class="section-title"><em>Kategori</em></div>
+      <div class="section-title">Jelajahi koleksi <em>besek kami</em></div>
     </div>
   </div>
 

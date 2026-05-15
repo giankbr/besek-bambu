@@ -12,7 +12,6 @@
       </div>
       <x-products-section :products="$products" />
       <x-story-band />
-      <x-categories-section :categories="$categories" />
       <x-gallery-section :gallery-items="$galleryItems" />
       <x-reviews-section :reviews="$reviews" />
       <x-collage-section />

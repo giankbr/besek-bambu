@@ -63,6 +63,8 @@ Route::post('/payment/notification', [PaymentController::class, 'notification'])
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/account', [AccountController::class, 'index'])->name('account.index');
+    Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');
+    Route::patch('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
     Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
     Route::get('/account/orders/{order}', [AccountController::class, 'show'])->name('account.orders.show');
     Route::get('/account/orders/{order}/track', [AccountController::class, 'track'])->name('account.orders.track');

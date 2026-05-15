@@ -1,12 +1,10 @@
 <?php
 
-use App\Models\Category;
 use App\Models\Product;
 use Flux\Flux;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -27,7 +25,6 @@ new #[Title('New Product')] class extends Component {
     public int $production_lead_days = 0;
     public int $rating = 5;
     public string $color_class = 'p-1';
-    public ?int $category_id = null;
     public bool $is_active = true;
     public int $sort_order = 0;
     public ?string $meta_title = null;
@@ -40,12 +37,6 @@ new #[Title('New Product')] class extends Component {
         if ($this->slug === '') {
             $this->slug = Str::slug($value);
         }
-    }
-
-    #[Computed]
-    public function categories()
-    {
-        return Category::orderBy('title')->get();
     }
 
     public function save(): void
@@ -65,7 +56,6 @@ new #[Title('New Product')] class extends Component {
                 'production_lead_days' => ['required', 'integer', 'min:0', 'max:365'],
                 'rating' => ['required', 'integer', 'between:1,5'],
                 'color_class' => ['required', Rule::in(['p-1', 'p-2', 'p-3', 'p-4'])],
-                'category_id' => ['nullable', 'exists:categories,id'],
                 'is_active' => ['boolean'],
                 'sort_order' => ['integer', 'min:0'],
                 'meta_title' => ['nullable', 'string', 'max:160'],
@@ -167,15 +157,7 @@ new #[Title('New Product')] class extends Component {
                 @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
             </div>
 
-            <div class="grid gap-5 md:grid-cols-2">
-                <flux:select wire:model="category_id" :label="__('Category')" placeholder="{{ __('— None —') }}">
-                    @foreach ($this->categories as $category)
-                        <flux:select.option value="{{ $category->id }}">{{ $category->title }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-
-                <flux:input wire:model="rating" :label="__('Rating')" type="number" min="1" max="5" />
-            </div>
+            <flux:input wire:model="rating" :label="__('Rating')" type="number" min="1" max="5" />
 
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:input wire:model="sort_order" :label="__('Sort order')" type="number" min="0" />

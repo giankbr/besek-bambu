@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateAccountProfileRequest;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\ShippingService;
@@ -25,6 +26,31 @@ class AccountController extends Controller
             'user' => $user,
             'recentOrders' => $recentOrders,
         ]);
+    }
+
+    public function profile()
+    {
+        return view('account.profile', [
+            'user' => Auth::user(),
+        ]);
+    }
+
+    public function updateProfile(UpdateAccountProfileRequest $request)
+    {
+        $user = Auth::user();
+        $validated = $request->validated();
+
+        $user->fill($validated);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return redirect()
+            ->route('account.profile')
+            ->with('status', 'Profil berhasil diperbarui.');
     }
 
     public function orders(Request $request)
