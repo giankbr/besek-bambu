@@ -31,28 +31,28 @@
             href="{{ route('shop.index') }}"
             class="@if ($isShop) is-active @endif"
             @if ($isShop) aria-current="page" @endif
-          >Shop</a>
+          >{{ __('nav.shop') }}</a>
         </li>
         <li>
           <a
             href="{{ route('gallery') }}"
             class="@if ($isGallery) is-active @endif"
             @if ($isGallery) aria-current="page" @endif
-          >Gallery</a>
+          >{{ __('nav.gallery') }}</a>
         </li>
         <li>
           <a
             href="{{ route('about') }}"
             class="@if ($isAbout) is-active @endif"
             @if ($isAbout) aria-current="page" @endif
-          >About</a>
+          >{{ __('nav.about') }}</a>
         </li>
         <li>
           <a
             href="{{ route('contact') }}"
             class="@if ($isContact) is-active @endif"
             @if ($isContact) aria-current="page" @endif
-          >Contact</a>
+          >{{ __('nav.contact') }}</a>
         </li>
       </ul>
       <a
@@ -73,17 +73,17 @@
           action="{{ route('shop.index') }}"
           role="search"
           class="navbar-search"
-          aria-label="Search products"
+          aria-label="{{ __('nav.search') }}"
         >
           <input
             type="search"
             name="q"
             value="{{ request('q') }}"
-            placeholder="Search products…"
-            aria-label="Search products"
+            placeholder="{{ __('nav.search_placeholder') }}"
+            aria-label="{{ __('nav.search') }}"
             autocomplete="off"
           />
-          <button type="submit" aria-label="Submit search">⌕</button>
+          <button type="submit" aria-label="{{ __('nav.search_submit') }}">⌕</button>
         </form>
         <div class="nav-actions__cluster">
           @auth
@@ -98,31 +98,44 @@
             @endphp
             <a
               href="{{ route('account.wishlist') }}"
-              aria-label="Wishlist"
-              title="Wishlist"
+              aria-label="{{ __('nav.wishlist') }}"
+              title="{{ __('nav.wishlist') }}"
               class="@if ($isWishlist) is-active @endif"
               @if ($isWishlist) aria-current="page" @endif
             >♥ {{ $wishCount }}</a>
             <a
               href="{{ route('account.index') }}"
-              aria-label="Account"
+              aria-label="{{ __('nav.account') }}"
               class="@if ($isAccountArea && ! $isWishlist) is-active @endif"
               @if ($isAccountArea && ! $isWishlist) aria-current="page" @endif
             >{{ auth()->user()->name }}</a>
           @else
             <a
               href="{{ route('login') }}"
-              aria-label="Account"
+              aria-label="{{ __('nav.account') }}"
               class="@if ($isAccountArea) is-active @endif"
               @if ($isAccountArea) aria-current="page" @endif
-            >Account</a>
+            >{{ __('nav.account') }}</a>
           @endauth
           <a
             href="{{ route('cart.show') }}"
-            aria-label="Cart"
+            aria-label="{{ __('nav.cart') }}"
             class="@if ($isCartFlow) is-active @endif"
             @if ($isCartFlow) aria-current="page" @endif
-          >Cart ({{ app(\App\Services\CartService::class)->count() }})</a>
+          >{{ __('nav.cart') }} ({{ app(\App\Services\CartService::class)->count() }})</a>
+          <div class="nav-lang" role="group" aria-label="{{ __('nav.language') }}">
+            <a
+              href="{{ route('locale.switch', 'id') }}"
+              class="@if (app()->getLocale() === 'id') is-active @endif"
+              @if (app()->getLocale() === 'id') aria-current="true" @endif
+            >ID</a>
+            <span aria-hidden="true">·</span>
+            <a
+              href="{{ route('locale.switch', 'en') }}"
+              class="@if (app()->getLocale() === 'en') is-active @endif"
+              @if (app()->getLocale() === 'en') aria-current="true" @endif
+            >EN</a>
+          </div>
         </div>
       </div>
     </nav>
