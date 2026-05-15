@@ -1,19 +1,19 @@
 @extends('layouts.storefront')
 
-@section('title', 'Profile settings — Besek Bambu')
+@section('title', __('Pengaturan profil').' — Besek Bambu')
 
 @section('content')
   <x-account-page
     active="profile"
     :crumbs="[
-        ['label' => 'Beranda', 'url' => route('home')],
-        ['label' => 'Akun', 'url' => route('account.index')],
-        ['label' => 'Profil'],
+        ['label' => __('Beranda'), 'url' => route('home')],
+        ['label' => __('Akun'), 'url' => route('account.index')],
+        ['label' => __('Profil')],
     ]"
-    eyebrow="Pengaturan akun"
+    eyebrow="{{ __('Pengaturan akun') }}"
   >
     <x-slot:heading>
-      <h1 class="section-title page-head__title cart-title">Profil <em>saya</em></h1>
+      <h1 class="section-title page-head__title cart-title">{!! __('Profil <em>saya</em>') !!}</h1>
     </x-slot:heading>
 
     @if (session('status'))
@@ -21,29 +21,29 @@
     @endif
 
     <section class="confirmation-card account-panel account-profile-form">
-      <p class="confirmation-section-title">Profile</p>
-      <h2 class="account-card-title">Perbarui data akun</h2>
-      <p class="confirmation-meta account-profile-form__lead">Ubah nama dan email yang dipakai untuk pesanan serta notifikasi toko.</p>
+      <p class="confirmation-section-title">{{ __('Profil') }}</p>
+      <h2 class="account-card-title">{{ __('Perbarui data akun') }}</h2>
+      <p class="confirmation-meta account-profile-form__lead">{{ __('Ubah nama dan email yang dipakai untuk pesanan serta notifikasi toko.') }}</p>
 
       <form method="post" action="{{ route('account.profile.update') }}" class="contact-form">
         @csrf
         @method('patch')
 
         <label>
-          Nama
+          {{ __('Nama') }}
           <input type="text" name="name" value="{{ old('name', $user->name) }}" required autocomplete="name" />
           @error('name')<span class="form-error">{{ $message }}</span>@enderror
         </label>
 
         <label>
-          Email
+          {{ __('Email') }}
           <input type="email" name="email" value="{{ old('email', $user->email) }}" required autocomplete="email" />
           @error('email')<span class="form-error">{{ $message }}</span>@enderror
         </label>
 
         <div class="account-profile-form__actions">
-          <button type="submit" class="hero-cta">Simpan perubahan</button>
-          <a class="cart-link-btn" href="{{ route('account.index') }}">Kembali ke overview</a>
+          <button type="submit" class="hero-cta">{{ __('Simpan perubahan') }}</button>
+          <a class="cart-link-btn" href="{{ route('account.index') }}">{{ __('Kembali ke ringkasan') }}</a>
         </div>
       </form>
     </section>

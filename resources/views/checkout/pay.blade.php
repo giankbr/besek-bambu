@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Pay order ' . $order->number . ' — '.store_name())
+@section('title', __('Bayar pesanan').' '.$order->number.' — '.store_name())
 
 @push('head')
   <script src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
@@ -12,15 +12,15 @@
   <main id="main-content" class="page-main">
     <section class="container">
       <div class="confirmation">
-        <h1 class="confirmation__title">Complete your <em>payment</em></h1>
-        <p class="confirmation__lead">Order <strong>{{ $order->number }}</strong> — total <strong>{{ idr($order->total) }}</strong></p>
+        <h1 class="confirmation__title">{!! __('Selesaikan <em>pembayaran</em> Anda') !!}</h1>
+        <p class="confirmation__lead">{!! __('Pesanan :num — total :total', ['num' => '<strong>'.e($order->number).'</strong>', 'total' => '<strong>'.idr($order->total).'</strong>']) !!}</p>
 
         <div class="confirmation-card">
-          <p class="confirmation-meta">A secure payment window will open. You can pay using credit card, bank transfer, e-wallet, or QRIS.</p>
+          <p class="confirmation-meta">{{ __('Jendela pembayaran aman akan terbuka. Anda dapat membayar dengan kartu kredit, transfer bank, e-wallet, atau QRIS.') }}</p>
 
           <div class="confirmation-actions">
-            <button type="button" id="pay-button" class="hero-cta">Pay now</button>
-            <a class="cart-link-btn" href="{{ route('checkout.confirmation', $order) }}">View order details</a>
+            <button type="button" id="pay-button" class="hero-cta">{{ __('Bayar sekarang') }}</button>
+            <a class="cart-link-btn" href="{{ route('checkout.confirmation', $order) }}">{{ __('Lihat detail pesanan') }}</a>
           </div>
 
           @if (session('status'))

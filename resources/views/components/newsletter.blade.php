@@ -14,20 +14,20 @@
     </figure>
 
     <div class="news-center">
-      <p class="label">Info &amp; promo</p>
+      <p class="label">{{ __('Info & promo') }}</p>
       <h2 id="newsletter-title" class="big">
-        <span class="big-line">Daftar email</span>
-        <span class="big-accent">diskon 10%</span>
+        <span class="big-line">{{ __('Daftar email') }}</span>
+        <span class="big-accent">{{ __('diskon 10%') }}</span>
       </h2>
       <form class="newsletter-form" action="#" method="post" onsubmit="event.preventDefault();">
         @csrf
         <label class="newsletter-field">
-          <span class="visually-hidden">Email</span>
-          <input type="email" name="email" placeholder="Email Anda" required autocomplete="email" inputmode="email" />
+          <span class="visually-hidden">{{ __('Email') }}</span>
+          <input type="email" name="email" placeholder="{{ __('Email Anda') }}" required autocomplete="email" inputmode="email" />
         </label>
-        <button type="submit">Daftar</button>
+        <button type="submit">{{ __('Daftar') }}</button>
       </form>
-      <p class="sub">Tips packing hantaran, ide isian besek, dan kode diskon untuk pembelian besek anyaman bambu berikutnya.</p>
+      <p class="sub">{{ __('Tips packing hantaran, ide isian besek, dan kode diskon untuk pembelian besek anyaman bambu berikutnya.') }}</p>
     </div>
   </div>
 </section>

@@ -1,8 +1,8 @@
 @extends('layouts.storefront')
 
-@section('title', '404 — Halaman tidak ditemukan — '.store_name())
+@section('title', '404 — '.__('Halaman tidak ditemukan').' — '.store_name())
 
-@section('meta_description', 'Halaman yang Anda cari tidak ada atau tautannya sudah tidak berlaku. Kembali ke beranda atau jelajahi katalog besek kami.')
+@section('meta_description', __('Halaman yang Anda cari tidak ada atau tautannya sudah tidak berlaku. Kembali ke beranda atau jelajahi katalog besek kami.'))
 
 @push('head')
   <meta name="robots" content="noindex, follow" />
@@ -90,13 +90,13 @@
     <div class="container error-404">
       <div class="error-404__badge" aria-hidden="true" title="Besek">🧺</div>
       <p class="error-404__code">404</p>
-      <h1 class="error-404__title">Halaman tidak ditemukan</h1>
+      <h1 class="error-404__title">{{ __('Halaman tidak ditemukan') }}</h1>
       <p class="error-404__lead">
-        Alamat ini tidak ada atau sudah dipindahkan. Periksa penulisan URL, atau kembali ke beranda untuk melanjutkan belanja besek anyaman bambu.
+        {{ __('Alamat ini tidak ada atau sudah dipindahkan. Periksa penulisan URL, atau kembali ke beranda untuk melanjutkan belanja besek anyaman bambu.') }}
       </p>
       <div class="error-404__actions">
-        <a class="error-404__btn error-404__btn--primary" href="{{ route('home') }}">Ke beranda</a>
-        <a class="error-404__btn error-404__btn--ghost" href="{{ route('shop.index') }}">Lihat katalog</a>
+        <a class="error-404__btn error-404__btn--primary" href="{{ route('home') }}">{{ __('Ke beranda') }}</a>
+        <a class="error-404__btn error-404__btn--ghost" href="{{ route('shop.index') }}">{{ __('Lihat katalog') }}</a>
       </div>
     </div>
   </main>

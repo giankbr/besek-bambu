@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', $product->meta_title ?: ($product->name . ' — Besek Bambu'))
-@section('meta_description', $product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->description ?? ('Handcrafted bamboo kitchenware. ' . $product->name)), 155))
+@section('meta_description', $product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->description ?? (__('Kerajinan bambu buatan tangan.').' '.$product->name)), 155))
 @section('og_type', 'product')
 @php
   $ogSrc = $product->og_image ? image_src($product->og_image) : ($product->image_url ? image_src($product->image_url) : null);
@@ -84,8 +84,8 @@
     <section class="container">
       @php
         $productCrumbs = [
-          ['label' => 'Beranda', 'url' => route('home')],
-          ['label' => 'Belanja', 'url' => route('shop.index')],
+          ['label' => __('Beranda'), 'url' => route('home')],
+          ['label' => __('Belanja'), 'url' => route('shop.index')],
         ];
         if ($product->category) {
           $productCrumbs[] = [
@@ -112,7 +112,7 @@
         $allMedia = $allMedia->values()->all();
         $hasMultiple = count($allMedia) > 1;
       @endphp
-      <x-page-head :crumbs="$productCrumbs" eyebrow="Detail produk" compact :schema="false" />
+      <x-page-head :crumbs="$productCrumbs" eyebrow="{{ __('Detail produk') }}" compact :schema="false" />
       <div
         class="product-detail"
         x-data='{
@@ -134,13 +134,13 @@
                   type="button"
                   class="product-detail__nav product-detail__nav--prev"
                   @click="prev()"
-                  aria-label="Previous image"
+                  aria-label="{{ __('Gambar sebelumnya') }}"
                 >‹</button>
                 <button
                   type="button"
                   class="product-detail__nav product-detail__nav--next"
                   @click="next()"
-                  aria-label="Next image"
+                  aria-label="{{ __('Gambar berikutnya') }}"
                 >›</button>
                 <div class="product-detail__counter" x-text="(index + 1) + ' / ' + images.length"></div>
               @endif
@@ -157,7 +157,7 @@
                   class="product-detail__thumb"
                   :class="index === {{ $i }} ? 'product-detail__thumb--active' : ''"
                   @click="index = {{ $i }}"
-                  aria-label="View image {{ $i + 1 }}"
+                  aria-label="{{ __('Lihat gambar :n', ['n' => $i + 1]) }}"
                 >
                   <img src="{{ $src }}" alt="" loading="lazy" />
                 </button>
@@ -177,14 +177,14 @@
           <div class="product-stars">
             {{ str_repeat('★', $displayRating) }}{{ str_repeat('☆', 5 - $displayRating) }}
             @if ($reviewsCount > 0)
-              <small style="margin-left:8px;color:var(--muted)">{{ number_format($averageRating, 1) }} · {{ $reviewsCount }} {{ Str::plural('review', $reviewsCount) }}</small>
+              <small style="margin-left:8px;color:var(--muted)">{{ number_format($averageRating, 1) }} · {{ $reviewsCount }} {{ __('ulasan') }}</small>
             @endif
           </div>
           @php
             $moq = max(1, (int) ($product->min_order_quantity ?? 1));
             $leadDays = (int) ($product->production_lead_days ?? 0);
             $waNumber = preg_replace('/\D+/', '', (string) (setting('whatsapp_order_number') ?: setting('store_phone') ?: ''));
-            $waText = rawurlencode("Halo, saya mau tanya: {$product->name} (".route('shop.product', $product).')');
+            $waText = rawurlencode(__('Halo, saya mau tanya:')." {$product->name} (".route('shop.product', $product).')');
             $hasVariants = $product->hasVariants();
             $variantsPayload = $product->variants->map(fn ($v) => [
               'id' => $v->id,
@@ -252,12 +252,12 @@
                 Rp <span x-text="displayPrice">{{ number_format((float) $product->price, 0, ',', '.') }}</span>
                 <template x-if="savingsPct > 0">
                   <span class="product-detail__price-badge">
-                    Hemat <span x-text="savingsPct"></span>%
+                    {{ __('Hemat') }} <span x-text="savingsPct"></span>%
                   </span>
                 </template>
                 <template x-if="savingsPct > 0">
                   <small class="product-detail__price-note">
-                    <s>Rp <span x-text="displayBase"></span></s> /pcs (harga normal)
+                    <s>Rp <span x-text="displayBase"></span></s> {{ __('/pcs (harga normal)') }}
                   </small>
                 </template>
               </div>
@@ -268,8 +268,8 @@
 
               @if ($hasVariants)
                 <div class="product-detail-variants">
-                  <div class="product-detail-variants__label">Pilih ukuran</div>
-                  <div class="product-detail-variants__list" role="group" aria-label="Pilih ukuran">
+                  <div class="product-detail-variants__label">{{ __('Pilih ukuran') }}</div>
+                  <div class="product-detail-variants__list" role="group" aria-label="{{ __('Pilih ukuran') }}">
                     @foreach ($product->variants as $v)
                       <button
                         type="button"
@@ -280,7 +280,7 @@
                       >
                         {{ $v->label }}
                         @if ($v->stock === 0)
-                          <span class="variant-chip__muted">— habis</span>
+                          <span class="variant-chip__muted">{{ __('— habis') }}</span>
                         @endif
                       </button>
                     @endforeach
@@ -290,27 +290,27 @@
 
               <div class="product-detail__stock product-detail-stock-row">
                 <template x-if="availableStock > 0">
-                  <span class="stock-pill stock-pill--in">Tersedia · <span x-text="availableStock"></span> stok</span>
+                  <span class="stock-pill stock-pill--in">{{ __('Tersedia') }} · <span x-text="availableStock"></span> {{ __('stok') }}</span>
                 </template>
                 <template x-if="availableStock === 0">
-                  <span class="stock-pill stock-pill--out">Habis</span>
+                  <span class="stock-pill stock-pill--out">{{ __('Habis') }}</span>
                 </template>
                 @if ($moq > 1)
-                  <span class="stock-pill stock-pill--moq">Min. order {{ $moq }} pcs</span>
+                  <span class="stock-pill stock-pill--moq">{{ __('Min. order :n pcs', ['n' => $moq]) }}</span>
                 @endif
                 @if ($leadDays > 0)
-                  <span class="stock-pill stock-pill--lead">Produksi {{ $leadDays }} hari kerja</span>
+                  <span class="stock-pill stock-pill--lead">{{ __('Produksi :n hari kerja', ['n' => $leadDays]) }}</span>
                 @endif
               </div>
 
               @if ($hasTiers)
                 <div class="product-detail-bulk">
-                  <div class="product-detail-bulk__title">Harga grosir</div>
+                  <div class="product-detail-bulk__title">{{ __('Harga grosir') }}</div>
                   <table class="product-detail-bulk__table">
                     <thead>
                       <tr>
-                        <th scope="col">Kuantitas</th>
-                        <th scope="col">Per unit</th>
+                        <th scope="col">{{ __('Kuantitas') }}</th>
+                        <th scope="col">{{ __('Per unit') }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -338,7 +338,7 @@
                   <input type="hidden" name="variant_id" :value="variantId" />
                 @endif
                 <div class="qty">
-                  <label for="qty">Qty</label>
+                  <label for="qty">{{ __('Jumlah') }}</label>
                   <input
                     id="qty"
                     x-model.number="qty"
@@ -354,13 +354,13 @@
                   type="submit"
                   class="product-detail__add"
                   :disabled="availableStock === 0"
-                  x-text="availableStock === 0 ? 'Habis' : 'Tambah ke keranjang'"
+                  x-text="availableStock === 0 ? @js(__('Habis')) : @js(__('Tambah ke keranjang'))"
                 >
-                  Tambah ke keranjang
+                  {{ __('Tambah ke keranjang') }}
                 </button>
               </form>
               <p class="product-detail-estimate">
-                Estimasi total: <strong>Rp <span x-text="lineTotal"></span></strong>
+                {{ __('Estimasi total:') }} <strong>Rp <span x-text="lineTotal"></span></strong>
               </p>
             </div>
           </div>
@@ -373,19 +373,29 @@
                 rel="noopener noreferrer"
                 class="product-detail__wa"
               >
-                Tanya / pesan via WhatsApp
+                {{ __('Tanya / pesan via WhatsApp') }}
               </a>
             @endif
 
             @auth
-              <form method="post" action="{{ route('wishlist.toggle', $product) }}" class="product-detail__wishlist">
+              @php $inWishlist = $product->isInWishlistOf(auth()->id()); @endphp
+              <form
+                method="post"
+                action="{{ route('wishlist.toggle', $product) }}"
+                class="product-detail__wishlist"
+                @if ($inWishlist)
+                  data-confirm="{{ __('Produk ini akan dihapus dari wishlist Anda. Lanjutkan?') }}"
+                  data-confirm-title="{{ __('Hapus dari wishlist?') }}"
+                  data-confirm-ok="{{ __('Ya, hapus') }}"
+                @endif
+              >
                 @csrf
                 <button type="submit" class="product-detail__wishlist-btn">
-                  {{ $product->isInWishlistOf(auth()->id()) ? '♥ Sudah di wishlist' : '♡ Simpan ke wishlist' }}
+                  {{ $inWishlist ? '♥ '.__('Sudah di wishlist') : '♡ '.__('Simpan ke wishlist') }}
                 </button>
               </form>
             @else
-              <a class="product-detail__wishlist-btn product-detail__wishlist" href="{{ route('login') }}">♡ Simpan ke wishlist</a>
+              <a class="product-detail__wishlist-btn product-detail__wishlist" href="{{ route('login') }}">♡ {{ __('Simpan ke wishlist') }}</a>
             @endauth
           </div>
         </div>
@@ -395,8 +405,8 @@
     <section class="section container">
       <div class="section-head">
         <div>
-          <div class="eyebrow">Customer reviews</div>
-          <div class="section-title">What buyers <em>say</em></div>
+          <div class="eyebrow">{{ __('Ulasan pelanggan') }}</div>
+          <div class="section-title">{!! __('Apa kata <em>pembeli</em>') !!}</div>
         </div>
       </div>
 
@@ -416,12 +426,12 @@
               @endif
               <p class="review-card__body">{{ $review->body }}</p>
               <div class="review-card__meta">
-                <strong>{{ $review->user?->name ?? 'Customer' }}</strong>
+                <strong>{{ $review->user?->name ?? __('Pelanggan') }}</strong>
                 <span>· {{ $review->created_at->diffForHumans() }}</span>
               </div>
             </article>
           @empty
-            <p class="confirmation-meta">No reviews yet. Be the first to review this product!</p>
+            <p class="confirmation-meta">{{ __('Belum ada ulasan. Jadilah yang pertama mengulas produk ini!') }}</p>
           @endforelse
         </div>
 
@@ -430,11 +440,11 @@
             @if ($canReview)
               <form method="post" action="{{ route('reviews.store', $product) }}" class="review-form confirmation-card">
                 @csrf
-                <h3 class="confirmation-section-title" style="margin-top:0">Write a review</h3>
+                <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Tulis ulasan') }}</h3>
                 <label class="review-form__label">
-                  Rating
+                  {{ __('Rating') }}
                   <select name="rating" required>
-                    <option value="">Select…</option>
+                    <option value="">{{ __('Pilih…') }}</option>
                     @for ($i = 5; $i >= 1; $i--)
                       <option value="{{ $i }}" {{ old('rating') == $i ? 'selected' : '' }}>{{ str_repeat('★', $i) }} ({{ $i }})</option>
                     @endfor
@@ -442,29 +452,29 @@
                   @error('rating')<span class="form-error">{{ $message }}</span>@enderror
                 </label>
                 <label class="review-form__label">
-                  Title (optional)
+                  {{ __('Judul (opsional)') }}
                   <input type="text" name="title" maxlength="120" value="{{ old('title') }}" />
                 </label>
                 <label class="review-form__label">
-                  Your review
+                  {{ __('Ulasan Anda') }}
                   <textarea name="body" rows="4" required minlength="10" maxlength="2000">{{ old('body') }}</textarea>
                   @error('body')<span class="form-error">{{ $message }}</span>@enderror
                 </label>
-                <button type="submit" class="hero-cta">Submit review</button>
+                <button type="submit" class="hero-cta">{{ __('Kirim ulasan') }}</button>
               </form>
             @elseif ($hasReviewed)
               <div class="confirmation-card">
-                <p class="confirmation-meta" style="margin:0">Thanks — you've already reviewed this product.</p>
+                <p class="confirmation-meta" style="margin:0">{{ __('Terima kasih — Anda sudah mengulas produk ini.') }}</p>
               </div>
             @else
               <div class="confirmation-card">
-                <p class="confirmation-meta" style="margin:0">Only customers who purchased this product can leave a review.</p>
+                <p class="confirmation-meta" style="margin:0">{{ __('Hanya pelanggan yang membeli produk ini yang dapat memberi ulasan.') }}</p>
               </div>
             @endif
           @else
             <div class="confirmation-card">
-              <p class="confirmation-meta">Want to leave a review?</p>
-              <a class="cart-link-btn" href="{{ route('login') }}">Sign in to your account</a>
+              <p class="confirmation-meta">{{ __('Ingin memberi ulasan?') }}</p>
+              <a class="cart-link-btn" href="{{ route('login') }}">{{ __('Masuk ke akun Anda') }}</a>
             </div>
           @endauth
         </aside>
@@ -475,8 +485,8 @@
       <section class="section container">
         <div class="section-head">
           <div>
-            <div class="eyebrow">You may also like</div>
-            <div class="section-title">Related <em>Products</em></div>
+            <div class="eyebrow">{{ __('Anda mungkin juga suka') }}</div>
+            <div class="section-title">{!! __('Produk <em>terkait</em>') !!}</div>
           </div>
         </div>
         <div class="grid-4">
@@ -487,7 +497,7 @@
               <div class="product-stars">{{ str_repeat('★', $r->rating) }}{{ str_repeat('☆', 5 - $r->rating) }}</div>
               <div class="product-foot">
                 <span class="product-price">{{ idr($r->price) }}</span>
-                <span class="add-btn">View</span>
+                <span class="add-btn">{{ __('Lihat') }}</span>
               </div>
             </a>
           @endforeach

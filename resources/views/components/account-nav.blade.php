@@ -2,18 +2,18 @@
 
 @php
   $items = [
-      'overview' => ['label' => 'Overview', 'route' => 'account.index'],
-      'orders' => ['label' => 'My orders', 'route' => 'account.orders'],
-      'wishlist' => ['label' => 'Wishlist', 'route' => 'account.wishlist'],
-      'profile' => ['label' => 'Profile settings', 'route' => 'account.profile'],
+      'overview' => ['label' => __('Ringkasan'), 'route' => 'account.index'],
+      'orders' => ['label' => __('Pesanan saya'), 'route' => 'account.orders'],
+      'wishlist' => ['label' => __('Wishlist'), 'route' => 'account.wishlist'],
+      'profile' => ['label' => __('Pengaturan profil'), 'route' => 'account.profile'],
   ];
 @endphp
 
-<aside class="account-side account-side--panel" aria-label="Account menu">
+<aside class="account-side account-side--panel" aria-label="{{ __('Menu akun') }}">
   <div class="account-side__intro">
     <span class="account-avatar" aria-hidden="true">{{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
     <div>
-      <p class="account-side__label">Akun saya</p>
+      <p class="account-side__label">{{ __('Akun saya') }}</p>
       <strong>{{ auth()->user()->name }}</strong>
     </div>
   </div>
@@ -34,12 +34,12 @@
       <form
         method="post"
         action="{{ route('logout') }}"
-        data-confirm="Anda akan keluar dari akun. Lanjutkan?"
-        data-confirm-title="Keluar dari akun?"
-        data-confirm-ok="Ya, keluar"
+        data-confirm="{{ __('Anda akan keluar dari akun. Lanjutkan?') }}"
+        data-confirm-title="{{ __('Keluar dari akun?') }}"
+        data-confirm-ok="{{ __('Ya, keluar') }}"
       >
         @csrf
-        <button type="submit" class="account-nav__item account-nav__item--button">Sign out</button>
+        <button type="submit" class="account-nav__item account-nav__item--button">{{ __('Keluar') }}</button>
       </form>
     </li>
   </ul>

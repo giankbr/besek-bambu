@@ -1,6 +1,6 @@
 @php
   $brandName = store_name();
-  $tagline = setting('store_tagline') ?: 'Besek anyaman bambu untuk hantaran, kurban, dan kebutuhan ramah lingkungan Anda';
+  $tagline = setting('store_tagline') ?: __('Besek anyaman bambu untuk hantaran, kurban, dan kebutuhan ramah lingkungan Anda');
   $socials = store_socials();
   $socialLabels = [
     'instagram' => 'Instagram',
@@ -12,15 +12,15 @@
 <footer class="container">
   <div class="foot-band">
     <div>
-      <p class="foot-tag">{{ $tagline }}, <em>besek bambu</em></p>
-      <a class="join-btn" href="{{ route('shop.index') }}">Belanja sekarang ↗</a>
+      <p class="foot-tag">{{ $tagline }}, <em>{{ __('besek bambu') }}</em></p>
+      <a class="join-btn" href="{{ route('shop.index') }}">{{ __('Belanja sekarang') }} ↗</a>
     </div>
     <div class="foot-cols">
-      <a href="{{ route('shop.index') }}">Shop</a>
-      <a href="{{ route('gallery') }}">Gallery</a>
-      <a href="{{ route('about') }}">About</a>
-      <a href="{{ route('faq') }}">FAQ</a>
-      <a href="{{ route('contact') }}">Contact</a>
+      <a href="{{ route('shop.index') }}">{{ __('nav.shop') }}</a>
+      <a href="{{ route('gallery') }}">{{ __('nav.gallery') }}</a>
+      <a href="{{ route('about') }}">{{ __('nav.about') }}</a>
+      <a href="{{ route('faq') }}">{{ __('FAQ') }}</a>
+      <a href="{{ route('contact') }}">{{ __('nav.contact') }}</a>
     </div>
   </div>
 

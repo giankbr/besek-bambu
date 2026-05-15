@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
-@section('title', 'Contact — '.store_name())
-@section('meta_description', 'Hubungi '.store_name().' untuk pemesanan besek bambu, kebutuhan grosir, custom logo, atau pertanyaan seputar produk dan pengiriman.')
+@section('title', __('Kontak').' — '.store_name())
+@section('meta_description', __('Hubungi :store untuk pemesanan besek bambu, kebutuhan grosir, custom logo, atau pertanyaan seputar produk dan pengiriman.', ['store' => store_name()]))
 
 @section('content')
   <x-navbar />
@@ -9,17 +9,17 @@
     <section class="container">
       <x-page-head
         :crumbs="[
-            ['label' => 'Beranda', 'url' => route('home')],
-            ['label' => 'Kontak'],
+            ['label' => __('Beranda'), 'url' => route('home')],
+            ['label' => __('Kontak')],
         ]"
-        eyebrow="Halo"
+        eyebrow="{{ __('Halo') }}"
       >
-        <h1 class="section-title page-head__title cart-title">Hubungi <em>kami</em></h1>
+        <h1 class="section-title page-head__title cart-title">{!! __('Hubungi <em>kami</em>') !!}</h1>
       </x-page-head>
 
       <div class="contact-grid">
         <div>
-          <p class="confirmation__lead" style="margin-bottom:1.5rem">Have a question about a product, want to order in bulk, or just want to say hi? We'd love to hear from you.</p>
+          <p class="confirmation__lead" style="margin-bottom:1.5rem">{{ __('Punya pertanyaan tentang produk, ingin pesan dalam jumlah besar, atau sekadar menyapa? Kami senang mendengar dari Anda.') }}</p>
 
           @if (session('status'))
             <div class="confirmation-card" style="background:#eef7ee">
@@ -31,27 +31,27 @@
             @csrf
             <div class="checkout-row">
               <label>
-                Name
+                {{ __('Nama') }}
                 <input type="text" name="name" value="{{ old('name', auth()->user()->name ?? '') }}" required />
                 @error('name')<span class="form-error">{{ $message }}</span>@enderror
               </label>
               <label>
-                Email
+                {{ __('Email') }}
                 <input type="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}" required />
                 @error('email')<span class="form-error">{{ $message }}</span>@enderror
               </label>
             </div>
             <label>
-              Subject
+              {{ __('Subjek') }}
               <input type="text" name="subject" value="{{ old('subject') }}" required />
               @error('subject')<span class="form-error">{{ $message }}</span>@enderror
             </label>
             <label>
-              Message
+              {{ __('Pesan') }}
               <textarea name="message" rows="6" required minlength="10" maxlength="5000">{{ old('message') }}</textarea>
               @error('message')<span class="form-error">{{ $message }}</span>@enderror
             </label>
-            <button type="submit" class="hero-cta">Send message</button>
+            <button type="submit" class="hero-cta">{{ __('Kirim pesan') }}</button>
           </form>
         </div>
 
@@ -63,7 +63,7 @@
         <aside class="contact-side">
           @if ($contactAddress)
             <div class="confirmation-card">
-              <h3 class="confirmation-section-title" style="margin-top:0">Workshop</h3>
+              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Workshop') }}</h3>
               @foreach (preg_split('/\r\n|\r|\n/', $contactAddress) as $line)
                 @if (trim($line) !== '')
                   <p class="confirmation-meta">{{ $line }}</p>
@@ -72,28 +72,28 @@
             </div>
           @else
             <div class="confirmation-card">
-              <h3 class="confirmation-section-title" style="margin-top:0">Workshop</h3>
+              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Workshop') }}</h3>
               <p class="confirmation-meta">Jl. Kasongan, Bantul</p>
               <p class="confirmation-meta">Yogyakarta, Indonesia 55184</p>
             </div>
           @endif
 
           <div class="confirmation-card">
-            <h3 class="confirmation-section-title" style="margin-top:0">Hours</h3>
-            <p class="confirmation-meta">Mon–Sat · 09:00–17:00</p>
-            <p class="confirmation-meta">Sunday · Closed</p>
+            <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Jam buka') }}</h3>
+            <p class="confirmation-meta">{{ __('Sen–Sab · 09.00–17.00') }}</p>
+            <p class="confirmation-meta">{{ __('Minggu · Tutup') }}</p>
           </div>
 
           @if ($contactEmail)
             <div class="confirmation-card">
-              <h3 class="confirmation-section-title" style="margin-top:0">Email</h3>
+              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Email') }}</h3>
               <p class="confirmation-meta"><a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a></p>
             </div>
           @endif
 
           @if ($contactPhone)
             <div class="confirmation-card">
-              <h3 class="confirmation-section-title" style="margin-top:0">Phone</h3>
+              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Telepon') }}</h3>
               <p class="confirmation-meta">{{ $contactPhone }}</p>
             </div>
           @endif

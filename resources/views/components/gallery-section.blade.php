@@ -3,14 +3,14 @@
 <section class="gallery" data-gallery-slider>
   <div class="section-head gallery-head">
     <div>
-      <div class="eyebrow">Inspirasi &amp; ide</div>
-      <h2 class="section-title gallery-title">Penggunaan besek <em>Galeri</em></h2>
+      <div class="eyebrow">{{ __('Inspirasi & ide') }}</div>
+      <h2 class="section-title gallery-title">{!! __('Penggunaan besek <em>Galeri</em>') !!}</h2>
     </div>
     <div class="gallery-head__tools">
-      <a href="{{ route('gallery') }}" class="view-more">Lihat galeri →</a>
-      <div class="gallery-nav" role="group" aria-label="Geser kartu galeri">
-        <button type="button" class="gallery-nav__btn" data-gallery-prev aria-label="Geser ke kiri">←</button>
-        <button type="button" class="gallery-nav__btn" data-gallery-next aria-label="Geser ke kanan">→</button>
+      <a href="{{ route('gallery') }}" class="view-more">{{ __('Lihat galeri') }} →</a>
+      <div class="gallery-nav" role="group" aria-label="{{ __('Geser kartu galeri') }}">
+        <button type="button" class="gallery-nav__btn" data-gallery-prev aria-label="{{ __('Geser ke kiri') }}">←</button>
+        <button type="button" class="gallery-nav__btn" data-gallery-next aria-label="{{ __('Geser ke kanan') }}">→</button>
       </div>
     </div>
   </div>

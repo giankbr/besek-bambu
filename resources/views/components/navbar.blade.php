@@ -22,7 +22,6 @@
           'verification.notice',
           'two-factor.*',
         );
-        $isWishlist = request()->routeIs('account.wishlist');
         $isCartFlow = request()->routeIs('cart.*', 'checkout.*', 'payment.pay');
       @endphp
       <ul class="nav-links">
@@ -68,61 +67,36 @@
         @endif
       </a>
       <div class="nav-actions">
-        <form
-          method="get"
-          action="{{ route('shop.index') }}"
-          role="search"
-          class="navbar-search"
-          aria-label="{{ __('nav.search') }}"
-        >
-          <input
-            type="search"
-            name="q"
-            value="{{ request('q') }}"
-            placeholder="{{ __('nav.search_placeholder') }}"
-            aria-label="{{ __('nav.search') }}"
-            autocomplete="off"
-          />
-          <button type="submit" aria-label="{{ __('nav.search_submit') }}">⌕</button>
-        </form>
         <div class="nav-actions__cluster">
           @auth
-            @php
-              // Cache 60s per user — wishlist count is fine to be slightly
-              // stale and this avoids a DB roundtrip on every page render.
-              $wishCount = \Illuminate\Support\Facades\Cache::remember(
-                'nav.wish.'.auth()->id(),
-                60,
-                fn () => \Illuminate\Support\Facades\DB::table('wishlist_items')->where('user_id', auth()->id())->count(),
-              );
-            @endphp
-            <a
-              href="{{ route('account.wishlist') }}"
-              aria-label="{{ __('nav.wishlist') }}"
-              title="{{ __('nav.wishlist') }}"
-              class="@if ($isWishlist) is-active @endif"
-              @if ($isWishlist) aria-current="page" @endif
-            >♥ {{ $wishCount }}</a>
             <a
               href="{{ route('account.index') }}"
+              class="nav-actions__link @if ($isAccountArea) is-active @endif"
               aria-label="{{ __('nav.account') }}"
-              class="@if ($isAccountArea && ! $isWishlist) is-active @endif"
-              @if ($isAccountArea && ! $isWishlist) aria-current="page" @endif
-            >{{ auth()->user()->name }}</a>
+              @if ($isAccountArea) aria-current="page" @endif
+            >
+              <x-icons.user class="nav-actions__icon" />
+              <span class="nav-actions__label">{{ auth()->user()->name }}</span>
+            </a>
           @else
             <a
               href="{{ route('login') }}"
-              aria-label="{{ __('nav.account') }}"
-              class="@if ($isAccountArea) is-active @endif"
+              class="nav-actions__link @if ($isAccountArea) is-active @endif"
+              aria-label="{{ __('nav.login_register') }}"
               @if ($isAccountArea) aria-current="page" @endif
-            >{{ __('nav.account') }}</a>
+            >
+              <x-icons.user class="nav-actions__icon" />
+              <span class="nav-actions__label">{{ __('nav.login_register') }}</span>
+            </a>
           @endauth
           <a
             href="{{ route('cart.show') }}"
-            aria-label="{{ __('nav.cart') }}"
-            class="@if ($isCartFlow) is-active @endif"
+            class="nav-actions__link @if ($isCartFlow) is-active @endif"
             @if ($isCartFlow) aria-current="page" @endif
-          >{{ __('nav.cart') }} ({{ app(\App\Services\CartService::class)->count() }})</a>
+          >
+            <x-icons.cart class="nav-actions__icon" />
+            <span class="nav-actions__label">{{ __('nav.cart') }} ({{ app(\App\Services\CartService::class)->count() }})</span>
+          </a>
           <div class="nav-lang" role="group" aria-label="{{ __('nav.language') }}">
             <a
               href="{{ route('locale.switch', 'id') }}"

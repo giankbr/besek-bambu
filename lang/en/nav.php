@@ -8,8 +8,8 @@ return [
     'search' => 'Search products',
     'search_placeholder' => 'Search products…',
     'search_submit' => 'Submit search',
-    'wishlist' => 'Wishlist',
     'account' => 'Account',
+    'login_register' => 'Login/Register',
     'cart' => 'Cart',
     'language' => 'Language',
 ];

@@ -8,8 +8,8 @@ return [
     'search' => 'Cari produk',
     'search_placeholder' => 'Cari produk…',
     'search_submit' => 'Kirim pencarian',
-    'wishlist' => 'Favorit',
     'account' => 'Akun',
+    'login_register' => 'Login/Daftar',
     'cart' => 'Keranjang',
     'language' => 'Bahasa',
 ];

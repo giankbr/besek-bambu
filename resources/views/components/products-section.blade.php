@@ -3,10 +3,10 @@
 <section class="section">
   <div class="section-head">
     <div>
-      <div class="eyebrow">Pilihan utama · Anyaman bambu</div>
-      <div class="section-title">Produk <em>terlaris</em></div>
+      <div class="eyebrow">{{ __('Pilihan utama · Anyaman bambu') }}</div>
+      <div class="section-title">{!! __('Produk <em>terlaris</em>') !!}</div>
     </div>
-    <a href="{{ route('shop.index') }}" class="view-more">Lihat semua →</a>
+    <a href="{{ route('shop.index') }}" class="view-more">{{ __('Lihat semua') }} →</a>
   </div>
 
   <div class="grid-4">

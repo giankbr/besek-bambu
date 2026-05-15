@@ -1,19 +1,19 @@
 @extends('layouts.storefront')
 
-@section('title', 'My wishlist — Besek Bambu')
+@section('title', __('Wishlist saya').' — Besek Bambu')
 
 @section('content')
   <x-account-page
     active="wishlist"
     :crumbs="[
-        ['label' => 'Beranda', 'url' => route('home')],
-        ['label' => 'Akun', 'url' => route('account.index')],
-        ['label' => 'Wishlist'],
+        ['label' => __('Beranda'), 'url' => route('home')],
+        ['label' => __('Akun'), 'url' => route('account.index')],
+        ['label' => __('Wishlist')],
     ]"
-    eyebrow="Disimpan nanti"
+    eyebrow="{{ __('Disimpan nanti') }}"
   >
     <x-slot:heading>
-      <h1 class="section-title page-head__title cart-title">Wishlist <em>saya</em></h1>
+      <h1 class="section-title page-head__title cart-title">{!! __('Wishlist <em>saya</em>') !!}</h1>
     </x-slot:heading>
 
     @if (session('status'))
@@ -23,16 +23,16 @@
     <section class="confirmation-card account-panel account-orders-panel">
       <div class="account-section-head">
         <div>
-          <p class="confirmation-section-title">Wishlist</p>
-          <h2 class="account-card-title">Produk tersimpan</h2>
+          <p class="confirmation-section-title">{{ __('Wishlist') }}</p>
+          <h2 class="account-card-title">{{ __('Produk tersimpan') }}</h2>
         </div>
       </div>
 
       @if ($products->isEmpty())
         <div class="account-empty-state">
-          <p class="account-empty-state__title">Wishlist masih kosong.</p>
-          <p class="confirmation-meta">Simpan produk favorit Anda untuk dibeli nanti.</p>
-          <a class="hero-cta" href="{{ route('shop.index') }}">Browse products</a>
+          <p class="account-empty-state__title">{{ __('Wishlist masih kosong.') }}</p>
+          <p class="confirmation-meta">{{ __('Simpan produk favorit Anda untuk dibeli nanti.') }}</p>
+          <a class="hero-cta" href="{{ route('shop.index') }}">{{ __('Lihat produk') }}</a>
         </div>
       @else
         <div class="account-wishlist-grid grid-4">
@@ -45,14 +45,20 @@
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}" />
                     <input type="hidden" name="quantity" value="1" />
-                    <button type="submit" class="cart-link-btn">Add to cart</button>
+                    <button type="submit" class="cart-link-btn">{{ __('Tambah ke keranjang') }}</button>
                   </form>
                 @else
-                  <span class="cart-link-btn cart-link-btn--disabled">Sold out</span>
+                  <span class="cart-link-btn cart-link-btn--disabled">{{ __('Habis') }}</span>
                 @endif
-                <form method="post" action="{{ route('wishlist.toggle', $product) }}">
+                <form
+                  method="post"
+                  action="{{ route('wishlist.toggle', $product) }}"
+                  data-confirm="{{ __('Produk ini akan dihapus dari wishlist Anda. Lanjutkan?') }}"
+                  data-confirm-title="{{ __('Hapus dari wishlist?') }}"
+                  data-confirm-ok="{{ __('Ya, hapus') }}"
+                >
                   @csrf
-                  <button type="submit" class="cart-link-btn cart-link-btn--danger">Remove</button>
+                  <button type="submit" class="cart-link-btn cart-link-btn--danger">{{ __('Hapus') }}</button>
                 </form>
               </div>
             </div>

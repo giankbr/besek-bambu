@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
-@section('title', 'Gallery — Besek Bambu')
-@section('meta_description', 'Lihat inspirasi penggunaan besek bambu handmade untuk hampers, dekorasi acara, dan kemasan produk brand lokal.')
+@section('title', __('Galeri').' — Besek Bambu')
+@section('meta_description', __('Lihat inspirasi penggunaan besek bambu handmade untuk hampers, dekorasi acara, dan kemasan produk brand lokal.'))
 
 @section('content')
   <x-navbar />
@@ -9,17 +9,17 @@
     <section class="container">
       <x-page-head
         :crumbs="[
-            ['label' => 'Beranda', 'url' => route('home')],
-            ['label' => 'Galeri'],
+            ['label' => __('Beranda'), 'url' => route('home')],
+            ['label' => __('Galeri')],
         ]"
-        eyebrow="Inspirasi"
+        eyebrow="{{ __('Inspirasi') }}"
       >
-        <h1 class="section-title shop-title">Galeri <em>kami</em></h1>
+        <h1 class="section-title shop-title">{!! __('Galeri <em>kami</em>') !!}</h1>
       </x-page-head>
-      <p class="confirmation__lead" style="max-width:640px;margin-bottom:32px">Scenes, drops, and moments featuring our handcrafted bamboo pieces.</p>
+      <p class="confirmation__lead" style="max-width:640px;margin-bottom:32px">{{ __('Suasana, drop, dan momen yang menampilkan produk bambu buatan tangan kami.') }}</p>
 
       @if ($items->isEmpty())
-        <p class="shop-empty sf-empty">No gallery items yet.</p>
+        <p class="shop-empty sf-empty">{{ __('Belum ada item galeri.') }}</p>
       @else
         <div class="gallery-grid">
           @foreach ($items as $item)

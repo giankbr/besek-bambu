@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Tracking ' . $order->number . ' — '.store_name())
+@section('title', __('Pelacakan').' '.$order->number.' — '.store_name())
 
 @section('content')
   <x-navbar />
@@ -8,15 +8,15 @@
     <section class="container">
       <x-page-head
         :crumbs="[
-            ['label' => 'Beranda', 'url' => route('home')],
-            ['label' => 'Akun', 'url' => route('account.index')],
-            ['label' => 'Pesanan', 'url' => route('account.orders')],
+            ['label' => __('Beranda'), 'url' => route('home')],
+            ['label' => __('Akun'), 'url' => route('account.index')],
+            ['label' => __('Pesanan'), 'url' => route('account.orders')],
             ['label' => $order->number, 'url' => route('account.orders.show', $order)],
-            ['label' => 'Lacak kiriman'],
+            ['label' => __('Lacak kiriman')],
         ]"
-        eyebrow="Status paket"
+        eyebrow="{{ __('Status paket') }}"
       >
-        <h1 class="section-title page-head__title cart-title">Lacak <em>{{ $order->number }}</em></h1>
+        <h1 class="section-title page-head__title cart-title">{!! __('Lacak :num', ['num' => '<em>'.e($order->number).'</em>']) !!}</h1>
       </x-page-head>
 
       <div class="confirmation-card">
@@ -35,26 +35,26 @@
 
         @if (! empty($tracking['summary']))
           @php $sum = $tracking['summary']; @endphp
-          <h2 class="confirmation-section-title">Summary</h2>
+          <h2 class="confirmation-section-title">{{ __('Ringkasan') }}</h2>
           <div style="display:grid;grid-template-columns:140px 1fr;gap:0.4rem 1rem;font-size:14px">
             @if (! empty($sum['shipper_name']))
-              <span style="color:#7d6f5f">From</span>
+              <span style="color:#7d6f5f">{{ __('Dari') }}</span>
               <span>{{ $sum['shipper_name'] }}</span>
             @endif
             @if (! empty($sum['receiver_name']))
-              <span style="color:#7d6f5f">To</span>
+              <span style="color:#7d6f5f">{{ __('Kepada') }}</span>
               <span>{{ $sum['receiver_name'] }}</span>
             @endif
             @if (! empty($sum['origin']))
-              <span style="color:#7d6f5f">Origin</span>
+              <span style="color:#7d6f5f">{{ __('Asal') }}</span>
               <span>{{ $sum['origin'] }}</span>
             @endif
             @if (! empty($sum['destination']))
-              <span style="color:#7d6f5f">Destination</span>
+              <span style="color:#7d6f5f">{{ __('Tujuan') }}</span>
               <span>{{ $sum['destination'] }}</span>
             @endif
             @if (! empty($sum['status']))
-              <span style="color:#7d6f5f">Status</span>
+              <span style="color:#7d6f5f">{{ __('Status') }}</span>
               <span><strong>{{ $sum['status'] }}</strong></span>
             @endif
           </div>
@@ -63,9 +63,9 @@
         @if (! empty($tracking['delivery_status']))
           @php $ds = $tracking['delivery_status']; @endphp
           <div style="margin-top:1rem;padding:0.75rem 1rem;background:#eef7ee;border:1px solid #c8e6cb;border-radius:0.5rem">
-            <strong>{{ $ds['status'] ?? 'Update' }}</strong>
+            <strong>{{ $ds['status'] ?? __('Update') }}</strong>
             @if (! empty($ds['pod_receiver']))
-              <p class="confirmation-meta" style="margin:0.25rem 0 0">Received by: {{ $ds['pod_receiver'] }}</p>
+              <p class="confirmation-meta" style="margin:0.25rem 0 0">{{ __('Diterima oleh:') }} {{ $ds['pod_receiver'] }}</p>
             @endif
             @if (! empty($ds['pod_date']))
               <p class="confirmation-meta" style="margin:0">{{ $ds['pod_date'] }} {{ $ds['pod_time'] ?? '' }}</p>
@@ -74,7 +74,7 @@
         @endif
 
         @if (! empty($tracking['manifest']))
-          <h2 class="confirmation-section-title">Timeline</h2>
+          <h2 class="confirmation-section-title">{{ __('Linimasa') }}</h2>
           <ol style="list-style:none;padding-left:1.5rem;border-left:2px solid #e5e0d6;margin:0">
             @foreach (array_reverse($tracking['manifest']) as $event)
               <li style="position:relative;padding-bottom:1rem">
@@ -92,12 +92,12 @@
         @endif
 
         @if (empty($tracking) && ! $error)
-          <p class="confirmation-meta">No tracking information available yet. Please check back later.</p>
+          <p class="confirmation-meta">{{ __('Belum ada informasi pelacakan. Silakan cek kembali nanti.') }}</p>
         @endif
 
         <div class="confirmation-actions" style="margin-top:1.25rem">
-          <a class="cart-link-btn" href="{{ route('account.orders.show', $order) }}">← Back to order</a>
-          <a class="cart-link-btn" href="{{ route('account.orders.track', $order) }}">Refresh</a>
+          <a class="cart-link-btn" href="{{ route('account.orders.show', $order) }}">← {{ __('Kembali ke pesanan') }}</a>
+          <a class="cart-link-btn" href="{{ route('account.orders.track', $order) }}">{{ __('Muat ulang') }}</a>
         </div>
       </div>
     </section>

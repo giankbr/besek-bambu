@@ -1,26 +1,26 @@
 @extends('layouts.storefront')
 
-@section('title', 'My orders — Besek Bambu')
+@section('title', __('Pesanan saya').' — Besek Bambu')
 
 @section('content')
   <x-account-page
     active="orders"
     :crumbs="[
-        ['label' => 'Beranda', 'url' => route('home')],
-        ['label' => 'Akun', 'url' => route('account.index')],
-        ['label' => 'Pesanan'],
+        ['label' => __('Beranda'), 'url' => route('home')],
+        ['label' => __('Akun'), 'url' => route('account.index')],
+        ['label' => __('Pesanan')],
     ]"
-    eyebrow="Riwayat"
+    eyebrow="{{ __('Riwayat') }}"
   >
     <x-slot:heading>
-      <h1 class="section-title page-head__title cart-title">Pesanan <em>saya</em></h1>
+      <h1 class="section-title page-head__title cart-title">{!! __('Pesanan <em>saya</em>') !!}</h1>
     </x-slot:heading>
 
     <section class="confirmation-card account-panel account-orders-panel">
       <div class="account-section-head">
         <div>
-          <p class="confirmation-section-title">Orders</p>
-          <h2 class="account-card-title">Semua pesanan</h2>
+          <p class="confirmation-section-title">{{ __('Pesanan') }}</p>
+          <h2 class="account-card-title">{{ __('Semua pesanan') }}</h2>
         </div>
       </div>
 
@@ -29,7 +29,7 @@
           <div class="account-order-row">
             <div>
               <strong>{{ $order->number }}</strong>
-              <div class="confirmation-meta">{{ $order->created_at->format('M d, Y · H:i') }} · {{ $order->items_count }} items</div>
+              <div class="confirmation-meta">{{ $order->created_at->format('M d, Y · H:i') }} · {{ __(':n item', ['n' => $order->items_count]) }}</div>
               @if ($order->hasTracking())
                 <div class="confirmation-meta account-order-row__tracking">
                   {{ strtoupper($order->shipping_courier) }} · <code>{{ $order->tracking_number }}</code>
@@ -47,9 +47,9 @@
         </a>
       @empty
         <div class="account-empty-state">
-          <p class="account-empty-state__title">Belum ada pesanan.</p>
-          <p class="confirmation-meta">Mulai belanja dan riwayat pesanan Anda akan muncul di sini.</p>
-          <a class="hero-cta" href="{{ route('shop.index') }}">Start shopping</a>
+          <p class="account-empty-state__title">{{ __('Belum ada pesanan.') }}</p>
+          <p class="confirmation-meta">{{ __('Mulai belanja dan riwayat pesanan Anda akan muncul di sini.') }}</p>
+          <a class="hero-cta" href="{{ route('shop.index') }}">{{ __('Mulai belanja') }}</a>
         </div>
       @endforelse
 

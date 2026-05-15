@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Checkout — '.store_name())
+@section('title', __('Checkout').' — '.store_name())
 @section('meta_robots', 'noindex,follow')
 
 @php
@@ -16,13 +16,13 @@
     <section class="container">
       <x-page-head
         :crumbs="[
-            ['label' => 'Beranda', 'url' => route('home')],
-            ['label' => 'Keranjang', 'url' => route('cart.show')],
-            ['label' => 'Checkout'],
+            ['label' => __('Beranda'), 'url' => route('home')],
+            ['label' => __('Keranjang'), 'url' => route('cart.show')],
+            ['label' => __('Checkout')],
         ]"
-        eyebrow="Hampir selesai"
+        eyebrow="{{ __('Hampir selesai') }}"
       >
-        <h1 class="section-title page-head__title cart-title"><em>Checkout</em></h1>
+        <h1 class="section-title page-head__title cart-title"><em>{{ __('Checkout') }}</em></h1>
       </x-page-head>
 
       @php
@@ -39,6 +39,18 @@
             'pickupEnabled' => $pickupEnabled,
             'pickupAddress' => $pickupAddress,
             'csrf' => csrf_token(),
+            'i18n' => [
+                'failProvinces' => __('Gagal memuat provinsi. Silakan muat ulang halaman ini.'),
+                'failRegencies' => __('Gagal memuat kota/kabupaten.'),
+                'failDistricts' => __('Gagal memuat kecamatan.'),
+                'failVillages' => __('Gagal memuat kelurahan/desa.'),
+                'fallbackMatched' => __('Tujuan dicocokkan dengan fallback (tingkat kabupaten).'),
+                'mappingFailed' => __('Pemetaan tujuan gagal. Silakan pilih kecamatan lain.'),
+                'resolveFailed' => __('Gagal menentukan tujuan untuk kurir.'),
+                'noServices' => __('Tidak ada layanan pengiriman untuk tujuan ini. Silakan pilih area lain atau hubungi kami.'),
+                'ratesFailed' => __('Tidak dapat mengambil tarif pengiriman. Silakan coba lagi.'),
+                'days' => __('hari'),
+            ],
             'urls' => [
                 'search' => route('shipping.destinations'),
                 'resolveDestination' => route('shipping.resolveDestination'),
@@ -65,44 +77,44 @@
         <input type="hidden" name="shipping_mode" :value="mode === 'pickup' ? 'pickup' : (useRajaOngkir ? 'rajaongkir' : 'flat')" />
 
         <div class="checkout-form">
-          <h2 class="checkout-section-title">Contact</h2>
+          <h2 class="checkout-section-title">{{ __('Kontak') }}</h2>
           <div class="checkout-row">
             <label>
-              Name
+              {{ __('Nama') }}
               <input type="text" name="customer_name" value="{{ old('customer_name', auth()->user()->name ?? '') }}" required />
               @error('customer_name')<span class="form-error">{{ $message }}</span>@enderror
             </label>
             <label>
-              Email
+              {{ __('Email') }}
               <input type="email" name="customer_email" value="{{ old('customer_email', auth()->user()->email ?? '') }}" required />
               @error('customer_email')<span class="form-error">{{ $message }}</span>@enderror
             </label>
           </div>
           <label>
-            Phone
+            {{ __('Telepon') }}
             <input type="tel" name="customer_phone" value="{{ old('customer_phone') }}" required />
             @error('customer_phone')<span class="form-error">{{ $message }}</span>@enderror
           </label>
 
-          <h2 class="checkout-section-title">Shipping</h2>
+          <h2 class="checkout-section-title">{{ __('Pengiriman') }}</h2>
 
           @if ($pickupEnabled)
             <div class="checkout-payment-methods" style="margin-bottom:0.75rem">
               <label class="checkout-payment-method">
                 <input type="radio" name="checkout_mode" value="ship" x-model="mode" />
-                <span><strong>🚚 Ship to my address</strong><small>Calculated based on destination</small></span>
+                <span><strong>🚚 {{ __('Kirim ke alamat saya') }}</strong><small>{{ __('Dihitung berdasarkan tujuan') }}</small></span>
               </label>
               <label class="checkout-payment-method">
                 <input type="radio" name="checkout_mode" value="pickup" x-model="mode" />
-                <span><strong>🏪 Self-pickup at workshop</strong><small>Free — collect at our location</small></span>
+                <span><strong>🏪 {{ __('Ambil sendiri di workshop') }}</strong><small>{{ __('Gratis — ambil di lokasi kami') }}</small></span>
               </label>
             </div>
           @endif
 
           <div x-show="mode === 'pickup'" x-cloak>
             <div class="confirmation-card" style="background:#eef7ee;margin-bottom:0.75rem">
-              <p class="confirmation-meta" style="margin:0 0 4px;font-weight:600">Pickup location</p>
-              <p class="confirmation-meta" style="margin:0;white-space:pre-line">{{ $pickupAddress ?: 'Address not configured yet.' }}</p>
+              <p class="confirmation-meta" style="margin:0 0 4px;font-weight:600">{{ __('Lokasi pengambilan') }}</p>
+              <p class="confirmation-meta" style="margin:0;white-space:pre-line">{{ $pickupAddress ?: __('Alamat belum dikonfigurasi.') }}</p>
               @if ($pickupNote)
                 <p class="confirmation-meta" style="margin:8px 0 0;color:#7d6f5f">{{ $pickupNote }}</p>
               @endif
@@ -112,8 +124,8 @@
 
           <div x-show="mode !== 'pickup'" x-cloak>
             <label>
-              Address
-              <textarea name="shipping_address" rows="3" :required="mode !== 'pickup'" placeholder="Street, building number, postal code...">{{ old('shipping_address') }}</textarea>
+              {{ __('Alamat') }}
+              <textarea name="shipping_address" rows="3" :required="mode !== 'pickup'" placeholder="{{ __('Jalan, nomor bangunan, kode pos...') }}">{{ old('shipping_address') }}</textarea>
               @error('shipping_address')<span class="form-error">{{ $message }}</span>@enderror
             </label>
           </div>
@@ -122,43 +134,43 @@
           @if ($useRajaOngkir)
             <div>
               <label>
-                Province
+                {{ __('Provinsi') }}
                 <select x-model="provinceCode" @change="onProvinceChange()" :disabled="mode === 'pickup' || loadingProvinces || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
-                  <option value="">Select province</option>
+                  <option value="">{{ __('Pilih provinsi') }}</option>
                   <template x-for="row in provinces" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
                   </template>
                 </select>
               </label>
               <label>
-                City / Regency
+                {{ __('Kota / Kabupaten') }}
                 <select x-model="regencyCode" @change="onRegencyChange()" :disabled="!provinceCode || mode === 'pickup' || loadingRegencies || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
-                  <option value="">Select city / regency</option>
+                  <option value="">{{ __('Pilih kota / kabupaten') }}</option>
                   <template x-for="row in regencies" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
                   </template>
                 </select>
               </label>
               <label>
-                District
+                {{ __('Kecamatan') }}
                 <select x-model="districtCode" @change="onDistrictChange()" :disabled="!regencyCode || mode === 'pickup' || loadingDistricts || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
-                  <option value="">Select district</option>
+                  <option value="">{{ __('Pilih kecamatan') }}</option>
                   <template x-for="row in districts" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
                   </template>
                 </select>
               </label>
               <label>
-                Village
+                {{ __('Kelurahan / Desa') }}
                 <select x-model="villageCode" @change="onVillageChange()" :disabled="!districtCode || mode === 'pickup' || loadingVillages || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
-                  <option value="">Select village</option>
+                  <option value="">{{ __('Pilih kelurahan / desa') }}</option>
                   <template x-for="row in villages" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
                   </template>
                 </select>
               </label>
               <p class="confirmation-meta" style="margin-top:0.5rem" x-show="loadingProvinces || loadingRegencies || loadingDistricts || loadingVillages" x-cloak>
-                Loading area data…
+                {{ __('Memuat data wilayah…') }}
               </p>
 
               <input type="hidden" name="shipping_province" :value="selectedProvinceName" />
@@ -169,18 +181,18 @@
               @error('shipping_province')<span class="form-error">{{ $message }}</span>@enderror
 
               <div x-show="resolvingDestination" class="confirmation-meta" style="margin-top:0.75rem">
-                Matching destination to courier area…
+                {{ __('Mencocokkan tujuan dengan area kurir…') }}
               </div>
 
               <div x-show="destinationError" class="form-error" style="margin-top:0.5rem" x-text="destinationError"></div>
               <div x-show="destinationInfo" class="confirmation-meta" style="margin-top:0.5rem;color:#1f7a3a" x-text="destinationInfo"></div>
 
               <div x-show="loadingServices" class="confirmation-meta" style="margin-top:0.75rem">
-                Calculating shipping cost…
+                {{ __('Menghitung ongkos kirim…') }}
               </div>
 
               <div x-show="!loadingServices && services.length > 0" class="checkout-shipping-options">
-                <p class="checkout-shipping-options__title">Select shipping service</p>
+                <p class="checkout-shipping-options__title">{{ __('Pilih layanan pengiriman') }}</p>
                 <div class="checkout-payment-methods">
                 <template x-for="s in services" :key="s.code + '-' + s.service">
                   <label class="checkout-payment-method">
@@ -210,7 +222,7 @@
             </div>
           @else
             <label>
-              Region
+              {{ __('Wilayah') }}
               <select name="shipping_region" x-model="region" :required="mode !== 'pickup'">
                 @foreach ($regions as $key => $r)
                   <option value="{{ $key }}" {{ old('shipping_region', $defaultRegion) === $key ? 'selected' : '' }}>{{ $r['label'] }} — {{ idr($r['cost']) }}</option>
@@ -222,12 +234,12 @@
           </div>
 
           <label>
-            Notes (optional)
-            <textarea name="notes" rows="2" placeholder="Special instructions...">{{ old('notes') }}</textarea>
+            {{ __('Catatan (opsional)') }}
+            <textarea name="notes" rows="2" placeholder="{{ __('Instruksi khusus...') }}">{{ old('notes') }}</textarea>
           </label>
 
           @if (count($paymentMethods) > 0)
-            <h2 class="checkout-section-title">Payment</h2>
+            <h2 class="checkout-section-title">{{ __('Pembayaran') }}</h2>
             @if (count($paymentMethods) === 1)
               @php $onlyKey = array_key_first($paymentMethods); @endphp
               <input type="hidden" name="payment_method" value="{{ $onlyKey }}" />
@@ -249,7 +261,7 @@
       </form>
 
         <aside class="cart-summary checkout-summary">
-          <h2 class="cart-summary__title">Order summary</h2>
+          <h2 class="cart-summary__title">{{ __('Ringkasan pesanan') }}</h2>
           <ul class="checkout-items">
             @foreach ($items as $item)
               <li>
@@ -259,43 +271,43 @@
             @endforeach
           </ul>
           <div class="cart-summary__row">
-            <span>Subtotal</span>
+            <span>{{ __('Subtotal') }}</span>
             <strong>{{ idr($subtotal) }}</strong>
           </div>
           @if ($coupon)
             <div class="cart-summary__row" style="color:#1f7a3a">
-              <span>Discount ({{ $coupon->code }})</span>
+              <span>{{ __('Diskon') }} ({{ $coupon->code }})</span>
               <strong>− {{ idr($discount) }}</strong>
             </div>
           @else
             <details class="cart-coupon-details" style="margin:8px 0 4px">
-              <summary style="cursor:pointer;font-size:13px;color:#1f7a3a">Have a promo code?</summary>
+              <summary style="cursor:pointer;font-size:13px;color:#1f7a3a">{{ __('Punya kode promo?') }}</summary>
               <form method="post" action="{{ route('cart.coupon.apply') }}" class="cart-coupon" style="margin-top:8px">
                 @csrf
                 <div class="cart-coupon__row">
-                  <input type="text" name="code" placeholder="Enter code" maxlength="64" />
-                  <button type="submit" class="cart-link-btn">Apply</button>
+                  <input type="text" name="code" placeholder="{{ __('Masukkan kode') }}" maxlength="64" />
+                  <button type="submit" class="cart-link-btn">{{ __('Terapkan') }}</button>
                 </div>
               </form>
             </details>
           @endif
           @if ($tax > 0)
             <div class="cart-summary__row">
-              <span>{{ $taxInclusive ? 'Tax included ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' : 'Tax ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' }}</span>
+              <span>{{ $taxInclusive ? __('Termasuk pajak').' ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' : __('Pajak').' ('.rtrim(rtrim(number_format($taxRate, 2), '0'), '.').'%)' }}</span>
               <strong>{{ $taxInclusive ? idr($tax) : '+ '.idr($tax) }}</strong>
             </div>
           @endif
           <div class="cart-summary__row">
-            <span>Shipping</span>
+            <span>{{ __('Pengiriman') }}</span>
             <strong x-text="formatRp(shippingCost())">{{ idr($initialShippingCost) }}</strong>
           </div>
           <div class="cart-summary__total">
-            <span>Total</span>
+            <span>{{ __('Total') }}</span>
             <strong x-text="formatRp({{ $totalBeforeShipping }} + shippingCost())">{{ idr($totalBeforeShipping + $initialShippingCost) }}</strong>
           </div>
 
-          <button type="submit" form="checkout-form" class="hero-cta cart-summary__cta" :disabled="!canSubmit()" x-bind:title="canSubmit() ? '' : 'Pick a destination and shipping option first'">Place order</button>
-          <a class="cart-link-btn" href="{{ route('cart.show') }}">Back to cart</a>
+          <button type="submit" form="checkout-form" class="hero-cta cart-summary__cta" :disabled="!canSubmit()" x-bind:title="canSubmit() ? '' : {{ Js::from(__('Pilih tujuan dan opsi pengiriman dulu')) }}">{{ __('Buat pesanan') }}</button>
+          <a class="cart-link-btn" href="{{ route('cart.show') }}">{{ __('Kembali ke keranjang') }}</a>
         </aside>
       </div>
     </section>
@@ -315,6 +327,7 @@
         mode: 'ship',
         pickupEnabled: !!config.pickupEnabled,
         pickupAddress: config.pickupAddress || '',
+        i18n: config.i18n,
 
         provinces: [],
         regencies: [],
@@ -368,7 +381,7 @@
             this.provinces = Array.isArray(json.results) ? json.results : []
           } catch (e) {
             this.provinces = []
-            this.destinationError = 'Failed to load provinces. Please refresh this page.'
+            this.destinationError = this.i18n.failProvinces
           } finally {
             this.loadingProvinces = false
           }
@@ -390,7 +403,7 @@
             const json = await res.json()
             this.regencies = Array.isArray(json.results) ? json.results : []
           } catch (e) {
-            this.destinationError = 'Failed to load cities/regencies.'
+            this.destinationError = this.i18n.failRegencies
           } finally {
             this.loadingRegencies = false
           }
@@ -410,7 +423,7 @@
             const json = await res.json()
             this.districts = Array.isArray(json.results) ? json.results : []
           } catch (e) {
-            this.destinationError = 'Failed to load districts.'
+            this.destinationError = this.i18n.failDistricts
           } finally {
             this.loadingDistricts = false
           }
@@ -428,7 +441,7 @@
             const json = await res.json()
             this.villages = Array.isArray(json.results) ? json.results : []
           } catch (e) {
-            this.destinationError = 'Failed to load villages.'
+            this.destinationError = this.i18n.failVillages
           } finally {
             this.loadingVillages = false
           }
@@ -481,12 +494,12 @@
             const fallback = await this.fallbackResolveByRegency()
             if (fallback) {
               this.selectedDest = fallback
-              this.destinationInfo = 'Destination matched with fallback (regency-level).'
+              this.destinationInfo = this.i18n.fallbackMatched
               return
             }
-            this.destinationError = json?.message || 'Destination mapping failed. Please choose another district.'
+            this.destinationError = json?.message || this.i18n.mappingFailed
           } catch (e) {
-            this.destinationError = 'Failed to resolve destination for courier.'
+            this.destinationError = this.i18n.resolveFailed
           } finally {
             this.resolvingDestination = false
           }
@@ -532,10 +545,10 @@
             const json = await res.json()
             this.services = Array.isArray(json.services) ? json.services : []
             if (this.services.length === 0) {
-              this.servicesError = json.message || 'No shipping services available for this destination. Please pick a different area or contact us.'
+              this.servicesError = json.message || this.i18n.noServices
             }
           } catch (e) {
-            this.servicesError = 'Could not fetch shipping rates. Please try again.'
+            this.servicesError = this.i18n.ratesFailed
           } finally {
             this.loadingServices = false
           }
@@ -550,7 +563,7 @@
           if (s.description) parts.push(s.description)
           if (s.etd) {
             const etd = String(s.etd).trim()
-            parts.push(/day/i.test(etd) ? etd : `${etd} days`)
+            parts.push(/day/i.test(etd) ? etd : `${etd} ${this.i18n.days}`)
           }
           parts.push(formatRp(s.cost))
           return parts.join(' · ')

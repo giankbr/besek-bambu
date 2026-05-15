@@ -8,9 +8,9 @@
 @php
   $brandName = store_name();
   $brandTagline = setting('store_tagline');
-  $defaultTitle = $brandName.($brandTagline ? ' — '.$brandTagline : ' — Eco-Friendly Kitchenware');
+  $defaultTitle = $brandName.($brandTagline ? ' — '.$brandTagline : ' — '.__('Peralatan Dapur Ramah Lingkungan'));
   $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
-  $metaDescription = trim($__env->yieldContent('meta_description', 'Handcrafted bamboo kitchenware from Indonesia. Sustainable, biodegradable, and made by artisans.'));
+  $metaDescription = trim($__env->yieldContent('meta_description', __('Peralatan dapur bambu buatan tangan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.')));
   $metaImage = trim($__env->yieldContent('meta_image', store_logo_url() ?: asset('images/og-default.jpg')));
   $canonicalUrl = trim($__env->yieldContent('canonical', url()->current()));
   $ogType = trim($__env->yieldContent('og_type', 'website'));
@@ -36,7 +36,7 @@
 <meta property="og:image" content="{{ $metaImage }}" />
 <meta property="og:url" content="{{ $canonicalUrl }}" />
 <meta property="og:site_name" content="{{ $brandName }}" />
-<meta property="og:locale" content="id_ID" />
+<meta property="og:locale" content="{{ app()->getLocale() === 'en' ? 'en_US' : 'id_ID' }}" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{{ $pageTitle }}" />
