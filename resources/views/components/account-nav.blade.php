@@ -31,7 +31,13 @@
       </li>
     @endforeach
     <li>
-      <form method="post" action="{{ route('logout') }}">
+      <form
+        method="post"
+        action="{{ route('logout') }}"
+        data-confirm="Anda akan keluar dari akun. Lanjutkan?"
+        data-confirm-title="Keluar dari akun?"
+        data-confirm-ok="Ya, keluar"
+      >
         @csrf
         <button type="submit" class="account-nav__item account-nav__item--button">Sign out</button>
       </form>

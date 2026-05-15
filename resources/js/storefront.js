@@ -353,23 +353,174 @@ const initMicroInteractions = () => {
   })
 }
 
-const initGalleryNav = () => {
-  const behavior = prefersReducedMotion() ? 'auto' : 'smooth'
-  document.querySelectorAll('.gallery').forEach((root) => {
+const initGallerySlider = () => {
+  const mount = (root) => {
     const track = root.querySelector('[data-gallery-track]')
     const prev = root.querySelector('[data-gallery-prev]')
     const next = root.querySelector('[data-gallery-next]')
     if (!track || !prev || !next) return
+    if (root.dataset.gallerySliderMounted === '1') return
 
-    const scrollAmount = () =>
-      Math.min(280, Math.max(160, Math.round(track.clientWidth * 0.45)))
+    const cards = [...track.querySelectorAll(':scope > .gallery-card')]
+    if (cards.length === 0) return
+
+    root.dataset.gallerySliderMounted = '1'
+
+    const behavior = () => (prefersReducedMotion() ? 'auto' : 'smooth')
+    const canAutoPlay = !prefersReducedMotion() && cards.length > 1
+    const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth)
+
+    const scrollToCard = (card) => {
+      const trackRect = track.getBoundingClientRect()
+      const cardRect = card.getBoundingClientRect()
+      const nextLeft = track.scrollLeft + (cardRect.left - trackRect.left)
+      track.scrollTo({
+        left: Math.min(maxScroll(), Math.max(0, nextLeft)),
+        behavior: behavior(),
+      })
+    }
+
+    let idx = 0
+    let timerId = null
+    let paused = false
+    let inView = false
+
+    const syncIndexFromScroll = () => {
+      const sl = track.scrollLeft
+      let best = 0
+      let bestDist = Infinity
+      cards.forEach((card, i) => {
+        const dist = Math.abs(card.offsetLeft - sl)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = i
+        }
+      })
+      idx = best
+    }
+
+    const goToIndex = (i) => {
+      const card = cards[i]
+      if (!card) return
+      scrollToCard(card)
+    }
+
+    const step = () => {
+      if (cards.length < 2) return
+      const atEnd = track.scrollLeft >= maxScroll() - 6
+      if (atEnd) {
+        idx = 0
+        track.scrollTo({ left: 0, behavior: behavior() })
+        return
+      }
+      idx = (idx + 1) % cards.length
+      goToIndex(idx)
+    }
+
+    const start = () => {
+      if (!canAutoPlay || timerId || paused || !inView) return
+      timerId = window.setInterval(step, 5000)
+    }
+
+    const stop = () => {
+      if (!timerId) return
+      window.clearInterval(timerId)
+      timerId = null
+    }
+
+    const restart = () => {
+      stop()
+      if (canAutoPlay && inView && !paused) start()
+    }
 
     prev.addEventListener('click', () => {
-      track.scrollBy({ left: -scrollAmount(), behavior })
+      idx = idx <= 0 ? cards.length - 1 : idx - 1
+      goToIndex(idx)
+      restart()
     })
+
     next.addEventListener('click', () => {
-      track.scrollBy({ left: scrollAmount(), behavior })
+      idx = (idx + 1) % cards.length
+      goToIndex(idx)
+      restart()
     })
+
+    track.addEventListener(
+      'scroll',
+      () => {
+        window.requestAnimationFrame(syncIndexFromScroll)
+      },
+      { passive: true },
+    )
+
+    const setInViewFromRect = () => {
+      const r = root.getBoundingClientRect()
+      return r.bottom > 0 && r.top < window.innerHeight
+    }
+
+    const syncInView = () => {
+      inView = setInViewFromRect()
+      if (inView && !paused) start()
+      else stop()
+    }
+
+    if (canAutoPlay) {
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          inView = Boolean(entry?.isIntersecting)
+          if (inView && !paused) start()
+          else stop()
+        },
+        { threshold: 0.12, rootMargin: '0px 0px 10% 0px' },
+      )
+      io.observe(root)
+
+      window.setTimeout(() => {
+        if (!timerId && !paused && setInViewFromRect()) {
+          inView = true
+          start()
+        }
+      }, 900)
+
+      let resizeT = null
+      window.addEventListener(
+        'resize',
+        () => {
+          window.clearTimeout(resizeT)
+          resizeT = window.setTimeout(syncInView, 150)
+        },
+        { passive: true },
+      )
+
+      const pause = () => {
+        paused = true
+        stop()
+      }
+      const resume = () => {
+        paused = false
+        inView = setInViewFromRect()
+        if (inView) start()
+      }
+
+      root.addEventListener('pointerenter', pause)
+      root.addEventListener('pointerleave', resume)
+      root.addEventListener('focusin', pause)
+      root.addEventListener('focusout', (event) => {
+        if (!root.contains(event.relatedTarget)) resume()
+      })
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          stop()
+          return
+        }
+        if (inView && !paused) start()
+      })
+    }
+  }
+
+  document.querySelectorAll('[data-gallery-slider]').forEach((root) => {
+    mount(root)
   })
 }
 
@@ -388,8 +539,72 @@ const init = () => {
   })
 }
 
+const initConfirmDialog = () => {
+  const root = document.getElementById('sf-confirm')
+  if (!root) return
+
+  const titleEl = root.querySelector('[data-sf-confirm-title]')
+  const messageEl = root.querySelector('[data-sf-confirm-message]')
+  const cancelBtn = root.querySelector('[data-sf-confirm-cancel]')
+  const okBtn = root.querySelector('[data-sf-confirm-ok]')
+  const backdrop = root.querySelector('[data-sf-confirm-backdrop]')
+
+  let pendingForm = null
+
+  const close = () => {
+    root.hidden = true
+    document.body.classList.remove('sf-confirm-open')
+    pendingForm = null
+  }
+
+  const open = (form) => {
+    pendingForm = form
+    titleEl.textContent = form.dataset.confirmTitle || 'Konfirmasi'
+    messageEl.textContent = form.dataset.confirm || 'Lanjutkan tindakan ini?'
+    okBtn.textContent = form.dataset.confirmOk || 'Ya, lanjutkan'
+    root.hidden = false
+    document.body.classList.add('sf-confirm-open')
+    cancelBtn.focus()
+  }
+
+  document.querySelectorAll('form[data-confirm]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      if (form.dataset.confirmBypass === '1') {
+        form.dataset.confirmBypass = ''
+        return
+      }
+
+      event.preventDefault()
+      open(form)
+    })
+  })
+
+  const handleConfirm = () => {
+    if (!pendingForm) return
+
+    const form = pendingForm
+    close()
+    form.dataset.confirmBypass = '1'
+    form.requestSubmit()
+  }
+
+  cancelBtn?.addEventListener('click', close)
+  backdrop?.addEventListener('click', close)
+  okBtn?.addEventListener('click', handleConfirm)
+
+  root.addEventListener('keydown', (event) => {
+    if (root.hidden) return
+
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      close()
+    }
+  })
+}
+
 const boot = () => {
-  initGalleryNav()
+  initConfirmDialog()
+  initGallerySlider()
   initReviewsAutoSlider()
   initMegaBrandFill()
   init()
