@@ -94,11 +94,32 @@ class CheckoutController extends Controller
             $data['shipping_region'] = 'pickup';
         }
 
+        if ($usingRajaOngkir) {
+            try {
+                $verified = $shipping->verifyRajaOngkirSelection(
+                    (string) $data['shipping_city_id'],
+                    (string) $data['shipping_courier'],
+                    (string) $data['shipping_service'],
+                    app(CartService::class)->totalWeight(),
+                    (int) $data['shipping_cost'],
+                );
+
+                $data['shipping_cost'] = $verified['cost'];
+                $data['shipping_courier'] = $verified['courier'];
+                $data['shipping_service'] = $verified['service'];
+                $data['shipping_etd'] = $verified['etd'] ?? ($data['shipping_etd'] ?? null);
+            } catch (\DomainException $e) {
+                return back()->withInput()->with('status', $e->getMessage());
+            }
+        }
+
         try {
             $order = $checkout->place($data);
         } catch (\DomainException $e) {
             return redirect()->route('cart.show')->with('status', $e->getMessage());
         }
+
+        grant_order_session_access($order);
 
         if ($data['payment_method'] === 'midtrans' && config('services.midtrans.server_key')) {
             try {

@@ -55,7 +55,11 @@ new #[Title('Media library')] class extends Component {
         try {
             $this->validate([
                 'uploads' => ['required', 'array', 'min:1'],
-                'uploads.*' => ['file', 'max:10240'],
+                'uploads.*' => [
+                    'file',
+                    'max:10240',
+                    'mimes:jpg,jpeg,png,webp,gif,pdf',
+                ],
             ], [
                 'uploads.required' => __('Pick at least one file to upload.'),
             ]);
@@ -167,7 +171,7 @@ new #[Title('Media library')] class extends Component {
         <flux:card>
             <flux:heading size="lg">{{ __('Upload') }}</flux:heading>
             <form wire:submit="uploadFiles" class="mt-4 grid gap-3">
-                <input type="file" wire:model="uploads" multiple accept="image/*,.pdf,.svg" class="block w-full text-sm" />
+                <input type="file" wire:model="uploads" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" class="block w-full text-sm" />
                 @error('uploads')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
                 @error('uploads.*')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
 

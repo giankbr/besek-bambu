@@ -42,7 +42,9 @@ Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('ca
 
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confirmation'])
+    ->middleware('order.access')
+    ->name('checkout.confirmation');
 
 Route::prefix('shipping')->name('shipping.')->group(function () {
     Route::get('destinations', [ShippingController::class, 'searchDestinations'])->name('destinations');
@@ -54,7 +56,9 @@ Route::prefix('shipping')->name('shipping.')->group(function () {
     Route::post('cost', [ShippingController::class, 'cost'])->name('cost');
 });
 
-Route::get('/payment/{order}', [PaymentController::class, 'pay'])->name('payment.pay');
+Route::get('/payment/{order}', [PaymentController::class, 'pay'])
+    ->middleware('order.access')
+    ->name('payment.pay');
 Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
 
 Route::middleware(['auth'])->group(function () {

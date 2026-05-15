@@ -43,7 +43,7 @@ class MidtransService
                 'quantity' => (int) $item->quantity,
             ])->all(),
             'callbacks' => [
-                'finish' => route('checkout.confirmation', $order),
+                'finish' => order_signed_url('checkout.confirmation', $order, now()->addDays(7)),
             ],
         ];
 

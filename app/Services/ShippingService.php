@@ -123,6 +123,84 @@ class ShippingService
     }
 
     /**
+     * Re-fetch live RajaOngkir rates and ensure the submitted courier,
+     * service, and cost match a real quote. Prevents clients from posting
+     * a manipulated shipping_cost.
+     *
+     * @return array{cost: int, courier: string, service: string, etd: ?string}
+     */
+    public function verifyRajaOngkirSelection(
+        string $destinationId,
+        string $courier,
+        string $service,
+        int $weight,
+        int $claimedCost,
+    ): array {
+        if (! $this->isRajaOngkir()) {
+            throw new \DomainException('Live shipping is not enabled.');
+        }
+
+        $client = $this->rajaOngkirClient();
+
+        if (! $client->isConfigured()) {
+            throw new \DomainException('Shipping API is not configured.');
+        }
+
+        $origin = $this->originId();
+
+        if (! $origin) {
+            throw new \DomainException('Shipping origin is not configured.');
+        }
+
+        $courier = strtolower(trim($courier));
+        $service = trim($service);
+        $enabled = $this->enabledCouriers();
+
+        if ($courier === '' || $service === '') {
+            throw new \DomainException('Please select a shipping service.');
+        }
+
+        if (! in_array($courier, $enabled, true)) {
+            throw new \DomainException('Selected courier is not available.');
+        }
+
+        $weight = max(1, $weight);
+
+        try {
+            $quotes = $client->cost($origin, $destinationId, $weight, $enabled);
+        } catch (\Throwable $e) {
+            throw new \DomainException('Could not verify shipping cost. Please try again.');
+        }
+
+        foreach ($quotes as $quote) {
+            if (($quote['code'] ?? '') !== $courier) {
+                continue;
+            }
+
+            if (($quote['service'] ?? '') !== $service) {
+                continue;
+            }
+
+            $actualCost = (int) ($quote['cost'] ?? 0);
+
+            if ($actualCost !== $claimedCost) {
+                throw new \DomainException('Shipping cost has changed. Please refresh and select shipping again.');
+            }
+
+            $etd = trim((string) ($quote['etd'] ?? ''));
+
+            return [
+                'cost' => $actualCost,
+                'courier' => $courier,
+                'service' => $service,
+                'etd' => $etd !== '' ? $etd : null,
+            ];
+        }
+
+        throw new \DomainException('Selected shipping service is not available for this destination.');
+    }
+
+    /**
      * @return array<string, array{label: string, cost: int}>
      */
     private function customZones(): array

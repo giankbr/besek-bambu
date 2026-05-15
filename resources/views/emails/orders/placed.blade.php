@@ -16,7 +16,7 @@ We've received your order **{{ $order->number }}**. Here's a summary:
 @if ($order->canBePaid())
 Please complete your payment to confirm the order.
 
-<x-mail::button :url="route('payment.pay', $order)">
+<x-mail::button :url="order_signed_url('payment.pay', $order)">
 Pay now
 </x-mail::button>
 @endif

@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Order;
 use App\Models\Setting;
+use Illuminate\Support\Facades\URL;
 
 if (! function_exists('idr')) {
     function idr(int|float|string|null $amount): string
@@ -128,5 +130,31 @@ if (! function_exists('image_src')) {
         }
 
         return asset('storage/'.ltrim($value, '/'));
+    }
+}
+
+if (! function_exists('grant_order_session_access')) {
+    function grant_order_session_access(Order $order): void
+    {
+        $numbers = session('accessible_order_numbers', []);
+
+        if (! is_array($numbers)) {
+            $numbers = [];
+        }
+
+        $numbers[] = $order->number;
+
+        session(['accessible_order_numbers' => array_values(array_unique($numbers))]);
+    }
+}
+
+if (! function_exists('order_signed_url')) {
+    function order_signed_url(string $routeName, Order $order, ?DateTimeInterface $expires = null): string
+    {
+        return URL::temporarySignedRoute(
+            $routeName,
+            $expires ?? now()->addDays(30),
+            ['order' => $order],
+        );
     }
 }

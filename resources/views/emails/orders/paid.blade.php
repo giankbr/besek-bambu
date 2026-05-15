@@ -5,7 +5,7 @@ We've received your payment for order **{{ $order->number }}** ({{ idr($order->t
 
 Your order is now being prepared for shipment. We'll notify you as soon as it's on the way.
 
-<x-mail::button :url="route('checkout.confirmation', $order)">
+<x-mail::button :url="order_signed_url('checkout.confirmation', $order)">
 View order details
 </x-mail::button>
 

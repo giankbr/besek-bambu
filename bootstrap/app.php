@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureOrderAccessible;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'order.access' => EnsureOrderAccessible::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
