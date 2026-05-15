@@ -51,12 +51,15 @@
         ];
       @endphp
 
-      <form
-        method="post"
-        action="{{ route('checkout.store') }}"
+      <div
         class="checkout-grid"
         x-data="checkoutForm({{ Js::from($checkoutConfig) }})"
         x-init="init()"
+      >
+      <form
+        method="post"
+        action="{{ route('checkout.store') }}"
+        id="checkout-form"
       >
         @csrf
         <input type="hidden" name="shipping_mode" :value="mode === 'pickup' ? 'pickup' : (useRajaOngkir ? 'rajaongkir' : 'flat')" />
@@ -120,7 +123,7 @@
             <div>
               <label>
                 Province
-                <select x-model="provinceCode" @change="onProvinceChange()" :disabled="mode === 'pickup' || loadingProvinces || resolvingDestination || loadingServices" required>
+                <select x-model="provinceCode" @change="onProvinceChange()" :disabled="mode === 'pickup' || loadingProvinces || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
                   <option value="">Select province</option>
                   <template x-for="row in provinces" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
@@ -129,7 +132,7 @@
               </label>
               <label>
                 City / Regency
-                <select x-model="regencyCode" @change="onRegencyChange()" :disabled="!provinceCode || mode === 'pickup' || loadingRegencies || resolvingDestination || loadingServices" required>
+                <select x-model="regencyCode" @change="onRegencyChange()" :disabled="!provinceCode || mode === 'pickup' || loadingRegencies || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
                   <option value="">Select city / regency</option>
                   <template x-for="row in regencies" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
@@ -138,7 +141,7 @@
               </label>
               <label>
                 District
-                <select x-model="districtCode" @change="onDistrictChange()" :disabled="!regencyCode || mode === 'pickup' || loadingDistricts || resolvingDestination || loadingServices" required>
+                <select x-model="districtCode" @change="onDistrictChange()" :disabled="!regencyCode || mode === 'pickup' || loadingDistricts || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
                   <option value="">Select district</option>
                   <template x-for="row in districts" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
@@ -147,7 +150,7 @@
               </label>
               <label>
                 Village
-                <select x-model="villageCode" @change="onVillageChange()" :disabled="!districtCode || mode === 'pickup' || loadingVillages || resolvingDestination || loadingServices" required>
+                <select x-model="villageCode" @change="onVillageChange()" :disabled="!districtCode || mode === 'pickup' || loadingVillages || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
                   <option value="">Select village</option>
                   <template x-for="row in villages" :key="row.code">
                     <option :value="row.code" x-text="row.name"></option>
@@ -181,7 +184,7 @@
                 <div class="checkout-payment-methods">
                 <template x-for="s in services" :key="s.code + '-' + s.service">
                   <label class="checkout-payment-method">
-                    <input type="radio" name="shipping_courier_service" :value="s.code + '-' + s.service" :checked="isSelected(s)" @change="selectService(s)" required />
+                    <input type="radio" name="shipping_courier_service" :value="s.code + '-' + s.service" :checked="isSelected(s)" @change="selectService(s)" :required="mode !== 'pickup' && useRajaOngkir" />
                     <span>
                       <strong x-text="(s.name || s.code.toUpperCase()) + ' ' + s.service"></strong>
                       <small x-text="serviceMeta(s)"></small>
@@ -243,6 +246,7 @@
             @endif
           @endif
         </div>
+      </form>
 
         <aside class="cart-summary checkout-summary">
           <h2 class="cart-summary__title">Order summary</h2>
@@ -269,7 +273,7 @@
               <form method="post" action="{{ route('cart.coupon.apply') }}" class="cart-coupon" style="margin-top:8px">
                 @csrf
                 <div class="cart-coupon__row">
-                  <input type="text" name="code" placeholder="Enter code" maxlength="64" required />
+                  <input type="text" name="code" placeholder="Enter code" maxlength="64" />
                   <button type="submit" class="cart-link-btn">Apply</button>
                 </div>
               </form>
@@ -290,10 +294,10 @@
             <strong x-text="formatRp({{ $totalBeforeShipping }} + shippingCost())">{{ idr($totalBeforeShipping + $initialShippingCost) }}</strong>
           </div>
 
-          <button type="submit" class="hero-cta cart-summary__cta" :disabled="!canSubmit()" x-bind:title="canSubmit() ? '' : 'Pick a destination and shipping option first'">Place order</button>
+          <button type="submit" form="checkout-form" class="hero-cta cart-summary__cta" :disabled="!canSubmit()" x-bind:title="canSubmit() ? '' : 'Pick a destination and shipping option first'">Place order</button>
           <a class="cart-link-btn" href="{{ route('cart.show') }}">Back to cart</a>
         </aside>
-      </form>
+      </div>
     </section>
 
     <x-site-footer />
