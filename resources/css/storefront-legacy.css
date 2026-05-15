@@ -1124,6 +1124,28 @@
     text-decoration: none;
     color: var(--ink);
     font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+    transition:
+      background-color 0.28s ease,
+      color 0.28s ease,
+      border-color 0.28s ease,
+      transform 0.15s ease;
+  }
+
+  .join-btn:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+
+  .join-btn:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .join-btn:active {
+    transform: scale(0.98);
   }
 
   .foot-cols {
