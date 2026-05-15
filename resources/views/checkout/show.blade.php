@@ -72,6 +72,7 @@
         method="post"
         action="{{ route('checkout.store') }}"
         id="checkout-form"
+        class="checkout-form-wrap"
       >
         @csrf
         <input type="hidden" name="shipping_mode" :value="mode === 'pickup' ? 'pickup' : (useRajaOngkir ? 'rajaongkir' : 'flat')" />
@@ -133,6 +134,7 @@
           <div x-show="mode !== 'pickup'" x-cloak>
           @if ($useRajaOngkir)
             <div>
+              <div class="checkout-wilayah-stack">
               <label>
                 {{ __('Provinsi') }}
                 <select x-model="provinceCode" @change="onProvinceChange()" :disabled="mode === 'pickup' || loadingProvinces || resolvingDestination || loadingServices" :required="mode !== 'pickup'">
@@ -169,6 +171,7 @@
                   </template>
                 </select>
               </label>
+              </div>
               <p class="confirmation-meta" style="margin-top:0.5rem" x-show="loadingProvinces || loadingRegencies || loadingDistricts || loadingVillages" x-cloak>
                 {{ __('Memuat data wilayah…') }}
               </p>
@@ -233,7 +236,7 @@
           @endif
           </div>
 
-          <label>
+          <label class="checkout-notes-field">
             {{ __('Catatan (opsional)') }}
             <textarea name="notes" rows="2" placeholder="{{ __('Instruksi khusus...') }}">{{ old('notes') }}</textarea>
           </label>

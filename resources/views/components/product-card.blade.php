@@ -1,7 +1,9 @@
 @props(['product'])
 
 @php
-  $isSaved = auth()->check() ? $product->isInWishlistOf(auth()->id()) : false;
+  $isSaved = config('features.wishlist') && auth()->check()
+    ? $product->isInWishlistOf(auth()->id())
+    : false;
 @endphp
 
 <div class="product-card-wrap">
@@ -15,32 +17,34 @@
     </div>
   </a>
 
-  @auth
-    <form
-      method="post"
-      action="{{ route('wishlist.toggle', $product) }}"
-      class="product-card__wish"
-      @if ($isSaved)
-        data-confirm="{{ __('Produk ini akan dihapus dari wishlist Anda. Lanjutkan?') }}"
-        data-confirm-title="{{ __('Hapus dari wishlist?') }}"
-        data-confirm-ok="{{ __('Ya, hapus') }}"
-      @endif
-    >
-      @csrf
-      <button
-        type="submit"
-        class="product-card__wish-btn @class(['product-card__wish-btn--on' => $isSaved])"
-        aria-label="{{ $isSaved ? __('Hapus dari wishlist') : __('Tambah ke wishlist') }}"
-        aria-pressed="{{ $isSaved ? 'true' : 'false' }}"
-        title="{{ $isSaved ? __('Tersimpan di wishlist') : __('Simpan ke wishlist') }}"
-      >{{ $isSaved ? '♥' : '♡' }}</button>
-    </form>
-  @else
-    <a
-      href="{{ route('login') }}"
-      class="product-card__wish product-card__wish-btn"
-      aria-label="{{ __('Masuk untuk simpan ke wishlist') }}"
-      title="{{ __('Masuk untuk menyimpan') }}"
-    >♡</a>
-  @endauth
+  @if (config('features.wishlist'))
+    @auth
+      <form
+        method="post"
+        action="{{ route('wishlist.toggle', $product) }}"
+        class="product-card__wish"
+        @if ($isSaved)
+          data-confirm="{{ __('Produk ini akan dihapus dari wishlist Anda. Lanjutkan?') }}"
+          data-confirm-title="{{ __('Hapus dari wishlist?') }}"
+          data-confirm-ok="{{ __('Ya, hapus') }}"
+        @endif
+      >
+        @csrf
+        <button
+          type="submit"
+          class="product-card__wish-btn @class(['product-card__wish-btn--on' => $isSaved])"
+          aria-label="{{ $isSaved ? __('Hapus dari wishlist') : __('Tambah ke wishlist') }}"
+          aria-pressed="{{ $isSaved ? 'true' : 'false' }}"
+          title="{{ $isSaved ? __('Tersimpan di wishlist') : __('Simpan ke wishlist') }}"
+        >{{ $isSaved ? '♥' : '♡' }}</button>
+      </form>
+    @else
+      <a
+        href="{{ route('login') }}"
+        class="product-card__wish product-card__wish-btn"
+        aria-label="{{ __('Masuk untuk simpan ke wishlist') }}"
+        title="{{ __('Masuk untuk menyimpan') }}"
+      >♡</a>
+    @endauth
+  @endif
 </div>

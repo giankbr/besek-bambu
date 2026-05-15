@@ -377,26 +377,28 @@
               </a>
             @endif
 
-            @auth
-              @php $inWishlist = $product->isInWishlistOf(auth()->id()); @endphp
-              <form
-                method="post"
-                action="{{ route('wishlist.toggle', $product) }}"
-                class="product-detail__wishlist"
-                @if ($inWishlist)
-                  data-confirm="{{ __('Produk ini akan dihapus dari wishlist Anda. Lanjutkan?') }}"
-                  data-confirm-title="{{ __('Hapus dari wishlist?') }}"
-                  data-confirm-ok="{{ __('Ya, hapus') }}"
-                @endif
-              >
-                @csrf
-                <button type="submit" class="product-detail__wishlist-btn">
-                  {{ $inWishlist ? '♥ '.__('Sudah di wishlist') : '♡ '.__('Simpan ke wishlist') }}
-                </button>
-              </form>
-            @else
-              <a class="product-detail__wishlist-btn product-detail__wishlist" href="{{ route('login') }}">♡ {{ __('Simpan ke wishlist') }}</a>
-            @endauth
+            @if (config('features.wishlist'))
+              @auth
+                @php $inWishlist = $product->isInWishlistOf(auth()->id()); @endphp
+                <form
+                  method="post"
+                  action="{{ route('wishlist.toggle', $product) }}"
+                  class="product-detail__wishlist"
+                  @if ($inWishlist)
+                    data-confirm="{{ __('Produk ini akan dihapus dari wishlist Anda. Lanjutkan?') }}"
+                    data-confirm-title="{{ __('Hapus dari wishlist?') }}"
+                    data-confirm-ok="{{ __('Ya, hapus') }}"
+                  @endif
+                >
+                  @csrf
+                  <button type="submit" class="product-detail__wishlist-btn">
+                    {{ $inWishlist ? '♥ '.__('Sudah di wishlist') : '♡ '.__('Simpan ke wishlist') }}
+                  </button>
+                </form>
+              @else
+                <a class="product-detail__wishlist-btn product-detail__wishlist" href="{{ route('login') }}">♡ {{ __('Simpan ke wishlist') }}</a>
+              @endauth
+            @endif
           </div>
         </div>
       </div>

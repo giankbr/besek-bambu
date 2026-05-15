@@ -4,9 +4,12 @@
   $items = [
       'overview' => ['label' => __('Ringkasan'), 'route' => 'account.index'],
       'orders' => ['label' => __('Pesanan saya'), 'route' => 'account.orders'],
-      'wishlist' => ['label' => __('Wishlist'), 'route' => 'account.wishlist'],
       'profile' => ['label' => __('Pengaturan profil'), 'route' => 'account.profile'],
   ];
+  if (config('features.wishlist')) {
+      $wishlistNav = ['label' => __('Wishlist'), 'route' => 'account.wishlist'];
+      $items = array_slice($items, 0, 2, true) + ['wishlist' => $wishlistNav] + array_slice($items, 2, null, true);
+  }
 @endphp
 
 <aside class="account-side account-side--panel" aria-label="{{ __('Menu akun') }}">

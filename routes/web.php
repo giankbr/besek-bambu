@@ -82,8 +82,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/products/{product:slug}/reviews', [ProductReviewController::class, 'store'])->name('reviews.store');
 
-    Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('account.wishlist');
-    Route::post('/wishlist/{product:slug}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    if (config('features.wishlist')) {
+        Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('account.wishlist');
+        Route::post('/wishlist/{product:slug}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    }
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
