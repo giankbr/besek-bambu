@@ -62,7 +62,7 @@
         @if ($isHome) aria-current="page" @endif
       >
         @if ($brandLogo)
-          <img src="{{ $brandLogo }}" alt="{{ $brandName }}" style="max-height:32px;width:auto;display:block" />
+          <img src="{{ $brandLogo }}" alt="{{ $brandName }}" class="sf-brand-logo" width="120" height="32" />
         @else
           {{ \Illuminate\Support\Str::lower($brandName) }}
         @endif

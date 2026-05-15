@@ -31,8 +31,7 @@
     rel="stylesheet"
   />
 
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
-  <link rel="stylesheet" href="{{ asset('css/app.css') }}" />
+  @vite(['resources/css/app.css', 'resources/css/storefront.css', 'resources/js/app.js'])
 </head>
 <body class="storefront-body auth-storefront-page">
   <x-navbar />

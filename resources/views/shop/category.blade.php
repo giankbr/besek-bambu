@@ -40,7 +40,7 @@
 
     <section class="container">
       @if ($products->count() === 0)
-        <p class="shop-empty">Belum ada produk di kategori ini.</p>
+        <p class="shop-empty sf-empty">Belum ada produk di kategori ini.</p>
       @else
         <div class="grid-4 shop-grid">
           @foreach ($products as $product)

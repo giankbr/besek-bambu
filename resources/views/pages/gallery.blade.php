@@ -19,7 +19,7 @@
       <p class="confirmation__lead" style="max-width:640px;margin-bottom:32px">Scenes, drops, and moments featuring our handcrafted bamboo pieces.</p>
 
       @if ($items->isEmpty())
-        <p class="shop-empty">No gallery items yet.</p>
+        <p class="shop-empty sf-empty">No gallery items yet.</p>
       @else
         <div class="gallery-grid">
           @foreach ($items as $item)

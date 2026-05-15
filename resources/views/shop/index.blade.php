@@ -94,7 +94,7 @@
       @endif
 
       @if ($products->count() === 0)
-        <p class="shop-empty">Tidak ada produk.</p>
+        <p class="shop-empty sf-empty">Tidak ada produk.</p>
       @else
         <div class="grid-4 shop-grid">
           @foreach ($products as $product)

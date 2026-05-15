@@ -1,0 +1,48 @@
+/**
+ * Storefront styles — single Vite entry (legacy CSS + Tailwind utilities).
+ * Legacy rules live in storefront-legacy.css; new markup can use Tailwind
+ * tokens below (e.g. text-muted, font-display, max-w-page).
+ */
+@import './storefront-legacy.css';
+
+@import 'tailwindcss';
+
+@source '../views/shop';
+@source '../views/cart';
+@source '../views/checkout';
+@source '../views/account';
+@source '../views/components';
+@source '../views/home.blade.php';
+@source '../views/pages/about.blade.php';
+@source '../views/pages/contact.blade.php';
+@source '../views/pages/faq.blade.php';
+@source '../views/pages/gallery.blade.php';
+@source '../views/errors';
+@source '../views/layouts/storefront.blade.php';
+@source '../views/components/layouts';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
+
+    --color-surface: #ffffff;
+    --color-ink: #1f2a26;
+    --color-muted: #6b7670;
+    --color-line: #e8e8e6;
+    --color-brand: #d8e25a;
+    --color-brand-ink: #2d3a18;
+    --color-green-deep: #2c4a3a;
+    --color-green-soft: #e9efe2;
+
+    --width-page: 75rem;
+}
+
+@layer components {
+    .sf-brand-logo {
+        @apply block h-8 w-auto max-h-8;
+    }
+
+    .sf-empty {
+        @apply py-12 text-center text-muted;
+    }
+}

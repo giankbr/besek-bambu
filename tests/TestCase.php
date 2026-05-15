@@ -38,6 +38,7 @@ abstract class TestCase extends BaseTestCase
 
         $requiredEntries = [
             'resources/js/storefront.js' => 'assets/storefront-test.js',
+            'resources/css/storefront.css' => 'assets/storefront-test.css',
             'resources/css/app.css' => 'assets/app-test.css',
             'resources/js/app.js' => 'assets/app-test.js',
         ];
