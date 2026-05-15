@@ -36,12 +36,6 @@
 
       <form method="get" action="{{ route('shop.index') }}" class="shop-filter">
         <input type="search" name="q" value="{{ $searchTerm }}" placeholder="Cari produk…" aria-label="Cari produk" />
-        <select name="category" aria-label="Kategori">
-          <option value="">Semua kategori</option>
-          @foreach ($categories as $category)
-            <option value="{{ $category->slug }}" @selected($activeCategory === $category->slug)>{{ $category->title }}</option>
-          @endforeach
-        </select>
         <select name="sort" aria-label="Urutkan">
           <option value="featured" @selected($sort === 'featured')>Unggulan</option>
           <option value="newest" @selected($sort === 'newest')>Terbaru</option>
@@ -56,7 +50,6 @@
         <summary>Filter lanjutan</summary>
         <form method="get" action="{{ route('shop.index') }}" class="shop-advanced__form">
           <input type="hidden" name="q" value="{{ $searchTerm }}" />
-          <input type="hidden" name="category" value="{{ $activeCategory }}" />
           <input type="hidden" name="sort" value="{{ $sort }}" />
           <label>
             Harga min (Rp)
@@ -77,7 +70,7 @@
           </label>
           <button type="submit" class="shop-filter__submit">Terapkan filter</button>
           @if ($minPrice || $maxPrice || $minRating)
-            <a class="cart-link-btn" href="{{ route('shop.index', ['q' => $searchTerm, 'category' => $activeCategory, 'sort' => $sort]) }}">Hapus filter</a>
+            <a class="cart-link-btn" href="{{ route('shop.index', ['q' => $searchTerm, 'sort' => $sort]) }}">Hapus filter</a>
           @endif
         </form>
       </details>
