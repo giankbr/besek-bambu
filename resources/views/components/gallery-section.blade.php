@@ -1,6 +1,6 @@
 @props(['galleryItems'])
 
-<section class="gallery">
+<section class="gallery" data-gallery-slider>
   <div class="section-head gallery-head">
     <div>
       <div class="eyebrow">Inspirasi &amp; ide</div>
