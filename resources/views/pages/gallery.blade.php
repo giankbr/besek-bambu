@@ -14,7 +14,7 @@
         ]"
         eyebrow="Inspirasi"
       >
-        <h1 class="section-title page-head__title cart-title">Galeri <em>kami</em></h1>
+        <h1 class="section-title shop-title">Galeri <em>kami</em></h1>
       </x-page-head>
       <p class="confirmation__lead" style="max-width:640px;margin-bottom:32px">Scenes, drops, and moments featuring our handcrafted bamboo pieces.</p>
 
