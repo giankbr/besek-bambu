@@ -1,52 +1,59 @@
-<x-layouts::auth :title="__('Reset password')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Reset password')" :description="__('Please enter your new password below')" />
+@extends('layouts.auth-storefront')
 
-        <!-- Session Status -->
-        <x-auth-session-status class="text-center" :status="session('status')" />
+@section('title', __('Reset kata sandi').' — '.store_name())
 
-        <form method="POST" action="{{ route('password.update') }}" class="flex flex-col gap-6">
-            @csrf
-            <!-- Token -->
-            <input type="hidden" name="token" value="{{ request()->route('token') }}">
+@section('auth')
+  <x-auth-header
+    :title="__('Reset kata sandi')"
+    :description="__('Masukkan kata sandi baru untuk akun Anda.')"
+  />
 
-            <!-- Email Address -->
-            <flux:input
-                name="email"
-                value="{{ request('email') }}"
-                :label="__('Email')"
-                type="email"
-                required
-                autocomplete="email"
-            />
+  <x-auth-session-status :status="session('status')" />
 
-            <!-- Password -->
-            <flux:input
-                name="password"
-                :label="__('Password')"
-                type="password"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Password')"
-                viewable
-            />
+  <form method="POST" action="{{ route('password.update') }}" class="auth-form">
+    @csrf
 
-            <!-- Confirm Password -->
-            <flux:input
-                name="password_confirmation"
-                :label="__('Confirm password')"
-                type="password"
-                required
-                autocomplete="new-password"
-                :placeholder="__('Confirm password')"
-                viewable
-            />
+    <input type="hidden" name="token" value="{{ request()->route('token') }}" />
 
-            <div class="flex items-center justify-end">
-                <flux:button type="submit" variant="primary" class="w-full" data-test="reset-password-button">
-                    {{ __('Reset password') }}
-                </flux:button>
-            </div>
-        </form>
-    </div>
-</x-layouts::auth>
+    <label>
+      {{ __('Email') }}
+      <input
+        type="email"
+        name="email"
+        value="{{ old('email', request('email')) }}"
+        required
+        autocomplete="email"
+      />
+      @error('email')
+        <span class="form-error">{{ $message }}</span>
+      @enderror
+    </label>
+
+    <label>
+      {{ __('Kata sandi baru') }}
+      <x-auth-password
+        name="password"
+        required
+        autocomplete="new-password"
+        placeholder="{{ __('Kata sandi baru') }}"
+      />
+      @error('password')
+        <span class="form-error">{{ $message }}</span>
+      @enderror
+    </label>
+
+    <label>
+      {{ __('Ulangi kata sandi') }}
+      <x-auth-password
+        name="password_confirmation"
+        required
+        autocomplete="new-password"
+        placeholder="{{ __('Ulangi kata sandi') }}"
+      />
+    </label>
+
+    <button type="submit" class="hero-cta auth-form__submit" data-test="reset-password-button">
+      {{ __('Simpan kata sandi') }}
+    </button>
+  </form>
+@endsection

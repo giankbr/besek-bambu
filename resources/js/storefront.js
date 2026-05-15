@@ -602,11 +602,40 @@ const initConfirmDialog = () => {
   })
 }
 
+const initPasswordToggles = () => {
+  document.querySelectorAll('.auth-password__toggle').forEach((button) => {
+    if (button.dataset.bound === '1') return
+    button.dataset.bound = '1'
+
+    const wrap = button.closest('.auth-password')
+    const input = wrap?.querySelector('input')
+    if (!input) return
+
+    const iconShow = button.querySelector('.auth-password__icon--show')
+    const iconHide = button.querySelector('.auth-password__icon--hide')
+    const labelShow = button.dataset.labelShow ?? 'Show password'
+    const labelHide = button.dataset.labelHide ?? 'Hide password'
+
+    const setVisible = (visible) => {
+      input.type = visible ? 'text' : 'password'
+      button.setAttribute('aria-pressed', visible ? 'true' : 'false')
+      button.setAttribute('aria-label', visible ? labelHide : labelShow)
+      iconShow?.toggleAttribute('hidden', visible)
+      iconHide?.toggleAttribute('hidden', !visible)
+    }
+
+    button.addEventListener('click', () => {
+      setVisible(input.type === 'password')
+    })
+  })
+}
+
 const boot = () => {
   initConfirmDialog()
   initGallerySlider()
   initReviewsAutoSlider()
   initMegaBrandFill()
+  initPasswordToggles()
   init()
 }
 

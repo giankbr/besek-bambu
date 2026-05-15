@@ -1,31 +1,40 @@
-<x-layouts::auth :title="__('Forgot password')">
-    <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Forgot password')" :description="__('Enter your email to receive a password reset link')" />
+@extends('layouts.auth-storefront')
 
-        <!-- Session Status -->
-        <x-auth-session-status class="text-center" :status="session('status')" />
+@section('title', __('Lupa kata sandi').' — '.store_name())
 
-        <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-6">
-            @csrf
+@section('auth')
+  <x-auth-header
+    :title="__('Lupa kata sandi')"
+    :description="__('Masukkan email Anda untuk menerima tautan reset kata sandi.')"
+  />
 
-            <!-- Email Address -->
-            <flux:input
-                name="email"
-                :label="__('Email address')"
-                type="email"
-                required
-                autofocus
-                placeholder="email@example.com"
-            />
+  <x-auth-session-status :status="session('status')" />
 
-            <flux:button variant="primary" type="submit" class="w-full" data-test="email-password-reset-link-button">
-                {{ __('Email password reset link') }}
-            </flux:button>
-        </form>
+  <form method="POST" action="{{ route('password.email') }}" class="auth-form">
+    @csrf
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-400">
-            <span>{{ __('Or, return to') }}</span>
-            <flux:link :href="route('login')" wire:navigate>{{ __('log in') }}</flux:link>
-        </div>
-    </div>
-</x-layouts::auth>
+    <label>
+      {{ __('Email') }}
+      <input
+        type="email"
+        name="email"
+        value="{{ old('email') }}"
+        required
+        autofocus
+        autocomplete="email"
+        placeholder="nama@email.com"
+      />
+      @error('email')
+        <span class="form-error">{{ $message }}</span>
+      @enderror
+    </label>
+
+    <button type="submit" class="hero-cta auth-form__submit" data-test="email-password-reset-link-button">
+      {{ __('Kirim tautan reset') }}
+    </button>
+  </form>
+
+  <p class="auth-storefront-footer-link">
+    <a href="{{ route('login') }}">{{ __('Kembali ke masuk') }}</a>
+  </p>
+@endsection

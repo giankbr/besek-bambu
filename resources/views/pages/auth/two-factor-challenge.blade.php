@@ -1,101 +1,49 @@
-<x-layouts::auth :title="__('Two-factor authentication')">
-    <div class="flex flex-col gap-6">
-        <div
-            class="relative w-full h-auto"
-            x-cloak
-            x-data="{
-                showRecoveryInput: @js($errors->has('recovery_code')),
-                code: '',
-                recovery_code: '',
-                focusOtp() {
-                    this.$nextTick(() => this.$refs.otp?.querySelector('input')?.focus());
-                },
-                init() {
-                    if (! this.showRecoveryInput) {
-                        this.focusOtp();
-                    }
-                },
-                toggleInput() {
-                    this.showRecoveryInput = !this.showRecoveryInput;
+@extends('layouts.auth-storefront')
 
-                    this.code = '';
-                    this.recovery_code = '';
+@section('title', __('Autentikasi dua faktor').' — '.store_name())
 
-                    $nextTick(() => {
-                        this.showRecoveryInput
-                            ? this.$refs.recovery_code?.focus()
-                            : this.focusOtp();
-                    });
-                },
-            }"
-        >
-            <div x-show="!showRecoveryInput">
-                <x-auth-header
-                    :title="__('Authentication code')"
-                    :description="__('Enter the authentication code provided by your authenticator application.')"
-                />
-            </div>
+@section('auth')
+  <x-auth-header
+    :title="__('Kode autentikasi')"
+    :description="__('Masukkan kode dari aplikasi autentikator, atau gunakan kode pemulihan darurat.')"
+  />
 
-            <div x-show="showRecoveryInput">
-                <x-auth-header
-                    :title="__('Recovery code')"
-                    :description="__('Please confirm access to your account by entering one of your emergency recovery codes.')"
-                />
-            </div>
+  <form method="POST" action="{{ route('two-factor.login.store') }}" class="auth-form">
+    @csrf
 
-            <form method="POST" action="{{ route('two-factor.login.store') }}">
-                @csrf
+    <label>
+      {{ __('Kode 6 digit') }}
+      <input
+        type="text"
+        name="code"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        pattern="[0-9]{6}"
+        placeholder="000000"
+      />
+      @error('code')
+        <span class="form-error">{{ $message }}</span>
+      @enderror
+    </label>
 
-                <div class="space-y-5 text-center">
-                    <div x-show="!showRecoveryInput">
-                        <div class="flex items-center justify-center my-5" x-ref="otp">
-                            <flux:otp
-                                x-model="code"
-                                length="6"
-                                name="code"
-                                label="OTP Code"
-                                label:sr-only
-                                class="mx-auto"
-                             />
-                        </div>
-                    </div>
+    <p class="auth-form__hint">{{ __('atau') }}</p>
 
-                    <div x-show="showRecoveryInput">
-                        <div class="my-5">
-                            <flux:input
-                                type="text"
-                                name="recovery_code"
-                                x-ref="recovery_code"
-                                x-bind:required="showRecoveryInput"
-                                autocomplete="one-time-code"
-                                x-model="recovery_code"
-                            />
-                        </div>
+    <label>
+      {{ __('Kode pemulihan') }}
+      <input
+        type="text"
+        name="recovery_code"
+        autocomplete="one-time-code"
+        placeholder="{{ __('Kode pemulihan') }}"
+      />
+      @error('recovery_code')
+        <span class="form-error">{{ $message }}</span>
+      @enderror
+    </label>
 
-                        @error('recovery_code')
-                            <flux:text color="red">
-                                {{ $message }}
-                            </flux:text>
-                        @enderror
-                    </div>
-
-                    <flux:button
-                        variant="primary"
-                        type="submit"
-                        class="w-full"
-                    >
-                        {{ __('Continue') }}
-                    </flux:button>
-                </div>
-
-                <div class="mt-5 space-x-0.5 text-sm leading-5 text-center">
-                    <span class="opacity-50">{{ __('or you can') }}</span>
-                    <div class="inline font-medium underline cursor-pointer opacity-80">
-                        <span x-show="!showRecoveryInput" @click="toggleInput()">{{ __('login using a recovery code') }}</span>
-                        <span x-show="showRecoveryInput" @click="toggleInput()">{{ __('login using an authentication code') }}</span>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</x-layouts::auth>
+    <button type="submit" class="hero-cta auth-form__submit">
+      {{ __('Lanjutkan') }}
+    </button>
+  </form>
+@endsection

@@ -1,29 +1,30 @@
-<x-layouts::auth :title="__('Email verification')">
-    <div class="mt-4 flex flex-col gap-6">
-        <flux:text class="text-center">
-            {{ __('Please verify your email address by clicking on the link we just emailed to you.') }}
-        </flux:text>
+@extends('layouts.auth-storefront')
 
-        @if (session('status') == 'verification-link-sent')
-            <flux:text class="text-center font-medium !dark:text-green-400 !text-green-600">
-                {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-            </flux:text>
-        @endif
+@section('title', __('Verifikasi email').' — '.store_name())
 
-        <div class="flex flex-col items-center justify-between space-y-3">
-            <form method="POST" action="{{ route('verification.send') }}">
-                @csrf
-                <flux:button type="submit" variant="primary" class="w-full">
-                    {{ __('Resend verification email') }}
-                </flux:button>
-            </form>
+@section('auth')
+  <x-auth-header
+    :title="__('Verifikasi email')"
+    :description="__('Klik tautan di email yang kami kirim untuk mengaktifkan akun Anda.')"
+  />
 
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <flux:button variant="ghost" type="submit" class="text-sm cursor-pointer" data-test="logout-button">
-                    {{ __('Log out') }}
-                </flux:button>
-            </form>
-        </div>
-    </div>
-</x-layouts::auth>
+  @if (session('status') === 'verification-link-sent')
+    <x-auth-session-status :status="__('Tautan verifikasi baru telah dikirim ke email Anda.')" />
+  @endif
+
+  <div class="auth-form auth-form--stacked">
+    <form method="POST" action="{{ route('verification.send') }}">
+      @csrf
+      <button type="submit" class="hero-cta auth-form__submit">
+        {{ __('Kirim ulang email verifikasi') }}
+      </button>
+    </form>
+
+    <form method="POST" action="{{ route('logout') }}">
+      @csrf
+      <button type="submit" class="auth-form__ghost" data-test="logout-button">
+        {{ __('Keluar') }}
+      </button>
+    </form>
+  </div>
+@endsection
