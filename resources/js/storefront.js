@@ -291,6 +291,67 @@ const initReviewsAutoSlider = () => {
   window.addEventListener('load', run, { once: true })
 }
 
+const initMicroInteractions = () => {
+  const bindScaleHover = (selector, hoverScale = 1.03) => {
+    document.querySelectorAll(selector).forEach((el) => {
+      const scaleTo = gsap.quickTo(el, 'scale', { duration: 0.32, ease: 'power2.out' })
+
+      const onEnter = () => scaleTo(hoverScale)
+      const onLeave = () => scaleTo(1)
+      const onDown = () => scaleTo(0.97)
+      const onUp = () => scaleTo(el.matches(':hover') ? hoverScale : 1)
+
+      el.addEventListener('mouseenter', onEnter)
+      el.addEventListener('mouseleave', onLeave)
+      el.addEventListener('mousedown', onDown)
+      el.addEventListener('mouseup', onUp)
+    })
+  }
+
+  bindScaleHover('.join-btn, .hero-cta, .view-more, .cart-link-btn', 1.03)
+  bindScaleHover('.add-btn', 1.06)
+
+  document.querySelectorAll('.nav-links a').forEach((link) => {
+    const yTo = gsap.quickTo(link, 'y', { duration: 0.22, ease: 'power2.out' })
+    link.addEventListener('mouseenter', () => yTo(-2))
+    link.addEventListener('mouseleave', () => yTo(0))
+  })
+
+  document.querySelectorAll('.product-card-wrap').forEach((wrap) => {
+    const card = wrap.querySelector(':scope > a.product')
+    if (!card) return
+
+    const hoverTween = gsap.to(card, {
+      y: -6,
+      scale: 1.02,
+      duration: 0.38,
+      ease: 'power2.out',
+      paused: true,
+    })
+
+    wrap.addEventListener('mouseenter', () => hoverTween.play())
+    wrap.addEventListener('mouseleave', () => hoverTween.reverse())
+  })
+
+  document.querySelectorAll('.foot-cols a, .socials a').forEach((link) => {
+    const xTo = gsap.quickTo(link, 'x', { duration: 0.25, ease: 'power2.out' })
+    link.addEventListener('mouseenter', () => xTo(4))
+    link.addEventListener('mouseleave', () => xTo(0))
+  })
+
+  document.querySelectorAll('.cat').forEach((card) => {
+    const hoverTween = gsap.to(card, {
+      y: -5,
+      scale: 1.015,
+      duration: 0.35,
+      ease: 'power2.out',
+      paused: true,
+    })
+    card.addEventListener('mouseenter', () => hoverTween.play())
+    card.addEventListener('mouseleave', () => hoverTween.reverse())
+  })
+}
+
 const initGalleryNav = () => {
   const behavior = prefersReducedMotion() ? 'auto' : 'smooth'
   document.querySelectorAll('.gallery').forEach((root) => {
@@ -319,6 +380,7 @@ const init = () => {
   initNav()
   initHero()
   initScrollReveal()
+  initMicroInteractions()
 
   document.fonts?.ready?.then(() => {
     ScrollTrigger.refresh()

@@ -45,4 +45,13 @@
     .sf-empty {
         @apply py-12 text-center text-muted;
     }
+
+    .join-btn,
+    .hero-cta,
+    .view-more,
+    .cart-link-btn,
+    .product-card-wrap > a.product,
+    .cat {
+        will-change: transform;
+    }
 }
