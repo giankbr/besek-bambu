@@ -97,21 +97,52 @@
             <x-icons.cart class="nav-actions__icon" />
             <span class="nav-actions__label">{{ __('nav.cart') }} ({{ app(\App\Services\CartService::class)->count() }})</span>
           </a>
-          <div class="nav-lang" role="group" aria-label="{{ __('nav.language') }}">
-            <a
-              href="{{ route('locale.switch', 'id') }}"
-              class="@if (app()->getLocale() === 'id') is-active @endif"
-              @if (app()->getLocale() === 'id') aria-current="true" @endif
-            >ID</a>
-            <span aria-hidden="true">·</span>
-            <a
-              href="{{ route('locale.switch', 'en') }}"
-              class="@if (app()->getLocale() === 'en') is-active @endif"
-              @if (app()->getLocale() === 'en') aria-current="true" @endif
-            >EN</a>
-          </div>
+          @php
+            $locales = ['id' => 'Indonesia', 'en' => 'English'];
+            $activeLocale = app()->getLocale();
+          @endphp
+          <details class="nav-lang" data-nav-lang>
+            <summary class="nav-lang__toggle" aria-label="{{ __('nav.language') }}">
+              <x-icons.globe class="nav-lang__icon" />
+              <span class="nav-lang__current">{{ strtoupper($activeLocale) }}</span>
+              <svg class="nav-lang__caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </summary>
+            <div class="nav-lang__menu" role="menu">
+              @foreach ($locales as $code => $label)
+                <a
+                  href="{{ route('locale.switch', $code) }}"
+                  class="nav-lang__item @if ($activeLocale === $code) is-active @endif"
+                  role="menuitem"
+                  @if ($activeLocale === $code) aria-current="true" @endif
+                >
+                  <span class="nav-lang__dot" aria-hidden="true"></span>
+                  {{ $label }}
+                </a>
+              @endforeach
+            </div>
+          </details>
         </div>
       </div>
     </nav>
   </div>
 </header>
+
+@once
+  @push('scripts')
+    <script>
+      (function () {
+        document.addEventListener('click', function (e) {
+          document.querySelectorAll('details[data-nav-lang][open]').forEach(function (d) {
+            if (!d.contains(e.target)) d.removeAttribute('open');
+          });
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape') return;
+          document.querySelectorAll('details[data-nav-lang][open]').forEach(function (d) {
+            d.removeAttribute('open');
+          });
+        });
+      })();
+    </script>
+  @endpush
+@endonce
