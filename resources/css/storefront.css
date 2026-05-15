@@ -42,6 +42,12 @@
         @apply block h-8 w-auto max-h-8;
     }
 
+    @media (max-width: 520px) {
+        .sf-brand-logo {
+            @apply h-7 max-h-7;
+        }
+    }
+
     .sf-empty {
         @apply py-12 text-center text-muted;
     }

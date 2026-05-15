@@ -4,7 +4,7 @@
       <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />
     </figure>
     <figure class="news-corner news-corner--bl" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1591261730799-ee4e6c2d1e1d?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />
+      <img src="https://images.unsplash.com/photo-1586075010923-2dd45795fb39?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />
     </figure>
     <figure class="news-corner news-corner--tr" aria-hidden="true">
       <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=400&q=80" alt="" width="200" height="200" loading="lazy" decoding="async" />

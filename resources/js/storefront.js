@@ -308,7 +308,8 @@ const initMicroInteractions = () => {
     })
   }
 
-  bindScaleHover('.join-btn, .hero-cta, .view-more, .cart-link-btn', 1.03)
+  bindScaleHover('.join-btn, .view-more, .cart-link-btn', 1.03)
+  bindScaleHover('.hero-cta:not(.cart-summary__cta)', 1.03)
   bindScaleHover('.add-btn', 1.06)
 
   document.querySelectorAll('.nav-links a').forEach((link) => {

@@ -4,6 +4,8 @@
 @section('meta_robots', 'noindex,follow')
 
 @php
+  use Illuminate\Support\Js;
+
   $defaultRegion = array_key_first($regions);
   $useRajaOngkir = ($shippingProvider ?? 'flat') === 'rajaongkir' && ($rajaOngkirReady ?? false);
 @endphp
@@ -27,31 +29,34 @@
         $taxBase = max(0, $subtotal - $discount);
         $totalBeforeShipping = $taxInclusive ? $taxBase : $taxBase + $tax;
         $initialShippingCost = $useRajaOngkir ? 0 : $regions[$defaultRegion]['cost'];
+
+        $checkoutConfig = [
+            'useRajaOngkir' => $useRajaOngkir,
+            'regions' => $regions,
+            'defaultRegion' => $defaultRegion,
+            'totalBeforeShipping' => $totalBeforeShipping,
+            'totalWeight' => $totalWeight,
+            'pickupEnabled' => $pickupEnabled,
+            'pickupAddress' => $pickupAddress,
+            'csrf' => csrf_token(),
+            'urls' => [
+                'search' => route('shipping.destinations'),
+                'resolveDestination' => route('shipping.resolveDestination'),
+                'provinces' => route('shipping.wilayah.provinces'),
+                'regencies' => route('shipping.wilayah.regencies', ['provinceCode' => '__PROVINCE__']),
+                'districts' => route('shipping.wilayah.districts', ['regencyCode' => '__REGENCY__']),
+                'villages' => route('shipping.wilayah.villages', ['districtCode' => '__DISTRICT__']),
+                'cost' => route('shipping.cost'),
+            ],
+        ];
       @endphp
 
       <form
         method="post"
         action="{{ route('checkout.store') }}"
         class="checkout-grid"
-        x-data='checkoutForm(@js([
-          "useRajaOngkir" => $useRajaOngkir,
-          "regions" => $regions,
-          "defaultRegion" => $defaultRegion,
-          "totalBeforeShipping" => $totalBeforeShipping,
-          "totalWeight" => $totalWeight,
-          "pickupEnabled" => $pickupEnabled,
-          "pickupAddress" => $pickupAddress,
-          "csrf" => csrf_token(),
-          "urls" => [
-          "search" => route("shipping.destinations"),
-          "resolveDestination" => route("shipping.resolveDestination"),
-          "provinces" => route("shipping.wilayah.provinces"),
-          "regencies" => route("shipping.wilayah.regencies", ["provinceCode" => "__PROVINCE__"]),
-          "districts" => route("shipping.wilayah.districts", ["regencyCode" => "__REGENCY__"]),
-          "villages" => route("shipping.wilayah.villages", ["districtCode" => "__DISTRICT__"]),
-            "cost" => route("shipping.cost"),
-          ],
-        ]))'
+        x-data="checkoutForm({{ Js::from($checkoutConfig) }})"
+        x-init="init()"
       >
         @csrf
         <input type="hidden" name="shipping_mode" :value="mode === 'pickup' ? 'pickup' : (useRajaOngkir ? 'rajaongkir' : 'flat')" />
@@ -82,11 +87,11 @@
             <div class="checkout-payment-methods" style="margin-bottom:0.75rem">
               <label class="checkout-payment-method">
                 <input type="radio" name="checkout_mode" value="ship" x-model="mode" />
-                <span><strong>🚚 Ship to my address</strong><small style="display:block;color:#7d6f5f">Calculated based on destination</small></span>
+                <span><strong>🚚 Ship to my address</strong><small>Calculated based on destination</small></span>
               </label>
               <label class="checkout-payment-method">
                 <input type="radio" name="checkout_mode" value="pickup" x-model="mode" />
-                <span><strong>🏪 Self-pickup at workshop</strong><small style="display:block;color:#7d6f5f">Free — collect at our location</small></span>
+                <span><strong>🏪 Self-pickup at workshop</strong><small>Free — collect at our location</small></span>
               </label>
             </div>
           @endif
@@ -171,16 +176,19 @@
                 Calculating shipping cost…
               </div>
 
-              <div x-show="!loadingServices && services.length > 0" class="checkout-payment-methods" style="margin-top:0.75rem">
+              <div x-show="!loadingServices && services.length > 0" class="checkout-shipping-options">
+                <p class="checkout-shipping-options__title">Select shipping service</p>
+                <div class="checkout-payment-methods">
                 <template x-for="s in services" :key="s.code + '-' + s.service">
                   <label class="checkout-payment-method">
                     <input type="radio" name="shipping_courier_service" :value="s.code + '-' + s.service" :checked="isSelected(s)" @change="selectService(s)" required />
                     <span>
                       <strong x-text="(s.name || s.code.toUpperCase()) + ' ' + s.service"></strong>
-                      <small style="display:block;color:#7d6f5f" x-text="(s.description ? s.description + ' — ' : '') + (s.etd ? s.etd + ' days · ' : '') + formatRp(s.cost)"></small>
+                      <small x-text="serviceMeta(s)"></small>
                     </span>
                   </label>
                 </template>
+                </div>
               </div>
 
               <div
@@ -531,6 +539,17 @@
 
         isSelected(s) {
           return this.selectedCourier === s.code && this.selectedService === s.service
+        },
+
+        serviceMeta(s) {
+          const parts = []
+          if (s.description) parts.push(s.description)
+          if (s.etd) {
+            const etd = String(s.etd).trim()
+            parts.push(/day/i.test(etd) ? etd : `${etd} days`)
+          }
+          parts.push(formatRp(s.cost))
+          return parts.join(' · ')
         },
 
         selectService(s) {
