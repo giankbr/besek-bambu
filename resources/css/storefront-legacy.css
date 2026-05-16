@@ -461,9 +461,18 @@
     font-weight: 400;
   }
 
-  .hero-lead {
-    margin: 0 0 1.1rem;
+  .hero-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
     max-width: 28rem;
+  }
+
+  .hero-lead {
+    margin: 0;
+    max-width: none;
     font-size: clamp(0.9rem, 2.1vw, 0.97rem);
     line-height: 1.6;
     opacity: 0.98;
@@ -473,7 +482,9 @@
   }
 
   .hero-cta {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: var(--accent);
     color: var(--accent-ink);
     text-decoration: none;
@@ -1613,9 +1624,10 @@
       flex-direction: column;
       align-items: stretch;
       justify-content: flex-end;
+      overflow: hidden;
       min-height: clamp(300px, 62vw, 380px);
       margin-bottom: 20px;
-      padding-block: clamp(1.25rem, 4.5vw, 1.85rem);
+      padding-block: clamp(1.35rem, 4.5vw, 1.85rem) clamp(1.35rem, 4vw, 1.65rem);
       padding-inline: max(1.15rem, var(--page-padding-x), env(safe-area-inset-left, 0px))
         max(1.15rem, var(--page-padding-x), env(safe-area-inset-right, 0px));
       background:
@@ -1636,17 +1648,22 @@
     .hero-content {
       max-width: 100%;
       margin-bottom: 0;
+      padding-block: 0;
     }
     .hero-heading {
       font-size: clamp(1.5rem, 4.8vw, 2rem);
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.65rem;
     }
     .hero-heading__accent {
       font-size: clamp(0.95rem, 3.4vw, 1.15rem);
+      white-space: normal;
+    }
+    .hero-action {
+      gap: 0.75rem;
+      max-width: 100%;
     }
     .hero-lead {
-      max-width: 34rem;
-      margin-bottom: 0.7rem;
+      max-width: none;
     }
     .mega-logo {
       flex-direction: column;
@@ -1741,7 +1758,7 @@
     .hero {
       min-height: clamp(300px, 78vw, 360px);
       height: auto;
-      padding-block: 1.25rem 1.5rem;
+      padding-block: 1.2rem 1.35rem;
       padding-inline: max(1.125rem, var(--page-padding-x), env(safe-area-inset-left, 0px))
         max(1.125rem, var(--page-padding-x), env(safe-area-inset-right, 0px));
       margin-bottom: 16px;
@@ -1752,17 +1769,19 @@
     }
     .hero-heading {
       font-size: clamp(1.35rem, 6vw, 1.65rem);
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
       line-height: 1.18;
     }
     .hero-heading__accent {
       margin-top: 0.15rem;
       font-size: clamp(0.82rem, 3.8vw, 0.95rem);
     }
+    .hero-action {
+      gap: 0.625rem;
+    }
     .hero-lead {
       font-size: 0.8125rem;
-      line-height: 1.52;
-      margin-bottom: 0.65rem;
+      line-height: 1.5;
     }
     .hero-cta {
       padding: 10px 20px;
