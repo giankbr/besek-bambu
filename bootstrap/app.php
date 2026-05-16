@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // ngrok / reverse proxy: honor X-Forwarded-Proto so URLs, Flux, and Livewire load over HTTPS
+        $middleware->trustProxies(at: '*');
+
         $middleware->validateCsrfTokens(except: [
             'payment/notification',
         ]);
