@@ -11,7 +11,7 @@
         </div>
       </div>
       <p class="reviews-lead">
-        {!! __('Lebih dari :count ulasan :stars untuk besek anyaman bambu kami — terpercaya untuk hantaran & kurban.', ['count' => '<strong>'.number_format(25000).'</strong>', 'stars' => '<strong>'.__('bintang 5').'</strong>']) !!}
+        {{ __('Dipercaya untuk hantaran, hampers & kemasan, besek anyaman bambu handmade dari pengrajin Indonesia.') }}
       </p>
     </header>
 

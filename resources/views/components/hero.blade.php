@@ -5,7 +5,7 @@
       <span class="hero-heading__accent"><em>{!! __('Hantaran, hampers&nbsp;&amp;&nbsp;kemasan') !!}</em></span>
     </h1>
     <div class="hero-action">
-      <p class="hero-lead">{!! __('Anyaman tradisi Jawa &amp; Sunda — higienis, bernapas, ramah lingkungan untuk acara dan usaha Anda.') !!}</p>
+      <p class="hero-lead">{!! __('Anyaman tradisi Jawa &amp; Sunda, higienis, bernapas, ramah lingkungan untuk acara dan usaha Anda.') !!}</p>
       <a href="{{ route('shop.index') }}" class="hero-cta">{{ __('Belanja sekarang') }}</a>
     </div>
   </div>
