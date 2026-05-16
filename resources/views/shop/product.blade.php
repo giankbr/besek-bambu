@@ -183,7 +183,7 @@
           @php
             $moq = max(1, (int) ($product->min_order_quantity ?? 1));
             $leadDays = (int) ($product->production_lead_days ?? 0);
-            $waNumber = preg_replace('/\D+/', '', (string) (setting('whatsapp_order_number') ?: setting('store_phone') ?: ''));
+            $waNumber = whatsapp_digits() ?? '';
             $waText = rawurlencode(__('Halo, saya mau tanya:')." {$product->name} (".route('shop.product', $product).')');
             $hasVariants = $product->hasVariants();
             $variantsPayload = $product->variants->map(fn ($v) => [

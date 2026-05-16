@@ -66,6 +66,37 @@ if (! function_exists('store_phone')) {
     }
 }
 
+if (! function_exists('whatsapp_digits')) {
+    /**
+     * WhatsApp number digits for wa.me links (order number, store phone, or social link).
+     */
+    function whatsapp_digits(): ?string
+    {
+        $raw = (string) (setting('whatsapp_order_number') ?: setting('store_phone') ?: '');
+        $digits = preg_replace('/\D+/', '', $raw);
+
+        if ($digits !== '') {
+            return $digits;
+        }
+
+        $social = trim((string) setting('social_whatsapp'));
+
+        if ($social === '') {
+            return null;
+        }
+
+        if (preg_match('#wa\.me/(\d+)#i', $social, $matches)) {
+            return $matches[1];
+        }
+
+        if (preg_match('#phone=(\d+)#i', $social, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+}
+
 if (! function_exists('store_address')) {
     function store_address(): ?string
     {
