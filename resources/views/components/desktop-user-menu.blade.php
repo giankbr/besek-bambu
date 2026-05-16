@@ -27,6 +27,8 @@
 
         <x-theme-menu />
 
+        <x-locale-menu />
+
         <flux:menu.radio.group>
             <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf

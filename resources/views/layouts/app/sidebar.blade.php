@@ -118,6 +118,8 @@
 
                     <x-theme-menu />
 
+                    <x-locale-menu />
+
                     <flux:menu.separator />
 
                     <form method="POST" action="{{ route('logout') }}" class="w-full">

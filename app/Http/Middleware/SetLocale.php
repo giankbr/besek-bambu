@@ -15,16 +15,23 @@ class SetLocale
      */
     public const SUPPORTED = ['id', 'en'];
 
+    public const DEFAULT = 'id';
+
     /**
      * Resolve the active locale from the session (set by the language
      * switcher) and apply it for the rest of the request.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $request->session()->get('locale', config('app.locale'));
+        if (! $request->session()->has('locale')) {
+            $request->session()->put('locale', config('app.locale', self::DEFAULT));
+        }
+
+        $locale = $request->session()->get('locale', self::DEFAULT);
 
         if (! in_array($locale, self::SUPPORTED, true)) {
-            $locale = config('app.locale');
+            $locale = self::DEFAULT;
+            $request->session()->put('locale', $locale);
         }
 
         App::setLocale($locale);

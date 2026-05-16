@@ -18,7 +18,10 @@ const initScrollReveal = () => {
   ])
 
   blocks.forEach((el) => {
-    if (el.querySelector(':scope .grid-4, :scope .cat-grid')) {
+    if (
+      el.hasAttribute('data-collage-section') ||
+      el.querySelector(':scope .grid-4, :scope .cat-grid')
+    ) {
       return
     }
     gsap.from(el, {
@@ -127,6 +130,111 @@ const initMobileNav = () => {
   document.addEventListener('click', (e) => {
     document.querySelectorAll('details[data-nav-lang][open]').forEach((d) => {
       if (!d.contains(e.target)) d.removeAttribute('open')
+    })
+  })
+}
+
+const initCollageSection = () => {
+  const wrap = document.querySelector('[data-collage-section]')
+  if (!wrap) return
+
+  const left = wrap.querySelector('.c-side:not(.right)')
+  const center = wrap.querySelector('.c-main')
+  const right = wrap.querySelector('.c-side.right')
+  const commitment = wrap.querySelector('[data-collage-commitment]')
+  const inlineImgs = wrap.querySelectorAll('.commitment .inline-img')
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: wrap,
+      start: 'top 85%',
+      once: true,
+    },
+  })
+
+  if (left) {
+    tl.from(left, {
+      x: -56,
+      rotation: -10,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+    })
+  }
+
+  if (center) {
+    tl.from(
+      center,
+      {
+        scale: 0.86,
+        y: 36,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power3.out',
+      },
+      left ? '-=0.58' : 0,
+    )
+  }
+
+  if (right) {
+    tl.from(
+      right,
+      {
+        x: 56,
+        rotation: 10,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      },
+      '-=0.68',
+    )
+  }
+
+  if (commitment) {
+    tl.from(
+      commitment,
+      {
+        y: 28,
+        opacity: 0,
+        duration: 0.75,
+        ease: 'power2.out',
+      },
+      '-=0.4',
+    )
+  }
+
+  if (inlineImgs.length) {
+    tl.from(
+      inlineImgs,
+      {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.45,
+        stagger: 0.1,
+        ease: 'back.out(1.6)',
+      },
+      '-=0.5',
+    )
+  }
+
+  ;[left, center, right].filter(Boolean).forEach((img) => {
+    img.addEventListener('mouseenter', () => {
+      gsap.to(img, {
+        y: -6,
+        scale: 1.03,
+        duration: 0.35,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
+    })
+    img.addEventListener('mouseleave', () => {
+      gsap.to(img, {
+        y: 0,
+        scale: 1,
+        duration: 0.4,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
     })
   })
 }
@@ -584,6 +692,7 @@ const init = () => {
   initNav()
   initHero()
   initScrollReveal()
+  initCollageSection()
   initMicroInteractions()
 
   document.fonts?.ready?.then(() => {

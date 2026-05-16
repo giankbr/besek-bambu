@@ -1013,6 +1013,7 @@
     border-radius: 14px;
     object-fit: cover;
     display: block;
+    transform-origin: center center;
   }
 
   .collage .c-side {
