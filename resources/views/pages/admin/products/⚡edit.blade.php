@@ -517,12 +517,9 @@ new #[Title('Edit Product')] class extends Component {
             <div class="mt-4 grid gap-3">
                 @foreach ($variants as $i => $v)
                     <div class="grid items-end gap-2 rounded-lg border border-zinc-200 p-3 md:grid-cols-12">
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-5">
                             <flux:input wire:model="variants.{{ $i }}.label" :label="__('Label')" placeholder="20×20 cm" />
                             @error("variants.$i.label")<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
-                        </div>
-                        <div class="md:col-span-2">
-                            <flux:input wire:model="variants.{{ $i }}.sku" :label="__('SKU (opt)')" />
                         </div>
                         <div class="md:col-span-2">
                             <flux:input wire:model="variants.{{ $i }}.price" :label="__('Price')" type="number" min="0" step="1" placeholder="{{ $product->price }}" />
