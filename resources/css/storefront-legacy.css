@@ -3627,10 +3627,22 @@ body.sf-confirm-open {
 .about-body { font-size: 15px; line-height: 1.7; }
 
 .about-list {
-  margin: 12px 0;
-  padding-left: 20px;
+  margin: 12px 0 0;
+  padding-left: 1.35rem;
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.75;
+  list-style: disc;
+  list-style-position: outside;
+}
+
+.about-list li {
+  display: list-item;
+  margin-bottom: 0.5rem;
+  padding-left: 0.15rem;
+}
+
+.about-list li::marker {
+  color: var(--green-deep);
 }
 
 .about-side .confirmation-card,
@@ -3664,18 +3676,28 @@ body.sf-confirm-open {
   width: 100%;
 }
 
+.faq-section {
+  padding-bottom: clamp(3.5rem, 10vw, 5.5rem);
+}
+
 .faq-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 24px;
-  max-width: 760px;
+  gap: 0;
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: none;
 }
 
 .faq-item {
-  background: var(--card, #ffffff);
-  border-radius: 14px;
-  padding: 16px 22px;
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 1.125rem 0;
+}
+
+.faq-item:first-child {
+  border-top: 1px solid var(--line);
 }
 
 .faq-item summary {
@@ -3684,6 +3706,7 @@ body.sf-confirm-open {
   font-size: 15px;
   font-family: var(--font-body);
   list-style: none;
+  padding-right: 2rem;
 }
 
 .faq-item summary::-webkit-details-marker { display: none; }
