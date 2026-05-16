@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Mail\OrderPaid;
+use App\Mail\OrderPaymentFailed;
+use App\Mail\OrderRefunded;
 use App\Models\Order;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -213,7 +216,11 @@ class MidtransService
                 return;
             }
 
-            $becamePaid = $newStatus === 'paid' && $fresh->payment_status !== 'paid';
+            $previousPaymentStatus = $fresh->payment_status;
+            $becamePaid = $newStatus === 'paid' && $previousPaymentStatus !== 'paid';
+            $becameFailed = $newStatus === 'failed' && $previousPaymentStatus !== 'failed';
+            $becameExpired = $newStatus === 'expired' && $previousPaymentStatus !== 'expired';
+            $becameRefunded = $newStatus === 'refunded' && $previousPaymentStatus !== 'refunded';
 
             $update = [
                 'payment_status' => $newStatus,
@@ -229,12 +236,16 @@ class MidtransService
 
             $fresh->update($update);
 
+            $orderForMail = $fresh->fresh('items');
+
             if ($becamePaid) {
-                try {
-                    Mail::to($fresh->customer_email)->send(new OrderPaid($fresh->fresh('items')));
-                } catch (\Throwable $e) {
-                    Log::warning('Failed to send order paid email', ['order' => $fresh->number, 'error' => $e->getMessage()]);
-                }
+                $this->sendCustomerMail($orderForMail, new OrderPaid($orderForMail));
+            } elseif ($becameExpired) {
+                $this->sendCustomerMail($orderForMail, new OrderPaymentFailed($orderForMail, 'expired'));
+            } elseif ($becameFailed) {
+                $this->sendCustomerMail($orderForMail, new OrderPaymentFailed($orderForMail, 'failed'));
+            } elseif ($becameRefunded) {
+                $this->sendCustomerMail($orderForMail, new OrderRefunded($orderForMail));
             }
 
             Log::info('Midtrans notification applied', [
@@ -244,5 +255,18 @@ class MidtransService
                 'payment_status' => $newStatus,
             ]);
         });
+    }
+
+    private function sendCustomerMail(Order $order, Mailable $mailable): void
+    {
+        try {
+            Mail::to($order->customer_email)->send($mailable);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send order email', [
+                'order' => $order->number,
+                'mailable' => $mailable::class,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

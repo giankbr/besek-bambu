@@ -10,5 +10,5 @@ View order details
 </x-mail::button>
 
 Thanks,<br>
-{{ config('app.name') }}
+{{ store_name() }}
 </x-mail::message>

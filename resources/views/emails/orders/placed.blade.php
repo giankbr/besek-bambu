@@ -24,5 +24,5 @@ Pay now
 We'll email you again as soon as we ship your order.
 
 Thanks,<br>
-{{ config('app.name') }}
+{{ store_name() }}
 </x-mail::message>

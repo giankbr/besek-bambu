@@ -14,5 +14,5 @@ You've received a new message via the website contact form.
 
 Reply directly to this email to respond.
 
-{{ config('app.name') }}
+{{ store_name() }}
 </x-mail::message>
