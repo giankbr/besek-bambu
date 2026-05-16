@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Checkout').' — '.store_name())
+@section('title', meta_title(__('Checkout'), store_name()))
 @section('meta_robots', 'noindex,follow')
 
 @php

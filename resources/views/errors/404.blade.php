@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', '404 — '.__('Halaman tidak ditemukan').' — '.store_name())
+@section('title', meta_title('404', __('Halaman tidak ditemukan'), store_name()))
 
 @section('meta_description', __('Halaman yang Anda cari tidak ada atau tautannya sudah tidak berlaku. Kembali ke beranda atau jelajahi katalog besek kami.'))
 

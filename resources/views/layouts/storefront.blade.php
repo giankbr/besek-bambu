@@ -8,7 +8,7 @@
 @php
   $brandName = store_name();
   $brandTagline = setting('store_tagline');
-  $defaultTitle = $brandName.($brandTagline ? ' — '.$brandTagline : ' — '.__('Peralatan Dapur Ramah Lingkungan'));
+  $defaultTitle = meta_title($brandName, $brandTagline ?: __('Peralatan Dapur Ramah Lingkungan'));
   $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
   $metaDescription = trim($__env->yieldContent('meta_description', __('Peralatan dapur bambu buatan tangan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.')));
   $metaImage = trim($__env->yieldContent('meta_image', store_logo_url() ?: asset('images/og-default.jpg')));

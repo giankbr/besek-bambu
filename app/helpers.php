@@ -32,6 +32,13 @@ if (! function_exists('store_name')) {
     }
 }
 
+if (! function_exists('meta_title')) {
+    function meta_title(string ...$parts): string
+    {
+        return implode(', ', array_filter($parts, static fn ($part) => $part !== '' && $part !== null));
+    }
+}
+
 if (! function_exists('store_logo_url')) {
     function store_logo_url(): ?string
     {

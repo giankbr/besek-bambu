@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Akun saya').' — Besek Bambu')
+@section('title', meta_title(__('Akun saya'), store_name()))
 
 @section('content')
   <x-account-page active="overview" :crumbs="[['label' => __('Beranda'), 'url' => route('home')], ['label' => __('Akun')]]" eyebrow="{{ __('Selamat datang kembali') }}">

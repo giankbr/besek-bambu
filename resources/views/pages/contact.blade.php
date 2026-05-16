@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Kontak').' — '.store_name())
+@section('title', meta_title(__('Kontak'), store_name()))
 @section('meta_description', __('Hubungi :store untuk pemesanan besek bambu, kebutuhan grosir, custom logo, atau pertanyaan seputar produk dan pengiriman.', ['store' => store_name()]))
 
 @section('content')

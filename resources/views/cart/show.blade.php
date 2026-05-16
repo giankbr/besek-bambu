@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Keranjang').' — '.store_name())
+@section('title', meta_title(__('Keranjang'), store_name()))
 @section('meta_robots', 'noindex,follow')
 
 @section('content')

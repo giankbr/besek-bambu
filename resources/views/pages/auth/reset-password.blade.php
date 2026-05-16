@@ -1,6 +1,6 @@
 @extends('layouts.auth-storefront')
 
-@section('title', __('Reset kata sandi').' — '.store_name())
+@section('title', meta_title(__('Reset kata sandi'), store_name()))
 
 @section('auth')
   <x-auth-header

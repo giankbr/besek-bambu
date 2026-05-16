@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Pesanan').' '.$order->number.' — Besek Bambu')
+@section('title', meta_title(__('Pesanan').' '.$order->number, store_name()))
 
 @section('content')
   <x-navbar />

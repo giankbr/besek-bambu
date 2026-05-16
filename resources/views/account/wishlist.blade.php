@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Wishlist saya').' — Besek Bambu')
+@section('title', meta_title(__('Wishlist saya'), store_name()))
 
 @section('content')
   <x-account-page

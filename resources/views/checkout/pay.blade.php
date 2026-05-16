@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Bayar pesanan').' '.$order->number.' — '.store_name())
+@section('title', meta_title(__('Bayar pesanan').' '.$order->number, store_name()))
 @section('meta_robots', 'noindex,follow')
 
 @push('head')

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Invoice {{ $order->number }} — {{ store_name() }}</title>
+  <title>{{ meta_title('Invoice '.$order->number, store_name()) }}</title>
   <style>
     :root {
       --ink: #1f1a14;

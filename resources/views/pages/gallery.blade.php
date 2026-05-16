@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', __('Galeri').' — Besek Bambu')
+@section('title', meta_title(__('Galeri'), store_name()))
 @section('meta_description', __('Lihat inspirasi penggunaan besek bambu handmade untuk hampers, dekorasi acara, dan kemasan produk brand lokal.'))
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'FAQ — Besek Bambu')
+@section('title', meta_title('FAQ', store_name()))
 @section('meta_description', __('Pertanyaan umum tentang besek bambu: cara perawatan, metode pembayaran, estimasi pengiriman, dan kebijakan pemesanan.'))
 
 @php

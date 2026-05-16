@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', $category->title . ' — Besek Bambu')
+@section('title', meta_title($category->title, store_name()))
 @section('meta_description', __('Jelajahi kategori :cat dari koleksi besek bambu handmade :store. Pilihan produk siap kirim ke seluruh Indonesia.', ['cat' => $category->title, 'store' => store_name()]))
 
 @push('head')

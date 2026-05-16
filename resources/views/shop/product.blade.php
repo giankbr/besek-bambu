@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', $product->meta_title ?: ($product->name . ' — Besek Bambu'))
+@section('title', $product->meta_title ?: meta_title($product->name, store_name()))
 @section('meta_description', $product->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($product->description ?? (__('Kerajinan bambu buatan tangan.').' '.$product->name)), 155))
 @section('og_type', 'product')
 @php
