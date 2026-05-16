@@ -23,10 +23,28 @@ class MidtransService
 
     public function createSnapToken(Order $order): string
     {
+        $order->loadMissing('items');
+
+        $grossAmount = (int) round((float) $order->total);
+        $itemDetails = $this->buildItemDetails($order);
+
+        $itemsTotal = array_sum(array_map(
+            fn (array $item) => $item['price'] * $item['quantity'],
+            $itemDetails
+        ));
+
+        if ($itemsTotal !== $grossAmount) {
+            Log::warning('Midtrans item_details total does not match order total', [
+                'order' => $order->number,
+                'gross_amount' => $grossAmount,
+                'items_total' => $itemsTotal,
+            ]);
+        }
+
         $payload = [
             'transaction_details' => [
                 'order_id' => $order->number,
-                'gross_amount' => (int) round((float) $order->total),
+                'gross_amount' => $grossAmount,
             ],
             'customer_details' => [
                 'first_name' => $order->customer_name,
@@ -36,12 +54,7 @@ class MidtransService
                     'address' => $order->shipping_address,
                 ],
             ],
-            'item_details' => $order->items->map(fn ($item) => [
-                'id' => (string) $item->product_id,
-                'name' => mb_substr($item->product_name, 0, 50),
-                'price' => (int) round((float) $item->price),
-                'quantity' => (int) $item->quantity,
-            ])->all(),
+            'item_details' => $itemDetails,
             'callbacks' => [
                 'finish' => order_signed_url('checkout.confirmation', $order, now()->addDays(7)),
             ],
@@ -57,6 +70,51 @@ class MidtransService
         ]);
 
         return $token;
+    }
+
+    /**
+     * @return list<array{id: string, name: string, price: int, quantity: int}>
+     */
+    private function buildItemDetails(Order $order): array
+    {
+        $items = $order->items->map(fn ($item) => [
+            'id' => (string) $item->product_id,
+            'name' => mb_substr($item->product_name, 0, 50),
+            'price' => (int) round((float) $item->price),
+            'quantity' => (int) $item->quantity,
+        ])->all();
+
+        $shippingCost = (int) round((float) $order->shipping_cost);
+        if ($shippingCost > 0) {
+            $items[] = [
+                'id' => 'shipping',
+                'name' => 'Shipping',
+                'price' => $shippingCost,
+                'quantity' => 1,
+            ];
+        }
+
+        $discount = (int) round((float) $order->discount);
+        if ($discount > 0) {
+            $items[] = [
+                'id' => 'discount',
+                'name' => 'Discount',
+                'price' => -$discount,
+                'quantity' => 1,
+            ];
+        }
+
+        $tax = (int) round((float) $order->tax);
+        if ($tax > 0 && ! $order->tax_inclusive) {
+            $items[] = [
+                'id' => 'tax',
+                'name' => 'Tax',
+                'price' => $tax,
+                'quantity' => 1,
+            ];
+        }
+
+        return $items;
     }
 
     public function handleNotification(): Notification

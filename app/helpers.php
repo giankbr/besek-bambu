@@ -95,7 +95,7 @@ if (! function_exists('enabled_payment_methods')) {
         $candidates = [
             'midtrans' => [
                 'enabled' => (bool) setting('payment_midtrans', true) && (bool) config('services.midtrans.server_key'),
-                'label' => 'Online payment (card / bank transfer / e-wallet / QRIS)',
+                'label' => 'Bayar online (Midtrans)',
             ],
             'manual_transfer' => [
                 'enabled' => (bool) setting('payment_manual_transfer', false),

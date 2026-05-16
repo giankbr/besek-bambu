@@ -89,13 +89,16 @@
               <span class="nav-actions__label">{{ __('nav.login_register') }}</span>
             </a>
           @endauth
+          @php $cartCount = app(\App\Services\CartService::class)->count(); @endphp
           <a
             href="{{ route('cart.show') }}"
-            class="nav-actions__link @if ($isCartFlow) is-active @endif"
+            class="nav-actions__link nav-actions__link--cart @if ($isCartFlow) is-active @endif"
+            aria-label="{{ __('nav.cart') }} ({{ $cartCount }})"
             @if ($isCartFlow) aria-current="page" @endif
           >
             <x-icons.cart class="nav-actions__icon" />
-            <span class="nav-actions__label">{{ __('nav.cart') }} ({{ app(\App\Services\CartService::class)->count() }})</span>
+            <span class="nav-actions__cart-badge" aria-hidden="true">{{ $cartCount }}</span>
+            <span class="nav-actions__label nav-actions__label--cart">{{ __('nav.cart') }} ({{ $cartCount }})</span>
           </a>
           @php
             $locales = ['id' => 'Indonesia', 'en' => 'English'];

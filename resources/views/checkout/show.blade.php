@@ -30,7 +30,10 @@
         $totalBeforeShipping = $taxInclusive ? $taxBase : $taxBase + $tax;
         $initialShippingCost = $useRajaOngkir ? 0 : $regions[$defaultRegion]['cost'];
 
+        $defaultPaymentMethod = old('payment_method', array_key_first($paymentMethods));
+
         $checkoutConfig = [
+            'defaultPaymentMethod' => $defaultPaymentMethod,
             'useRajaOngkir' => $useRajaOngkir,
             'regions' => $regions,
             'defaultRegion' => $defaultRegion,
@@ -246,17 +249,38 @@
             @if (count($paymentMethods) === 1)
               @php $onlyKey = array_key_first($paymentMethods); @endphp
               <input type="hidden" name="payment_method" value="{{ $onlyKey }}" />
-              <p class="confirmation-meta" style="margin-top:0">{{ $paymentMethods[$onlyKey] }}</p>
+              @if ($onlyKey === 'midtrans')
+                <x-checkout-midtrans-methods />
+              @else
+                <p class="confirmation-meta" style="margin-top:0">{{ $paymentMethods[$onlyKey] }}</p>
+              @endif
             @else
               <div class="checkout-payment-methods">
-                @php $defaultMethod = old('payment_method', array_key_first($paymentMethods)); @endphp
                 @foreach ($paymentMethods as $key => $label)
                   <label class="checkout-payment-method">
-                    <input type="radio" name="payment_method" value="{{ $key }}" {{ $defaultMethod === $key ? 'checked' : '' }} />
-                    <span>{{ $label }}</span>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="{{ $key }}"
+                      {{ $defaultPaymentMethod === $key ? 'checked' : '' }}
+                      @change="paymentMethod = $event.target.value"
+                    />
+                    <span>
+                      @if ($key === 'midtrans')
+                        <strong>{{ __('Bayar online (Midtrans)') }}</strong>
+                        <small>{{ __('Kartu, transfer bank VA, GoPay, ShopeePay, QRIS, dan lainnya') }}</small>
+                      @else
+                        {{ $label }}
+                      @endif
+                    </span>
                   </label>
                 @endforeach
               </div>
+              @if (array_key_exists('midtrans', $paymentMethods))
+                <div x-show="paymentMethod === 'midtrans'" x-cloak style="margin-top:0.75rem">
+                  <x-checkout-midtrans-methods />
+                </div>
+              @endif
               @error('payment_method')<span class="form-error">{{ $message }}</span>@enderror
             @endif
           @endif
@@ -324,6 +348,7 @@
       window.formatRp = (n) => 'Rp ' + Number(n).toLocaleString('id-ID')
 
       window.checkoutForm = (config) => ({
+        paymentMethod: config.defaultPaymentMethod || 'midtrans',
         useRajaOngkir: config.useRajaOngkir,
         regions: config.regions,
         region: config.defaultRegion,

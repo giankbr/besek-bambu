@@ -22,13 +22,22 @@ class PaymentController extends Controller
                 ->with('status', 'Online payment is currently disabled. Please follow the instructions on this page.');
         }
 
-        if (! $order->payment_token) {
+        try {
+            // Snap token expires; always mint a fresh one when opening the pay page.
             $midtrans->createSnapToken($order);
             $order->refresh();
+        } catch (\Throwable $e) {
+            Log::warning('Failed to create Midtrans snap token', [
+                'order' => $order->number,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('checkout.confirmation', $order)
+                ->with('status', __('Gagal menyiapkan pembayaran. Silakan coba lagi atau hubungi kami.'));
         }
 
         return view('checkout.pay', [
-            'order' => $order,
+            'order' => $order->load('items'),
             'snapToken' => $order->payment_token,
             'clientKey' => config('services.midtrans.client_key'),
             'isProduction' => (bool) config('services.midtrans.is_production'),
