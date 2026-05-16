@@ -24,6 +24,19 @@
         );
         $isCartFlow = request()->routeIs('cart.*', 'checkout.*', 'payment.pay');
       @endphp
+
+      <button
+        type="button"
+        class="nav-mobile__btn"
+        data-nav-mobile-toggle
+        aria-expanded="false"
+        aria-controls="nav-mobile-panel"
+        aria-label="{{ __('Menu') }}"
+      >
+        <span class="nav-mobile__icon nav-mobile__icon--menu" aria-hidden="true"><x-icons.menu /></span>
+        <span class="nav-mobile__icon nav-mobile__icon--close" aria-hidden="true"><x-icons.close /></span>
+      </button>
+
       <ul class="nav-links">
         <li>
           <a
@@ -128,24 +141,35 @@
       </div>
     </nav>
   </div>
-</header>
 
-@once
-  @push('scripts')
-    <script>
-      (function () {
-        document.addEventListener('click', function (e) {
-          document.querySelectorAll('details[data-nav-lang][open]').forEach(function (d) {
-            if (!d.contains(e.target)) d.removeAttribute('open');
-          });
-        });
-        document.addEventListener('keydown', function (e) {
-          if (e.key !== 'Escape') return;
-          document.querySelectorAll('details[data-nav-lang][open]').forEach(function (d) {
-            d.removeAttribute('open');
-          });
-        });
-      })();
-    </script>
-  @endpush
-@endonce
+  <div id="nav-mobile-panel" class="nav-mobile__panel" data-nav-mobile-panel hidden>
+    <div class="nav-mobile__head">
+      <button
+        type="button"
+        class="nav-mobile__btn nav-mobile__btn--panel"
+        data-nav-mobile-toggle
+        aria-expanded="false"
+        aria-controls="nav-mobile-panel"
+        aria-label="{{ __('nav.close_menu') }}"
+      >
+        <span class="nav-mobile__icon" aria-hidden="true"><x-icons.close /></span>
+      </button>
+    </div>
+    <nav class="nav-mobile__inner" aria-label="{{ __('Menu') }}">
+      <ul class="nav-mobile__links">
+        <li>
+          <a href="{{ route('shop.index') }}" class="@if ($isShop) is-active @endif" @if ($isShop) aria-current="page" @endif>{{ __('nav.shop') }}</a>
+        </li>
+        <li>
+          <a href="{{ route('gallery') }}" class="@if ($isGallery) is-active @endif" @if ($isGallery) aria-current="page" @endif>{{ __('nav.gallery') }}</a>
+        </li>
+        <li>
+          <a href="{{ route('about') }}" class="@if ($isAbout) is-active @endif" @if ($isAbout) aria-current="page" @endif>{{ __('nav.about') }}</a>
+        </li>
+        <li>
+          <a href="{{ route('contact') }}" class="@if ($isContact) is-active @endif" @if ($isContact) aria-current="page" @endif>{{ __('nav.contact') }}</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

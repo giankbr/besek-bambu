@@ -12,4 +12,5 @@ return [
     'login_register' => 'Login/Register',
     'cart' => 'Cart',
     'language' => 'Language',
+    'close_menu' => 'Close menu',
 ];

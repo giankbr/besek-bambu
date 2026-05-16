@@ -12,4 +12,5 @@ return [
     'login_register' => 'Login/Daftar',
     'cart' => 'Keranjang',
     'language' => 'Bahasa',
+    'close_menu' => 'Tutup menu',
 ];

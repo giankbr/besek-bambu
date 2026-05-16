@@ -79,6 +79,58 @@ const initNav = () => {
   })
 }
 
+const initMobileNav = () => {
+  const toggles = [...document.querySelectorAll('[data-nav-mobile-toggle]')]
+  const panel = document.querySelector('[data-nav-mobile-panel]')
+  if (!toggles.length || !panel) return
+
+  const isOpen = () => toggles[0].getAttribute('aria-expanded') === 'true'
+
+  const setOpen = (open) => {
+    toggles.forEach((toggle) => {
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+    })
+    panel.classList.toggle('is-open', open)
+    if (open) {
+      panel.removeAttribute('hidden')
+      document.body.classList.add('nav-mobile-open')
+    } else {
+      panel.setAttribute('hidden', '')
+      document.body.classList.remove('nav-mobile-open')
+    }
+  }
+
+  toggles.forEach((toggle) => {
+    toggle.addEventListener('click', () => setOpen(!isOpen()))
+  })
+
+  panel.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setOpen(false))
+  })
+
+  document.addEventListener('click', (e) => {
+    if (!isOpen()) return
+    if (toggles.some((toggle) => toggle.contains(e.target)) || panel.contains(e.target)) {
+      return
+    }
+    setOpen(false)
+  })
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return
+    if (isOpen()) setOpen(false)
+    document.querySelectorAll('details[data-nav-lang][open]').forEach((d) => {
+      d.removeAttribute('open')
+    })
+  })
+
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('details[data-nav-lang][open]').forEach((d) => {
+      if (!d.contains(e.target)) d.removeAttribute('open')
+    })
+  })
+}
+
 const initMegaBrandFill = () => {
   if (prefersReducedMotion()) return
 
@@ -631,6 +683,7 @@ const initPasswordToggles = () => {
 }
 
 const boot = () => {
+  initMobileNav()
   initConfirmDialog()
   initGallerySlider()
   initReviewsAutoSlider()
