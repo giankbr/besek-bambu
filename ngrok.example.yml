@@ -1,0 +1,19 @@
+# Salin ke ngrok.yml (jangan commit ngrok.yml jika berisi authtoken).
+# Jalankan: ngrok start --all
+# Dapat 2 URL: satu untuk Laravel (8000), satu untuk Vite (5173).
+#
+# .env:
+#   APP_URL=https://<url-tunnel-laravel>
+#   VITE_DEV_SERVER_URL=https://<url-tunnel-vite>
+#
+# Lalu restart: php artisan serve & npm run dev
+
+version: 3
+
+tunnels:
+  laravel:
+    addr: 8000
+    proto: http
+  vite:
+    addr: 5173
+    proto: http

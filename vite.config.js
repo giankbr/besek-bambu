@@ -1,11 +1,17 @@
 import {
-    defineConfig
+    defineConfig,
+    loadEnv,
 } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), '');
+    const devServerUrl = env.VITE_DEV_SERVER_URL?.replace(/\/$/, '');
+    const devServerOrigin = devServerUrl ? new URL(devServerUrl) : null;
+
+    return {
     plugins: [
         laravel({
             input: [
@@ -24,9 +30,25 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
         cors: true,
+        ...(devServerOrigin && {
+            origin: devServerUrl,
+            hmr: {
+                host: devServerOrigin.hostname,
+                protocol: devServerOrigin.protocol === 'https:' ? 'wss' : 'ws',
+                clientPort: devServerOrigin.port
+                    ? Number(devServerOrigin.port)
+                    : devServerOrigin.protocol === 'https:'
+                      ? 443
+                      : 80,
+            },
+        }),
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
     },
+    };
 });
