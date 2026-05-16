@@ -24,7 +24,7 @@ new #[Title('Products')] class extends Component {
     #[Computed]
     public function products()
     {
-        return Product::with('category')
+        return Product::query()
             ->when($this->search !== '', function ($q) {
                 $q->where('name', 'like', "%{$this->search}%")
                     ->orWhere('slug', 'like', "%{$this->search}%");
@@ -97,7 +97,6 @@ new #[Title('Products')] class extends Component {
         <flux:table :paginate="$this->products">
             <flux:table.columns>
                 <flux:table.column>{{ __('Name') }}</flux:table.column>
-                <flux:table.column>{{ __('Category') }}</flux:table.column>
                 <flux:table.column>{{ __('Price') }}</flux:table.column>
                 <flux:table.column>{{ __('Stock') }}</flux:table.column>
                 <flux:table.column>{{ __('Status') }}</flux:table.column>
@@ -116,7 +115,6 @@ new #[Title('Products')] class extends Component {
                                 </div>
                             </div>
                         </flux:table.cell>
-                        <flux:table.cell>{{ $product->category?->title ?? '—' }}</flux:table.cell>
                         <flux:table.cell>{{ idr($product->price) }}</flux:table.cell>
                         <flux:table.cell>{{ $product->stock }}</flux:table.cell>
                         <flux:table.cell>
@@ -150,7 +148,7 @@ new #[Title('Products')] class extends Component {
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="6" class="text-center text-zinc-500">
+                        <flux:table.cell colspan="5" class="text-center text-zinc-500">
                             {{ __('No products found.') }}
                         </flux:table.cell>
                     </flux:table.row>
