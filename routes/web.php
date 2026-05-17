@@ -36,7 +36,9 @@ Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
-Route::post('/contact', [PageController::class, 'contactSubmit'])->name('contact.submit');
+Route::post('/contact', [PageController::class, 'contactSubmit'])
+    ->middleware('throttle:5,1')
+    ->name('contact.submit');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/products/{product:slug}', [ShopController::class, 'show'])->name('shop.product');

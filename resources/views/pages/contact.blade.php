@@ -29,6 +29,12 @@
 
           <form method="post" action="{{ route('contact.submit') }}" class="contact-form">
             @csrf
+            {{-- Honeypot: hidden from humans; bots that fill it are dropped server-side. --}}
+            <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+              <label>Website
+                <input type="text" name="website" tabindex="-1" autocomplete="off" />
+              </label>
+            </div>
             <div class="checkout-row">
               <label>
                 {{ __('Nama') }}

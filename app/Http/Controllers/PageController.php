@@ -37,6 +37,12 @@ class PageController extends Controller
 
     public function contactSubmit(Request $request)
     {
+        // Honeypot: humans never see or fill the "website" field. Bots that
+        // auto-fill every input get the success page but nothing is stored.
+        if (filled($request->input('website'))) {
+            return redirect()->route('contact')->with('status', 'Thanks! We received your message and will reply soon.');
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
