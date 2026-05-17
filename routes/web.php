@@ -55,7 +55,7 @@ Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confir
     ->middleware('order.access')
     ->name('checkout.confirmation');
 
-Route::prefix('shipping')->name('shipping.')->group(function () {
+Route::prefix('shipping')->name('shipping.')->middleware('throttle:60,1')->group(function () {
     Route::get('destinations', [ShippingController::class, 'searchDestinations'])->name('destinations');
     Route::post('resolve-destination', [ShippingController::class, 'resolveDestination'])->name('resolveDestination');
     Route::get('wilayah/provinces', [ShippingController::class, 'provinces'])->name('wilayah.provinces');
