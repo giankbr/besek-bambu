@@ -59,8 +59,10 @@ new #[Title('Edit user')] class extends Component {
             $this->user->fill([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'is_admin' => (bool) $validated['is_admin'],
             ]);
+
+            // is_admin is not mass assignable.
+            $this->user->is_admin = (bool) $validated['is_admin'];
 
             if ($this->user->isDirty('email') && ! $this->verified) {
                 $this->user->email_verified_at = null;

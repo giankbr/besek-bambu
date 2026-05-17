@@ -66,7 +66,9 @@ new #[Title('Users')] class extends Component {
                 return;
             }
 
-            $user->update(['is_admin' => ! $user->is_admin]);
+            // is_admin is not mass assignable.
+            $user->is_admin = ! $user->is_admin;
+            $user->save();
 
             Flux::toast(
                 variant: 'success',

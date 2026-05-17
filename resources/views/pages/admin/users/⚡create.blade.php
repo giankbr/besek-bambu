@@ -27,13 +27,16 @@ new #[Title('New user')] class extends Component {
                 'verified' => ['boolean'],
             ]);
 
-            User::create([
+            $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => $validated['password'],
-                'is_admin' => (bool) $validated['is_admin'],
-                'email_verified_at' => $this->verified ? now() : null,
             ]);
+
+            // is_admin / email_verified_at are not mass assignable.
+            $user->is_admin = (bool) $validated['is_admin'];
+            $user->email_verified_at = $this->verified ? now() : null;
+            $user->save();
 
             Flux::toast(variant: 'success', text: __('User created.'));
             $this->redirectRoute('admin.users.index', navigate: true);
