@@ -8,6 +8,8 @@
       <h1 class="section-title page-head__title cart-title">{!! __('Halo, :name', ['name' => '<em>'.e($user->name).'</em>']) !!}</h1>
     </x-slot:heading>
 
+    <x-account-email-verification-alert :user="$user" />
+
     <div class="account-overview">
       <section class="confirmation-card account-panel account-profile-card">
         <div>

@@ -22,6 +22,28 @@ class AccountProfileTest extends TestCase
             ->assertSee('storefront-body', false);
     }
 
+    public function test_unverified_user_sees_email_verification_alert_on_profile(): void
+    {
+        $user = User::factory()->unverified()->create();
+
+        $this->actingAs($user)
+            ->get(route('account.profile'))
+            ->assertOk()
+            ->assertSee('Belum aktif', false)
+            ->assertSee('Verifikasi email Anda', false)
+            ->assertSee('Kirim ulang email verifikasi', false);
+    }
+
+    public function test_verified_user_does_not_see_email_verification_alert_on_profile(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('account.profile'))
+            ->assertOk()
+            ->assertDontSee('Belum aktif', false);
+    }
+
     public function test_account_profile_can_be_updated(): void
     {
         $user = User::factory()->create([

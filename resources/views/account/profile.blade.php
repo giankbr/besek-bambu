@@ -16,9 +16,11 @@
       <h1 class="section-title page-head__title cart-title">{!! __('Profil <em>saya</em>') !!}</h1>
     </x-slot:heading>
 
-    @if (session('status'))
+    @if (session('status') && session('status') !== 'verification-link-sent')
       <div class="cart-flash" role="status">{{ session('status') }}</div>
     @endif
+
+    <x-account-email-verification-alert :user="$user" />
 
     <section class="confirmation-card account-panel account-profile-form">
       <p class="confirmation-section-title">{{ __('Profil') }}</p>
