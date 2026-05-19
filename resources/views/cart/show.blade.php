@@ -30,33 +30,52 @@
         <div class="cart-grid">
           <ul class="cart-items">
             @foreach ($items as $item)
+              @php
+                $itemStockCap = $item->variant ? (int) $item->variant->stock : (int) $item->product->stock;
+                $itemMoq = max(1, (int) ($item->product->min_order_quantity ?? 1));
+              @endphp
               <li class="cart-item">
-                <a class="cart-item__media {{ $item->product->color_class }}" href="{{ route('shop.product', $item->product) }}">
-                  @if ($item->product->image_url)
-                    <img src="{{ image_src($item->product->image_url) }}" alt="{{ $item->product->name }}" loading="lazy" decoding="async" />
-                  @else
-                    <span class="cart-item__icon">{{ $item->product->icon }}</span>
-                  @endif
-                </a>
-                <div class="cart-item__body">
-                  <a class="cart-item__name" href="{{ route('shop.product', $item->product) }}">{{ $item->product->name }}</a>
-                  @if ($item->variant_label)
-                    <div class="cart-item__variant" style="color:#7d6f5f;font-size:0.9rem">{{ __('Ukuran:') }} <strong>{{ $item->variant_label }}</strong></div>
-                  @endif
-                  <div class="cart-item__price">
-                    {{ idr($item->unit_price) }}
-                    @if (! empty($item->tier_applied) && $item->base_price > $item->unit_price)
-                      <small style="color:#1f7a3a;display:inline-block;margin-left:6px">
-                        <s style="color:#7d6f5f">{{ idr($item->base_price) }}</s>
-                        · {{ __('Hemat') }} {{ round((1 - $item->unit_price / $item->base_price) * 100) }}%
-                      </small>
+                <div class="cart-item__main">
+                  <a class="cart-item__media {{ $item->product->color_class }}" href="{{ route('shop.product', $item->product) }}">
+                    @if ($item->product->image_url)
+                      <img src="{{ image_src($item->product->image_url) }}" alt="{{ $item->product->name }}" loading="lazy" decoding="async" />
+                    @else
+                      <span class="cart-item__icon">{{ $item->product->icon }}</span>
                     @endif
+                  </a>
+                  <div class="cart-item__body">
+                    <div class="cart-item__head">
+                      <a class="cart-item__name" href="{{ route('shop.product', $item->product) }}">{{ $item->product->name }}</a>
+                      <form
+                        method="post"
+                        action="{{ route('cart.destroy', $item->key) }}"
+                        class="cart-item__remove"
+                        data-confirm="{{ __('Produk ini akan dihapus dari keranjang Anda. Lanjutkan?') }}"
+                        data-confirm-title="{{ __('Hapus produk dari keranjang?') }}"
+                        data-confirm-ok="{{ __('Ya, hapus') }}"
+                      >
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="cart-link-btn cart-link-btn--danger">{{ __('Hapus') }}</button>
+                      </form>
+                    </div>
+                    @if ($item->variant_label)
+                      <p class="cart-item__variant">{{ __('Ukuran:') }} <strong>{{ $item->variant_label }}</strong></p>
+                    @endif
+                    <p class="cart-item__price">
+                      {{ idr($item->unit_price) }}
+                      <span class="cart-item__price-suffix">{{ __('/ item') }}</span>
+                      @if (! empty($item->tier_applied) && $item->base_price > $item->unit_price)
+                        <small class="cart-item__savings">
+                          <s>{{ idr($item->base_price) }}</s>
+                          · {{ __('Hemat') }} {{ round((1 - $item->unit_price / $item->base_price) * 100) }}%
+                        </small>
+                      @endif
+                    </p>
                   </div>
+                </div>
 
-                  @php
-                    $itemStockCap = $item->variant ? (int) $item->variant->stock : (int) $item->product->stock;
-                    $itemMoq = max(1, (int) ($item->product->min_order_quantity ?? 1));
-                  @endphp
+                <div class="cart-item__footer">
                   <form method="post" action="{{ route('cart.update', $item->key) }}" class="cart-item__qty">
                     @csrf
                     @method('PATCH')
@@ -64,6 +83,10 @@
                     <input id="qty-{{ $item->key }}" type="number" name="quantity" value="{{ $item->quantity }}" min="{{ $itemMoq }}" max="{{ max($itemMoq, $itemStockCap) }}" />
                     <button type="submit" class="cart-link-btn">{{ __('Perbarui') }}</button>
                   </form>
+                  <div class="cart-item__line">
+                    <span class="cart-item__line-label">{{ __('Subtotal') }}</span>
+                    <strong>{{ idr($item->line_total) }}</strong>
+                  </div>
                 </div>
 
                 <div class="cart-item__right">
@@ -134,8 +157,10 @@
               <span>{{ __('Total') }}</span>
               <strong>{{ idr($preTotal) }}</strong>
             </div>
-            <a class="hero-cta cart-summary__cta" href="{{ route('checkout.show') }}">{{ __('Lanjut ke checkout') }}</a>
-            <a class="cart-link-btn" href="{{ route('shop.index') }}">{{ __('Lanjut belanja') }}</a>
+            <div class="cart-summary__actions">
+              <a class="hero-cta cart-summary__cta" href="{{ route('checkout.show') }}">{{ __('Lanjut ke checkout') }}</a>
+              <a class="cart-link-btn cart-summary__continue" href="{{ route('shop.index') }}">{{ __('Lanjut belanja') }}</a>
+            </div>
           </aside>
         </div>
       @endif
