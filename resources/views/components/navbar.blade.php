@@ -165,81 +165,31 @@
       </button>
     </div>
 
-    <p class="nav-mobile__tagline">{{ $navTagline }}</p>
+    <div class="nav-mobile__inner">
+      <p class="nav-mobile__tagline">{{ $navTagline }}</p>
 
-    <nav class="nav-mobile__body" aria-label="{{ __('Menu') }}">
-      <ul class="nav-mobile__links">
-        @foreach ($mobileNavLinks as $link)
-          <li>
-            <a
-              href="{{ route($link['route']) }}"
-              class="nav-mobile__link @if ($link['active']) is-active @endif"
-              @if ($link['active']) aria-current="page" @endif
-            >
-              <span class="nav-mobile__link-label">{{ $link['label'] }}</span>
-              <span class="nav-mobile__link-arrow" aria-hidden="true">→</span>
-            </a>
-          </li>
-        @endforeach
-      </ul>
-    </nav>
-
-    <div class="nav-mobile__footer">
-      <a href="{{ route('shop.index') }}" class="nav-mobile__cta join-btn">
-        {{ __('Belanja sekarang') }} ↗
-      </a>
-
-      <div class="nav-mobile__actions" role="group" aria-label="{{ __('nav.quick_actions') }}">
-        @auth
-          <a
-            href="{{ route('account.index') }}"
-            class="nav-mobile__action @if ($isAccountArea) is-active @endif"
-            aria-label="{{ __('nav.account') }}"
-            @if ($isAccountArea) aria-current="page" @endif
-          >
-            <x-icons.user class="nav-mobile__action-icon" />
-            <span class="nav-mobile__action-label">{{ __('nav.account') }}</span>
-          </a>
-        @else
-          <a
-            href="{{ route('login') }}"
-            class="nav-mobile__action @if ($isAccountArea) is-active @endif"
-            aria-label="{{ __('nav.login_register') }}"
-            @if ($isAccountArea) aria-current="page" @endif
-          >
-            <x-icons.user class="nav-mobile__action-icon" />
-            <span class="nav-mobile__action-label">{{ __('nav.login_register') }}</span>
-          </a>
-        @endauth
-
-        <a
-          href="{{ route('cart.show') }}"
-          class="nav-mobile__action nav-mobile__action--cart @if ($isCartFlow) is-active @endif"
-          aria-label="{{ __('nav.cart') }} ({{ $cartCount }})"
-          @if ($isCartFlow) aria-current="page" @endif
-        >
-          <x-icons.cart class="nav-mobile__action-icon" />
-          @if ($cartCount > 0)
-            <span class="nav-mobile__action-badge" aria-hidden="true">{{ $cartCount }}</span>
-          @endif
-          <span class="nav-mobile__action-label">{{ __('nav.cart') }}</span>
-        </a>
-
-        <x-theme-toggle :mobile="true" />
-
-        <div class="nav-mobile__langs" role="group" aria-label="{{ __('nav.language') }}">
-          @foreach ($locales as $code => $label)
-            <a
-              href="{{ route('locale.switch', $code) }}"
-              class="nav-mobile__lang @if ($activeLocale === $code) is-active @endif"
-              lang="{{ $code }}"
-              hreflang="{{ $code }}"
-              @if ($activeLocale === $code) aria-current="true" @endif
-            >
-              {{ strtoupper($code) }}
-            </a>
+      <nav class="nav-mobile__body" aria-label="{{ __('Menu') }}">
+        <ul class="nav-mobile__links">
+          @foreach ($mobileNavLinks as $link)
+            <li>
+              <a
+                href="{{ route($link['route']) }}"
+                class="nav-mobile__link @if ($link['active']) is-active @endif"
+                @if ($link['active']) aria-current="page" @endif
+              >
+                {{ $link['label'] }}
+              </a>
+            </li>
           @endforeach
-        </div>
+        </ul>
+      </nav>
+
+      <div class="nav-mobile__bottom">
+        <a href="{{ route('shop.index') }}" class="nav-mobile__cta">
+          {{ __('Belanja sekarang') }}
+          <span class="nav-mobile__cta-icon" aria-hidden="true">↗</span>
+        </a>
+        <x-theme-toggle class="nav-mobile__theme-btn" />
       </div>
     </div>
   </div>

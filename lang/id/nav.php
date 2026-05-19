@@ -14,6 +14,7 @@ return [
     'language' => 'Bahasa',
     'close_menu' => 'Tutup menu',
     'quick_actions' => 'Aksi cepat',
+    'utilities' => 'Pengaturan',
     'theme' => 'Tema',
     'theme_dark' => 'Aktifkan mode gelap',
     'theme_light' => 'Aktifkan mode terang',
