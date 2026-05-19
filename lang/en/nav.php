@@ -13,4 +13,5 @@ return [
     'cart' => 'Cart',
     'language' => 'Language',
     'close_menu' => 'Close menu',
+    'quick_actions' => 'Quick actions',
 ];

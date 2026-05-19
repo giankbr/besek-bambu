@@ -1,30 +1,44 @@
+@php
+  $brandLogo = store_logo_url();
+  $brandName = store_name();
+  $navTagline = \Illuminate\Support\Str::limit(
+    (string) (setting('store_tagline') ?: __('Besek anyaman bambu untuk hantaran & kemasan ramah lingkungan')),
+    90,
+  );
+  $isHome = request()->routeIs('home');
+  $isShop = request()->routeIs('shop.*');
+  $isGallery = request()->routeIs('gallery');
+  $isAbout = request()->routeIs('about');
+  $isContact = request()->routeIs('contact');
+  $isAccountArea = request()->routeIs(
+    'account.*',
+    'profile.*',
+    'appearance.*',
+    'security.*',
+    'login',
+    'register',
+    'password.request',
+    'password.reset',
+    'password.confirm',
+    'verification.notice',
+    'two-factor.*',
+  );
+  $isCartFlow = request()->routeIs('cart.*', 'checkout.*', 'payment.pay');
+  $cartCount = app(\App\Services\CartService::class)->count();
+  $locales = ['id' => 'Indonesia', 'en' => 'English'];
+  $activeLocale = app()->getLocale();
+
+  $mobileNavLinks = [
+    ['route' => 'shop.index', 'label' => __('nav.shop'), 'active' => $isShop],
+    ['route' => 'gallery', 'label' => __('nav.gallery'), 'active' => $isGallery],
+    ['route' => 'about', 'label' => __('nav.about'), 'active' => $isAbout],
+    ['route' => 'contact', 'label' => __('nav.contact'), 'active' => $isContact],
+  ];
+@endphp
+
 <header class="site-header">
   <div class="container">
     <nav class="navbar">
-      @php
-        $brandLogo = store_logo_url();
-        $brandName = store_name();
-        $isHome = request()->routeIs('home');
-        $isShop = request()->routeIs('shop.*');
-        $isGallery = request()->routeIs('gallery');
-        $isAbout = request()->routeIs('about');
-        $isContact = request()->routeIs('contact');
-        $isAccountArea = request()->routeIs(
-          'account.*',
-          'profile.*',
-          'appearance.*',
-          'security.*',
-          'login',
-          'register',
-          'password.request',
-          'password.reset',
-          'password.confirm',
-          'verification.notice',
-          'two-factor.*',
-        );
-        $isCartFlow = request()->routeIs('cart.*', 'checkout.*', 'payment.pay');
-      @endphp
-
       <button
         type="button"
         class="nav-mobile__btn"
@@ -38,35 +52,17 @@
       </button>
 
       <ul class="nav-links">
-        <li>
-          <a
-            href="{{ route('shop.index') }}"
-            class="@if ($isShop) is-active @endif"
-            @if ($isShop) aria-current="page" @endif
-          >{{ __('nav.shop') }}</a>
-        </li>
-        <li>
-          <a
-            href="{{ route('gallery') }}"
-            class="@if ($isGallery) is-active @endif"
-            @if ($isGallery) aria-current="page" @endif
-          >{{ __('nav.gallery') }}</a>
-        </li>
-        <li>
-          <a
-            href="{{ route('about') }}"
-            class="@if ($isAbout) is-active @endif"
-            @if ($isAbout) aria-current="page" @endif
-          >{{ __('nav.about') }}</a>
-        </li>
-        <li>
-          <a
-            href="{{ route('contact') }}"
-            class="@if ($isContact) is-active @endif"
-            @if ($isContact) aria-current="page" @endif
-          >{{ __('nav.contact') }}</a>
-        </li>
+        @foreach ($mobileNavLinks as $link)
+          <li>
+            <a
+              href="{{ route($link['route']) }}"
+              class="@if ($link['active']) is-active @endif"
+              @if ($link['active']) aria-current="page" @endif
+            >{{ $link['label'] }}</a>
+          </li>
+        @endforeach
       </ul>
+
       <a
         class="logo @if ($isHome) is-active @endif"
         href="{{ route('home') }}"
@@ -79,6 +75,7 @@
           {{ \Illuminate\Support\Str::lower($brandName) }}
         @endif
       </a>
+
       <div class="nav-actions">
         <div class="nav-actions__cluster">
           @auth
@@ -102,7 +99,6 @@
               <span class="nav-actions__label">{{ __('nav.login_register') }}</span>
             </a>
           @endauth
-          @php $cartCount = app(\App\Services\CartService::class)->count(); @endphp
           <a
             href="{{ route('cart.show') }}"
             class="nav-actions__link nav-actions__link--cart @if ($isCartFlow) is-active @endif"
@@ -113,10 +109,6 @@
             <span class="nav-actions__cart-badge" aria-hidden="true">{{ $cartCount }}</span>
             <span class="nav-actions__label nav-actions__label--cart">{{ __('nav.cart') }} ({{ $cartCount }})</span>
           </a>
-          @php
-            $locales = ['id' => 'Indonesia', 'en' => 'English'];
-            $activeLocale = app()->getLocale();
-          @endphp
           <details class="nav-lang" data-nav-lang>
             <summary class="nav-lang__toggle" aria-label="{{ __('nav.language') }}">
               <x-icons.globe class="nav-lang__icon" />
@@ -142,8 +134,24 @@
     </nav>
   </div>
 
-  <div id="nav-mobile-panel" class="nav-mobile__panel" data-nav-mobile-panel hidden>
+  <div
+    id="nav-mobile-panel"
+    class="nav-mobile__panel"
+    data-nav-mobile-panel
+    hidden
+  >
     <div class="nav-mobile__head">
+      <a
+        href="{{ route('home') }}"
+        class="nav-mobile__brand"
+        @if ($isHome) aria-current="page" @endif
+      >
+        @if ($brandLogo)
+          <img src="{{ $brandLogo }}" alt="" class="sf-brand-logo" width="120" height="32" />
+        @else
+          <span class="nav-mobile__brand-text">{{ \Illuminate\Support\Str::lower($brandName) }}</span>
+        @endif
+      </a>
       <button
         type="button"
         class="nav-mobile__btn nav-mobile__btn--panel"
@@ -155,21 +163,81 @@
         <span class="nav-mobile__icon" aria-hidden="true"><x-icons.close /></span>
       </button>
     </div>
-    <nav class="nav-mobile__inner" aria-label="{{ __('Menu') }}">
+
+    <p class="nav-mobile__tagline">{{ $navTagline }}</p>
+
+    <nav class="nav-mobile__body" aria-label="{{ __('Menu') }}">
       <ul class="nav-mobile__links">
-        <li>
-          <a href="{{ route('shop.index') }}" class="@if ($isShop) is-active @endif" @if ($isShop) aria-current="page" @endif>{{ __('nav.shop') }}</a>
-        </li>
-        <li>
-          <a href="{{ route('gallery') }}" class="@if ($isGallery) is-active @endif" @if ($isGallery) aria-current="page" @endif>{{ __('nav.gallery') }}</a>
-        </li>
-        <li>
-          <a href="{{ route('about') }}" class="@if ($isAbout) is-active @endif" @if ($isAbout) aria-current="page" @endif>{{ __('nav.about') }}</a>
-        </li>
-        <li>
-          <a href="{{ route('contact') }}" class="@if ($isContact) is-active @endif" @if ($isContact) aria-current="page" @endif>{{ __('nav.contact') }}</a>
-        </li>
+        @foreach ($mobileNavLinks as $link)
+          <li>
+            <a
+              href="{{ route($link['route']) }}"
+              class="nav-mobile__link @if ($link['active']) is-active @endif"
+              @if ($link['active']) aria-current="page" @endif
+            >
+              <span class="nav-mobile__link-label">{{ $link['label'] }}</span>
+              <span class="nav-mobile__link-arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        @endforeach
       </ul>
     </nav>
+
+    <div class="nav-mobile__footer">
+      <a href="{{ route('shop.index') }}" class="nav-mobile__cta join-btn">
+        {{ __('Belanja sekarang') }} ↗
+      </a>
+
+      <div class="nav-mobile__actions" role="group" aria-label="{{ __('nav.quick_actions') }}">
+        @auth
+          <a
+            href="{{ route('account.index') }}"
+            class="nav-mobile__action @if ($isAccountArea) is-active @endif"
+            aria-label="{{ __('nav.account') }}"
+            @if ($isAccountArea) aria-current="page" @endif
+          >
+            <x-icons.user class="nav-mobile__action-icon" />
+            <span class="nav-mobile__action-label">{{ __('nav.account') }}</span>
+          </a>
+        @else
+          <a
+            href="{{ route('login') }}"
+            class="nav-mobile__action @if ($isAccountArea) is-active @endif"
+            aria-label="{{ __('nav.login_register') }}"
+            @if ($isAccountArea) aria-current="page" @endif
+          >
+            <x-icons.user class="nav-mobile__action-icon" />
+            <span class="nav-mobile__action-label">{{ __('nav.login_register') }}</span>
+          </a>
+        @endauth
+
+        <a
+          href="{{ route('cart.show') }}"
+          class="nav-mobile__action nav-mobile__action--cart @if ($isCartFlow) is-active @endif"
+          aria-label="{{ __('nav.cart') }} ({{ $cartCount }})"
+          @if ($isCartFlow) aria-current="page" @endif
+        >
+          <x-icons.cart class="nav-mobile__action-icon" />
+          @if ($cartCount > 0)
+            <span class="nav-mobile__action-badge" aria-hidden="true">{{ $cartCount }}</span>
+          @endif
+          <span class="nav-mobile__action-label">{{ __('nav.cart') }}</span>
+        </a>
+
+        <div class="nav-mobile__langs" role="group" aria-label="{{ __('nav.language') }}">
+          @foreach ($locales as $code => $label)
+            <a
+              href="{{ route('locale.switch', $code) }}"
+              class="nav-mobile__lang @if ($activeLocale === $code) is-active @endif"
+              lang="{{ $code }}"
+              hreflang="{{ $code }}"
+              @if ($activeLocale === $code) aria-current="true" @endif
+            >
+              {{ strtoupper($code) }}
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </div>
   </div>
 </header>

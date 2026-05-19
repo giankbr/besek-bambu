@@ -13,4 +13,5 @@ return [
     'cart' => 'Keranjang',
     'language' => 'Bahasa',
     'close_menu' => 'Tutup menu',
+    'quick_actions' => 'Aksi cepat',
 ];
