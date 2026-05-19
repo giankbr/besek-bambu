@@ -477,31 +477,29 @@
         @endauth
         </div>
       </section>
-    </section>
 
-    @if ($related->count() > 0)
-      <section class="section container">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">{{ __('Anda mungkin juga suka') }}</div>
-            <div class="section-title">{!! __('Produk <em>terkait</em>') !!}</div>
+      @if ($related->count() > 0)
+        <section class="product-related" aria-labelledby="product-related-heading">
+          <header class="product-related__header">
+            <p class="eyebrow">{{ __('Anda mungkin juga suka') }}</p>
+            <h2 class="section-title" id="product-related-heading">{!! __('Produk <em>terkait</em>') !!}</h2>
+          </header>
+          <div class="grid-4 product-related__grid">
+            @foreach ($related as $r)
+              <a class="product {{ $r->color_class }}" href="{{ route('shop.product', $r) }}">
+                <div class="product-img">{{ $r->icon }}</div>
+                <div class="product-name">{{ $r->name }}</div>
+                <div class="product-stars">{{ str_repeat('★', $r->rating) }}{{ str_repeat('☆', 5 - $r->rating) }}</div>
+                <div class="product-foot">
+                  <span class="product-price">{{ idr($r->price) }}</span>
+                  <span class="add-btn">{{ __('Lihat') }}</span>
+                </div>
+              </a>
+            @endforeach
           </div>
-        </div>
-        <div class="grid-4">
-          @foreach ($related as $r)
-            <a class="product {{ $r->color_class }}" href="{{ route('shop.product', $r) }}">
-              <div class="product-img">{{ $r->icon }}</div>
-              <div class="product-name">{{ $r->name }}</div>
-              <div class="product-stars">{{ str_repeat('★', $r->rating) }}{{ str_repeat('☆', 5 - $r->rating) }}</div>
-              <div class="product-foot">
-                <span class="product-price">{{ idr($r->price) }}</span>
-                <span class="add-btn">{{ __('Lihat') }}</span>
-              </div>
-            </a>
-          @endforeach
-        </div>
-      </section>
-    @endif
+        </section>
+      @endif
+    </section>
 
     <x-site-footer />
   </main>
