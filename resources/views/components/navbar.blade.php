@@ -109,6 +109,7 @@
             <span class="nav-actions__cart-badge" aria-hidden="true">{{ $cartCount }}</span>
             <span class="nav-actions__label nav-actions__label--cart">{{ __('nav.cart') }} ({{ $cartCount }})</span>
           </a>
+          <x-theme-toggle />
           <details class="nav-lang" data-nav-lang>
             <summary class="nav-lang__toggle" aria-label="{{ __('nav.language') }}">
               <x-icons.globe class="nav-lang__icon" />
@@ -223,6 +224,8 @@
           @endif
           <span class="nav-mobile__action-label">{{ __('nav.cart') }}</span>
         </a>
+
+        <x-theme-toggle :mobile="true" />
 
         <div class="nav-mobile__langs" role="group" aria-label="{{ __('nav.language') }}">
           @foreach ($locales as $code => $label)

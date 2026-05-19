@@ -14,4 +14,7 @@ return [
     'language' => 'Language',
     'close_menu' => 'Close menu',
     'quick_actions' => 'Quick actions',
+    'theme' => 'Theme',
+    'theme_dark' => 'Enable dark mode',
+    'theme_light' => 'Enable light mode',
 ];

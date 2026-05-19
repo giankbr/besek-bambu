@@ -83,6 +83,69 @@ const initNav = () => {
   })
 }
 
+const THEME_STORAGE_KEY = 'besek-theme'
+
+const resolveTheme = (stored) => {
+  if (stored === 'dark' || stored === 'light') return stored
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+const getStoredTheme = () => {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
+const setStoredTheme = (theme) => {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+  } catch {
+    /* ignore */
+  }
+}
+
+const applyTheme = (theme) => {
+  const isDark = theme === 'dark'
+  document.documentElement.setAttribute('data-theme', theme)
+
+  const themeColor = isDark ? '#0c100e' : '#ffffff'
+  document
+    .querySelectorAll('meta[name="theme-color"]')
+    .forEach((meta) => meta.setAttribute('content', themeColor))
+
+  document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', isDark ? 'true' : 'false')
+    btn.setAttribute(
+      'aria-label',
+      isDark ? btn.dataset.labelLight : btn.dataset.labelDark,
+    )
+    btn.querySelector('.nav-theme__icon--moon')?.toggleAttribute('hidden', isDark)
+    btn.querySelector('.nav-theme__icon--sun')?.toggleAttribute('hidden', !isDark)
+  })
+}
+
+const initThemeToggle = () => {
+  const toggles = document.querySelectorAll('[data-theme-toggle]')
+  if (!toggles.length) return
+
+  applyTheme(resolveTheme(getStoredTheme()))
+
+  toggles.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+      setStoredTheme(next)
+      applyTheme(next)
+    })
+  })
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+    if (getStoredTheme()) return
+    applyTheme(event.matches ? 'dark' : 'light')
+  })
+}
+
 const initMobileNav = () => {
   const toggles = [...document.querySelectorAll('[data-nav-mobile-toggle]')]
   const panel = document.querySelector('[data-nav-mobile-panel]')
@@ -801,6 +864,7 @@ const initPasswordToggles = () => {
 }
 
 const boot = () => {
+  initThemeToggle()
   initMobileNav()
   initConfirmDialog()
   initGallerySlider()
