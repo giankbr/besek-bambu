@@ -1,5 +1,5 @@
 <x-mail::message>
-# {{ __('Halo, :name!', ['name' => $user->name]) }}
+# {{ mail_greeting($user->name) }}
 
 {{ __('Email Anda (:email) sudah berhasil diverifikasi. Akun Besek Bambu Anda sekarang aktif.', ['email' => $user->email]) }}
 

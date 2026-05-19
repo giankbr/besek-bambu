@@ -1,5 +1,5 @@
 <x-mail::message>
-# Thanks for your order, {{ $order->customer_name }}!
+# {{ mail_greeting($order->customer_name) }}
 
 We've received your order **{{ $order->number }}**. Here's a summary:
 

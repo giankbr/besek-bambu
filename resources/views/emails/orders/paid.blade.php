@@ -1,5 +1,5 @@
 <x-mail::message>
-# Payment received — thank you, {{ $order->customer_name }}!
+# {{ mail_greeting($order->customer_name) }}
 
 We've received your payment for order **{{ $order->number }}** ({{ idr($order->total) }}).
 

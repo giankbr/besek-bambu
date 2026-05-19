@@ -23,7 +23,9 @@ class FortifyResponseProvider extends ServiceProvider
                 $user = $request->user();
                 $target = $user && $user->is_admin ? route('dashboard') : route('account.index');
 
-                return redirect()->intended($target);
+                return redirect()
+                    ->intended($target)
+                    ->with('status', __('Berhasil masuk. Selamat datang kembali, :name!', ['name' => $user->name]));
             }
         });
 

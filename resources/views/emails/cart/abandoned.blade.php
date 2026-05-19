@@ -1,5 +1,5 @@
 <x-mail::message>
-# Forgot something, {{ $user->name }}?
+# {{ mail_greeting($user->name) }}
 
 You left {{ $items->count() }} item{{ $items->count() === 1 ? '' : 's' }} in your cart at **{{ store_name() }}**. They're still waiting for you.
 

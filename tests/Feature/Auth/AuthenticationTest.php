@@ -29,7 +29,8 @@ class AuthenticationTest extends TestCase
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('account.index', absolute: false));
+            ->assertRedirect(route('account.index', absolute: false))
+            ->assertSessionHas('status');
 
         $this->assertAuthenticated();
     }
@@ -43,7 +44,8 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ])
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('dashboard', absolute: false));
+            ->assertRedirect(route('dashboard', absolute: false))
+            ->assertSessionHas('status');
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

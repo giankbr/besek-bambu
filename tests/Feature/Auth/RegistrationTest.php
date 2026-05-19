@@ -3,7 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
@@ -45,6 +45,10 @@ class RegistrationTest extends TestCase
 
         $user = User::query()->where('email', 'test@example.com')->first();
         $this->assertNotNull($user);
-        Notification::assertSentTo($user, VerifyEmail::class);
+        Notification::assertSentTo($user, VerifyEmail::class, function (VerifyEmail $notification) use ($user) {
+            $mail = $notification->toMail($user);
+
+            return $mail->greeting === mail_greeting($user->name);
+        });
     }
 }

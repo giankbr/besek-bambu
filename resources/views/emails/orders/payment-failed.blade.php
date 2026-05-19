@@ -1,11 +1,5 @@
 <x-mail::message>
-# @if ($reason === 'expired')
-Payment window expired
-@else
-Payment could not be completed
-@endif
-
-Hi {{ $order->customer_name }},
+# {{ mail_greeting($order->customer_name) }}
 
 @if ($reason === 'expired')
 The payment window for order **{{ $order->number }}** ({{ idr($order->total) }}) has expired. Your order is not confirmed yet.

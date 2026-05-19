@@ -16,10 +16,6 @@
       <h1 class="section-title page-head__title cart-title">{!! __('Wishlist <em>saya</em>') !!}</h1>
     </x-slot:heading>
 
-    @if (session('status'))
-      <div class="cart-flash" role="status">{{ session('status') }}</div>
-    @endif
-
     <section class="confirmation-card account-panel account-orders-panel">
       <div class="account-section-head">
         <div>

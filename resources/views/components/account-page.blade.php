@@ -17,6 +17,10 @@
       <x-account-nav :active="$active" />
 
       <div class="account-main">
+        @if (session('status') && session('status') !== 'verification-link-sent')
+          <div class="cart-flash" role="status">{{ session('status') }}</div>
+        @endif
+
         {{ $slot }}
       </div>
     </div>

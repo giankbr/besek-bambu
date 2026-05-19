@@ -1,7 +1,5 @@
 <x-mail::message>
-# Your order has been delivered
-
-Hi {{ $order->customer_name }},
+# {{ mail_greeting($order->customer_name) }}
 
 Order **{{ $order->number }}** was marked as delivered. We hope you love it!
 

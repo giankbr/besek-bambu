@@ -18,6 +18,13 @@ if (! function_exists('setting')) {
     }
 }
 
+if (! function_exists('mail_greeting')) {
+    function mail_greeting(string $name): string
+    {
+        return __('Halo, :name!', ['name' => $name]);
+    }
+}
+
 if (! function_exists('store_name')) {
     function store_name(): string
     {

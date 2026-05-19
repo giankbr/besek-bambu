@@ -1,7 +1,5 @@
 <x-mail::message>
-# Your order was cancelled
-
-Hi {{ $order->customer_name }},
+# {{ mail_greeting($order->customer_name) }}
 
 Order **{{ $order->number }}** has been cancelled.
 

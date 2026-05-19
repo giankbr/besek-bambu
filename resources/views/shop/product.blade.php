@@ -404,7 +404,7 @@
       </div>
     </section>
 
-    <section class="section container">
+    <section class="section container product-reviews">
       <div class="section-head">
         <div>
           <div class="eyebrow">{{ __('Ulasan pelanggan') }}</div>
@@ -413,12 +413,10 @@
       </div>
 
       @if (session('status'))
-        <div class="confirmation-card" style="margin-bottom:1rem;background:#eef7ee">
-          <p class="confirmation-meta" style="margin:0">{{ session('status') }}</p>
-        </div>
+        <div class="product-reviews__flash cart-flash" role="status">{{ session('status') }}</div>
       @endif
 
-      <div class="reviews-grid">
+      <div @class(['product-reviews__layout', 'product-reviews__layout--with-form' => auth()->check() && $canReview])>
         <div class="reviews-list">
           @forelse ($reviews as $review)
             <article class="review-card">
@@ -433,16 +431,16 @@
               </div>
             </article>
           @empty
-            <p class="confirmation-meta">{{ __('Belum ada ulasan. Jadilah yang pertama mengulas produk ini!') }}</p>
+            <p class="product-reviews__empty confirmation-meta">{{ __('Belum ada ulasan. Jadilah yang pertama mengulas produk ini!') }}</p>
           @endforelse
         </div>
 
-        <aside class="review-form-aside">
-          @auth
-            @if ($canReview)
+        @auth
+          @if ($canReview)
+            <aside class="product-reviews__aside">
               <form method="post" action="{{ route('reviews.store', $product) }}" class="review-form confirmation-card">
                 @csrf
-                <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Tulis ulasan') }}</h3>
+                <h3 class="confirmation-section-title product-reviews__form-title">{{ __('Tulis ulasan') }}</h3>
                 <label class="review-form__label">
                   {{ __('Rating') }}
                   <select name="rating" required>
@@ -464,22 +462,22 @@
                 </label>
                 <button type="submit" class="hero-cta">{{ __('Kirim ulasan') }}</button>
               </form>
-            @elseif ($hasReviewed)
-              <div class="confirmation-card">
-                <p class="confirmation-meta" style="margin:0">{{ __('Terima kasih — Anda sudah mengulas produk ini.') }}</p>
-              </div>
-            @else
-              <div class="confirmation-card">
-                <p class="confirmation-meta" style="margin:0">{{ __('Hanya pelanggan yang membeli produk ini yang dapat memberi ulasan.') }}</p>
-              </div>
-            @endif
-          @else
-            <div class="confirmation-card">
-              <p class="confirmation-meta">{{ __('Ingin memberi ulasan?') }}</p>
-              <a class="cart-link-btn" href="{{ route('login') }}">{{ __('Masuk ke akun Anda') }}</a>
+            </aside>
+          @elseif ($hasReviewed)
+            <div class="product-reviews__notice confirmation-card" role="status">
+              <p class="confirmation-meta">{{ __('Terima kasih — Anda sudah mengulas produk ini.') }}</p>
             </div>
-          @endauth
-        </aside>
+          @else
+            <div class="product-reviews__notice confirmation-card" role="status">
+              <p class="confirmation-meta">{{ __('Hanya pelanggan yang membeli produk ini yang dapat memberi ulasan.') }}</p>
+            </div>
+          @endif
+        @else
+          <div class="product-reviews__notice confirmation-card product-reviews__notice--cta">
+            <p class="confirmation-meta">{{ __('Ingin memberi ulasan?') }}</p>
+            <a class="cart-link-btn" href="{{ route('login') }}">{{ __('Masuk ke akun Anda') }}</a>
+          </div>
+        @endauth
       </div>
     </section>
 

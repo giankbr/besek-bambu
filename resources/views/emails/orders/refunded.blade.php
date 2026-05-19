@@ -1,7 +1,5 @@
 <x-mail::message>
-# Refund processed
-
-Hi {{ $order->customer_name }},
+# {{ mail_greeting($order->customer_name) }}
 
 We've processed a refund for order **{{ $order->number }}** ({{ idr($order->total) }}).
 

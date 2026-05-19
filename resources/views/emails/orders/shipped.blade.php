@@ -1,7 +1,5 @@
 <x-mail::message>
-# Your order is on its way
-
-Hi {{ $order->customer_name }},
+# {{ mail_greeting($order->customer_name) }}
 
 Good news — order **{{ $order->number }}** has been handed over to the courier and is on its way to you.
 
