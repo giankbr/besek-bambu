@@ -402,22 +402,19 @@
           </div>
         </div>
       </div>
-    </section>
 
-    <section class="section container product-reviews">
-      <div class="section-head">
-        <div>
-          <div class="eyebrow">{{ __('Ulasan pelanggan') }}</div>
-          <div class="section-title">{!! __('Apa kata <em>pembeli</em>') !!}</div>
-        </div>
-      </div>
+      <section class="product-reviews" aria-labelledby="product-reviews-heading">
+        <header class="product-reviews__header">
+          <p class="eyebrow">{{ __('Ulasan pelanggan') }}</p>
+          <h2 class="section-title" id="product-reviews-heading">{!! __('Apa kata <em>pembeli</em>') !!}</h2>
+        </header>
 
-      @if (session('status'))
-        <div class="product-reviews__flash cart-flash" role="status">{{ session('status') }}</div>
-      @endif
+        @if (session('status'))
+          <div class="product-reviews__flash cart-flash" role="status">{{ session('status') }}</div>
+        @endif
 
-      <div @class(['product-reviews__layout', 'product-reviews__layout--with-form' => auth()->check() && $canReview])>
-        <div class="reviews-list">
+        <div @class(['product-reviews__layout', 'product-reviews__layout--with-form' => auth()->check() && $canReview])>
+          <div class="reviews-list">
           @forelse ($reviews as $review)
             <article class="review-card">
               <div class="product-stars">{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</div>
@@ -478,7 +475,8 @@
             <a class="cart-link-btn" href="{{ route('login') }}">{{ __('Masuk ke akun Anda') }}</a>
           </div>
         @endauth
-      </div>
+        </div>
+      </section>
     </section>
 
     @if ($related->count() > 0)
