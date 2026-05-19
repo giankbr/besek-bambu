@@ -20,6 +20,7 @@ const initScrollReveal = () => {
   blocks.forEach((el) => {
     if (
       el.hasAttribute('data-collage-section') ||
+      el.hasAttribute('data-gallery-slider') ||
       el.querySelector(':scope .grid-4, :scope .cat-grid')
     ) {
       return
@@ -514,6 +515,9 @@ const initMicroInteractions = () => {
 }
 
 const initGallerySlider = () => {
+  const canHoverPause = () =>
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
   const mount = (root) => {
     const track = root.querySelector('[data-gallery-track]')
     const prev = root.querySelector('[data-gallery-prev]')
@@ -524,19 +528,17 @@ const initGallerySlider = () => {
     const cards = [...track.querySelectorAll(':scope > .gallery-card')]
     if (cards.length === 0) return
 
-    root.dataset.gallerySliderMounted = '1'
-
-    const behavior = () => (prefersReducedMotion() ? 'auto' : 'smooth')
-    const canAutoPlay = !prefersReducedMotion() && cards.length > 1
+    const isScrollable = () => track.scrollWidth > track.clientWidth + 8
     const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth)
+    const canAutoPlay = cards.length > 1
 
-    const scrollToCard = (card) => {
+    const scrollToCard = (card, instant = false) => {
       const trackRect = track.getBoundingClientRect()
       const cardRect = card.getBoundingClientRect()
-      const nextLeft = track.scrollLeft + (cardRect.left - trackRect.left)
+      const targetLeft = track.scrollLeft + (cardRect.left - trackRect.left)
       track.scrollTo({
-        left: Math.min(maxScroll(), Math.max(0, nextLeft)),
-        behavior: behavior(),
+        left: Math.min(maxScroll(), Math.max(0, targetLeft)),
+        behavior: instant || prefersReducedMotion() ? 'auto' : 'smooth',
       })
     }
 
@@ -559,27 +561,22 @@ const initGallerySlider = () => {
       idx = best
     }
 
-    const goToIndex = (i) => {
+    const goToIndex = (i, instant = false) => {
       const card = cards[i]
       if (!card) return
-      scrollToCard(card)
+      scrollToCard(card, instant)
     }
 
     const step = () => {
-      if (cards.length < 2) return
-      const atEnd = track.scrollLeft >= maxScroll() - 6
-      if (atEnd) {
-        idx = 0
-        track.scrollTo({ left: 0, behavior: behavior() })
-        return
-      }
+      if (!isScrollable()) return
       idx = (idx + 1) % cards.length
-      goToIndex(idx)
+      goToIndex(idx, true)
     }
 
     const start = () => {
-      if (!canAutoPlay || timerId || paused || !inView) return
-      timerId = window.setInterval(step, 5000)
+      if (!canAutoPlay || !isScrollable() || timerId || paused || !inView) return
+      step()
+      timerId = window.setInterval(step, 4000)
     }
 
     const stop = () => {
@@ -614,15 +611,22 @@ const initGallerySlider = () => {
     )
 
     const setInViewFromRect = () => {
-      const r = root.getBoundingClientRect()
+      const r = track.getBoundingClientRect()
       return r.bottom > 0 && r.top < window.innerHeight
     }
 
-    const syncInView = () => {
+    const syncPlayback = () => {
+      if (!canAutoPlay) return
+      if (!isScrollable()) {
+        stop()
+        return
+      }
       inView = setInViewFromRect()
       if (inView && !paused) start()
       else stop()
     }
+
+    root.__gallerySyncPlayback = syncPlayback
 
     if (canAutoPlay) {
       const io = new IntersectionObserver(
@@ -631,23 +635,16 @@ const initGallerySlider = () => {
           if (inView && !paused) start()
           else stop()
         },
-        { threshold: 0.12, rootMargin: '0px 0px 10% 0px' },
+        { threshold: 0.01, rootMargin: '40px 0px 40px 0px' },
       )
-      io.observe(root)
-
-      window.setTimeout(() => {
-        if (!timerId && !paused && setInViewFromRect()) {
-          inView = true
-          start()
-        }
-      }, 900)
+      io.observe(track)
 
       let resizeT = null
       window.addEventListener(
         'resize',
         () => {
           window.clearTimeout(resizeT)
-          resizeT = window.setTimeout(syncInView, 150)
+          resizeT = window.setTimeout(syncPlayback, 150)
         },
         { passive: true },
       )
@@ -658,16 +655,13 @@ const initGallerySlider = () => {
       }
       const resume = () => {
         paused = false
-        inView = setInViewFromRect()
-        if (inView) start()
+        syncPlayback()
       }
 
-      root.addEventListener('pointerenter', pause)
-      root.addEventListener('pointerleave', resume)
-      root.addEventListener('focusin', pause)
-      root.addEventListener('focusout', (event) => {
-        if (!root.contains(event.relatedTarget)) resume()
-      })
+      if (canHoverPause()) {
+        root.addEventListener('mouseenter', pause)
+        root.addEventListener('mouseleave', resume)
+      }
 
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
@@ -677,11 +671,26 @@ const initGallerySlider = () => {
         if (inView && !paused) start()
       })
     }
+
+    root.dataset.gallerySliderMounted = '1'
+    syncPlayback()
+    window.setTimeout(syncPlayback, 400)
+    window.setTimeout(syncPlayback, 1500)
   }
 
-  document.querySelectorAll('[data-gallery-slider]').forEach((root) => {
-    mount(root)
-  })
+  const run = () => {
+    document.querySelectorAll('[data-gallery-slider]').forEach((root) => {
+      if (root.dataset.gallerySliderMounted === '1') {
+        root.__gallerySyncPlayback?.()
+        return
+      }
+      mount(root)
+    })
+  }
+
+  run()
+  window.requestAnimationFrame(() => window.requestAnimationFrame(run))
+  window.addEventListener('load', run, { once: true })
 }
 
 const init = () => {
