@@ -341,7 +341,7 @@ const initReviewsAutoSlider = () => {
 
     const start = () => {
       if (timerId || paused || !inView) return
-      timerId = window.setInterval(step, 5200)
+      timerId = window.setInterval(step, 3200)
     }
 
     const stop = () => {
@@ -576,7 +576,7 @@ const initGallerySlider = () => {
     const start = () => {
       if (!canAutoPlay || !isScrollable() || timerId || paused || !inView) return
       step()
-      timerId = window.setInterval(step, 4000)
+      timerId = window.setInterval(step, 2800)
     }
 
     const stop = () => {
