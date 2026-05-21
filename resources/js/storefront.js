@@ -87,7 +87,7 @@ const THEME_STORAGE_KEY = 'besek-theme'
 
 const resolveTheme = (stored) => {
   if (stored === 'dark' || stored === 'light') return stored
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'light'
 }
 
 const getStoredTheme = () => {
@@ -140,10 +140,6 @@ const initThemeToggle = () => {
     })
   })
 
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
-    if (getStoredTheme()) return
-    applyTheme(event.matches ? 'dark' : 'light')
-  })
 }
 
 const initMobileNav = () => {
