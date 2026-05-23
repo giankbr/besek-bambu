@@ -88,19 +88,19 @@ if (! function_exists('whatsapp_digits')) {
 
         $social = trim((string) setting('social_whatsapp'));
 
-        if ($social === '') {
-            return null;
+        if ($social !== '') {
+            if (preg_match('#wa\.me/(\d+)#i', $social, $matches)) {
+                return $matches[1];
+            }
+
+            if (preg_match('#phone=(\d+)#i', $social, $matches)) {
+                return $matches[1];
+            }
         }
 
-        if (preg_match('#wa\.me/(\d+)#i', $social, $matches)) {
-            return $matches[1];
-        }
+        $envDigits = preg_replace('/\D+/', '', (string) config('store.whatsapp_number', ''));
 
-        if (preg_match('#phone=(\d+)#i', $social, $matches)) {
-            return $matches[1];
-        }
-
-        return null;
+        return $envDigits !== '' ? $envDigits : null;
     }
 }
 

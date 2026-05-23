@@ -205,7 +205,7 @@
     "Importing…": "Mengimpor…",
     "Instagram URL": "URL Instagram",
     "Internal notes": "Catatan internal",
-    "International format without + or spaces. Powers the floating WhatsApp button and per-product Tanya/Order CTA. Falls back to Phone above if blank.": "Format internasional tanpa + atau spasi. Menggerakkan tombol WhatsApp mengambang dan CTA Tanya/Order per produk. Memakai Telepon di atas jika kosong.",
+    "International format without + or spaces. Powers the floating WhatsApp button and per-product Tanya/Order CTA. Falls back to Phone above if blank.": "Format internasional tanpa + atau spasi. Menggerakkan tombol WhatsApp mengambang dan CTA Tanya/Order per produk. Memakai Telepon di atas jika kosong, atau variabel WHATSAPP_NUMBER di .env.",
     "Invalid URL": "URL tidak valid",
     "Invalid file.": "Berkas tidak valid.",
     "Invalid status.": "Status tidak valid.",
