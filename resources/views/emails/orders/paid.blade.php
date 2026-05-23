@@ -1,14 +1,14 @@
 <x-mail::message>
 # {{ mail_greeting($order->customer_name) }}
 
-We've received your payment for order **{{ $order->number }}** ({{ idr($order->total) }}).
+{!! __('Pembayaran untuk pesanan <strong>:num</strong> (:total) telah kami terima.', ['num' => e($order->number), 'total' => e(idr($order->total))]) !!}
 
-{{ __('You will receive a separate email when we start processing your order.') }}
+{{ __('Tim kami mulai menyiapkan pesanan Anda.') }}
 
 <x-mail::button :url="order_signed_url('checkout.confirmation', $order)">
-View order details
+{{ __('Lihat detail pesanan') }}
 </x-mail::button>
 
-Thanks,<br>
+{{ __('Terima kasih,') }}<br>
 {{ store_name() }}
 </x-mail::message>

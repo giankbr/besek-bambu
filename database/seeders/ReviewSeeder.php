@@ -10,11 +10,11 @@ class ReviewSeeder extends Seeder
     public function run(): void
     {
         $rows = [
-            ['quote' => 'Our sustainable bamboo utensils are perfect for daily use!', 'author_name' => 'Mira Aldine', 'author_role' => 'Home Cook', 'is_featured' => false],
-            ['quote' => "Besek's glass jars are awesome for storage, and the bamboo utensils are perfect for daily use!", 'author_name' => 'Jane Cooper', 'author_role' => 'Nutritionist', 'is_featured' => false],
-            ['quote' => 'Fantastic products and fast delivery. My kitchen feels so much greener!', 'author_name' => 'Darlene Robertson', 'author_role' => 'Culinary Instructor', 'is_featured' => true],
-            ['quote' => "Love Besek's eco-style! Glass jars keep things fresh, and bamboo utensils are so chic.", 'author_name' => 'Jacob Jones', 'author_role' => 'Food Blogger', 'is_featured' => false],
-            ['quote' => 'The sustainable bamboo utensils are perfect for daily use.', 'author_name' => 'Esther Howard', 'author_role' => 'Sous Chef', 'is_featured' => false],
+            ['quote' => 'Anyamannya rapi dan kuat. Pas untuk hampers dan seserahan.', 'author_name' => 'Mira Aldine', 'author_role' => 'Pembeli rumahan', 'is_featured' => false],
+            ['quote' => 'Pesan untuk acara kantor, semua tamu suka. Wangi bambu alami, tidak ada bahan kimia.', 'author_name' => 'Jane Cooper', 'author_role' => 'Event organizer', 'is_featured' => false],
+            ['quote' => 'Pengiriman cepat, besek sampai dalam kondisi baik. Akan pesan lagi untuk Lebaran.', 'author_name' => 'Darlene Robertson', 'author_role' => 'Pemilik UMKM', 'is_featured' => true],
+            ['quote' => 'Ukuran pas untuk packing kue kering. Harga grosirnya juga masuk akal.', 'author_name' => 'Jacob Jones', 'author_role' => 'Pemilik toko oleh-oleh', 'is_featured' => false],
+            ['quote' => 'Sudah beberapa kali repeat order. Kualitas anyaman konsisten.', 'author_name' => 'Esther Howard', 'author_role' => 'Pelanggan tetap', 'is_featured' => false],
         ];
 
         foreach ($rows as $i => $row) {

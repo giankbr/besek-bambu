@@ -46,7 +46,7 @@
           </div>
           <div class="account-order-row__right">
             <strong>{{ idr($order->total) }}</strong>
-            <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">{{ ucfirst($order->payment_status) }}</span>
+            <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">{{ payment_status_label($order->payment_status) }}</span>
           </div>
         </div>
       @empty

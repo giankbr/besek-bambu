@@ -8,7 +8,7 @@
   <p class="commitment" data-collage-commitment>
     {{ __('Komitmen kami pada') }}
     <img class="inline-img" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=200&q=80" alt="" />
-    {!! __('<em>bambu berkualitas</em>, anyaman tangan pengrajin, dan <em>mitra lokal</em> — demi wadah yang sehat untuk makanan dan') !!}
+    {!! __('<em>bambu berkualitas</em>, anyaman tangan pengrajin, dan <em>mitra lokal</em>, demi wadah aman untuk makanan dan') !!}
     <img class="inline-img" src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=200&q=80" alt="" />
     {!! __('<em>tradisi yang tetap hidup.</em>') !!}
   </p>

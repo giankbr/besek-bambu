@@ -203,3 +203,35 @@ if (! function_exists('order_signed_url')) {
         );
     }
 }
+
+if (! function_exists('order_status_label')) {
+    /**
+     * Label status pesanan dalam Bahasa Indonesia (bukan nilai teknis Inggris).
+     */
+    function order_status_label(string $status): string
+    {
+        return match ($status) {
+            'pending' => __('Menunggu'),
+            'paid' => __('Sedang diproses'),
+            'shipped' => __('Dikirim'),
+            'delivered' => __('Sampai'),
+            'cancelled' => __('Dibatalkan'),
+            default => ucfirst($status),
+        };
+    }
+}
+
+if (! function_exists('payment_status_label')) {
+    function payment_status_label(string $status): string
+    {
+        return match ($status) {
+            'unpaid' => __('Belum dibayar'),
+            'pending' => __('Menunggu pembayaran'),
+            'paid' => __('Lunas'),
+            'failed' => __('Gagal'),
+            'expired' => __('Kedaluwarsa'),
+            'refunded' => __('Dikembalikan'),
+            default => ucfirst($status),
+        };
+    }
+}

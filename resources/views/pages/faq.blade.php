@@ -7,7 +7,7 @@
   $faqs = [
     [
       'q' => __('Bagaimana produk Anda dibuat?'),
-      'a' => __('Setiap produk dianyam tangan oleh pengrajin di Yogyakarta dari bambu yang dipanen secara alami. Produksi memakan waktu 2–7 hari per item, tergantung ukuran dan kerumitan.'),
+      'a' => __('Setiap produk dianyam tangan oleh pengrajin di Magetan, Jawa Timur, dari bambu yang dipanen secara alami. Produksi memakan waktu 2–7 hari per item, tergantung ukuran dan kerumitan.'),
     ],
     [
       'q' => __('Bagaimana cara merawat besek saya?'),
@@ -15,7 +15,7 @@
     ],
     [
       'q' => __('Metode pembayaran apa saja yang diterima?'),
-      'a' => __('Kami menerima semua kartu kredit utama, transfer bank (BCA, BNI, Mandiri, Permata), e-wallet (GoPay, OVO, ShopeePay), dan QRIS — diproses aman via Midtrans.'),
+      'a' => __('Kami menerima kartu kredit/debit, transfer bank (BCA, BNI, Mandiri, Permata), e-wallet (GoPay, OVO, ShopeePay), dan QRIS. Pembayaran dilayani secara aman melalui Midtrans.'),
     ],
     [
       'q' => __('Berapa lama pengiriman?'),
@@ -23,15 +23,15 @@
     ],
     [
       'q' => __('Bisakah saya mengembalikan produk?'),
-      'a' => __('Ya — kami menerima pengembalian dalam 14 hari setelah barang diterima untuk produk yang belum dipakai dan dalam kondisi asli. Pesanan custom tidak dapat dikembalikan.'),
+      'a' => __('Ya, kami menerima pengembalian dalam 14 hari setelah barang diterima untuk produk yang belum dipakai dan dalam kondisi asli. Pesanan custom tidak dapat dikembalikan.'),
     ],
     [
       'q' => __('Apakah ada harga grosir?'),
-      'a' => __('Tentu! Hubungi kami untuk pesanan 25 buah atau lebih — kami senang bekerja sama dengan restoran, peritel, dan event planner.'),
+      'a' => __('Tentu. Hubungi kami untuk pesanan 25 buah atau lebih. Kami siap melayani UMKM, toko oleh-oleh, hampers, dan penyelenggara acara.'),
     ],
     [
       'q' => __('Apakah produk Anda aman untuk makanan?'),
-      'a' => __('Ya. Kami tidak memakai pernis, pewarna, atau bahan finishing. Bambu dicuci, dikeringkan, dan dianyam — tidak ada yang lain.'),
+      'a' => __('Ya. Kami tidak memakai pernis, pewarna, atau bahan finishing. Bambu dicuci, dikeringkan, dan dianyam tanpa bahan kimia tambahan.'),
     ],
   ];
 @endphp

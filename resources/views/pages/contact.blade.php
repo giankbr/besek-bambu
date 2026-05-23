@@ -69,7 +69,7 @@
         <aside class="contact-side">
           @if ($contactAddress)
             <div class="confirmation-card">
-              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Workshop') }}</h3>
+              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Lokasi kami') }}</h3>
               @foreach (preg_split('/\r\n|\r|\n/', $contactAddress) as $line)
                 @if (trim($line) !== '')
                   <p class="confirmation-meta">{{ $line }}</p>
@@ -78,7 +78,7 @@
             </div>
           @else
             <div class="confirmation-card">
-              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Workshop') }}</h3>
+              <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Lokasi kami') }}</h3>
               <p class="confirmation-meta">Tunggur, Lembeyan, Magetan</p>
               <p class="confirmation-meta">Jawa Timur 63372</p>
             </div>

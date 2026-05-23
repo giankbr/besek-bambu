@@ -18,7 +18,7 @@ class OrderPaid extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Payment received: '.$this->order->number,
+            subject: __('Pembayaran diterima: :number', ['number' => $this->order->number]),
         );
     }
 

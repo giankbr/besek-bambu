@@ -110,7 +110,7 @@
               </label>
               <label class="checkout-payment-method">
                 <input type="radio" name="checkout_mode" value="pickup" x-model="mode" />
-                <span><strong>🏪 {{ __('Ambil sendiri di workshop') }}</strong><small>{{ __('Gratis — ambil di lokasi kami') }}</small></span>
+                <span><strong>🏪 {{ __('Ambil sendiri di lokasi kami') }}</strong><small>{{ __('Gratis, ambil di lokasi kami') }}</small></span>
               </label>
             </div>
           @endif

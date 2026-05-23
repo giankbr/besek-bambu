@@ -20,8 +20,8 @@
 
       <div class="confirmation-card">
         <div class="confirmation-status">
-          <span class="stock-pill stock-pill--in">{{ __('Pesanan:') }} {{ ucfirst($order->status) }}</span>
-          <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">{{ __('Pembayaran:') }} {{ ucfirst($order->payment_status) }}</span>
+          <span class="stock-pill stock-pill--in">{{ __('Pesanan:') }} {{ order_status_label($order->status) }}</span>
+          <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">{{ __('Pembayaran:') }} {{ payment_status_label($order->payment_status) }}</span>
           @if ($order->payment_method)
             <span class="stock-pill stock-pill--in">{{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</span>
           @endif
@@ -115,8 +115,8 @@
             <span>{{ $order->shipped_at?->format('M d, Y · H:i') ?? ($order->status === 'shipped' ? __('Pesanan Anda sedang dalam perjalanan') : '—') }}</span>
           </li>
           <li class="order-timeline__step {{ $order->status === 'delivered' ? 'is-done' : '' }}">
-            <strong>{{ __('Terkirim') }}</strong>
-            <span>{{ $order->delivered_at?->format('M d, Y · H:i') ?? ($order->status === 'delivered' ? __('Selamat menikmati pembelian Anda!') : '—') }}</span>
+            <strong>{{ __('Sampai') }}</strong>
+            <span>{{ $order->delivered_at?->format('M d, Y · H:i') ?? ($order->status === 'delivered' ? __('Pesanan telah sampai di tujuan.') : '—') }}</span>
           </li>
         </ol>
       </div>

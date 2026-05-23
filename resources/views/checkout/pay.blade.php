@@ -82,7 +82,7 @@
           </div>
           <p class="confirmation-meta payment-page__status">
             <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">
-              {{ __('Pembayaran:') }} {{ ucfirst($order->payment_status) }}
+              {{ __('Pembayaran:') }} {{ payment_status_label($order->payment_status) }}
             </span>
           </p>
         </aside>

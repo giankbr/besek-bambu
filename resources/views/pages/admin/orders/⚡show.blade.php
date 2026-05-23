@@ -239,7 +239,7 @@ new #[Title('Order detail')] class extends Component {
                     <form wire:submit="updateStatus" class="mt-3 flex flex-col gap-3">
                         <flux:select wire:model="status">
                             @foreach (\App\Models\Order::STATUSES as $s)
-                                <flux:select.option value="{{ $s }}">{{ ucfirst($s) }}</flux:select.option>
+                                <flux:select.option value="{{ $s }}">{{ order_status_label($s) }}</flux:select.option>
                             @endforeach
                         </flux:select>
                         <flux:button type="submit" variant="primary">{{ __('Update status') }}</flux:button>
@@ -264,7 +264,7 @@ new #[Title('Order detail')] class extends Component {
                                 wire:model="tracking_number"
                                 :label="__('AWB / Resi number')"
                                 placeholder="e.g. JNE0123456789"
-                                description="{{ __(':courier · setting this auto-marks the order as shipped', ['courier' => strtoupper($order->shipping_courier)]) }}"
+                                description="{{ __('Menyimpan nomor resi akan menandai pesanan sebagai dikirim (:courier).', ['courier' => strtoupper($order->shipping_courier)]) }}"
                             />
                             <div class="flex flex-wrap gap-2">
                                 <flux:button type="submit" variant="primary" size="sm">{{ __('Save') }}</flux:button>
@@ -331,7 +331,7 @@ new #[Title('Order detail')] class extends Component {
                         @endphp
                         <div class="flex items-center justify-between">
                             <flux:text class="text-zinc-500">{{ __('Status') }}</flux:text>
-                            <flux:badge :color="$payColor" size="sm">{{ ucfirst($order->payment_status) }}</flux:badge>
+                            <flux:badge :color="$payColor" size="sm">{{ payment_status_label($order->payment_status) }}</flux:badge>
                         </div>
                         @if ($order->payment_method)
                             <div class="flex items-center justify-between">

@@ -200,7 +200,7 @@
               default => '',
             };
           @endphp
-          <span class="pill {{ $payClass }}">{{ ucfirst($order->payment_status) }}</span>
+          <span class="pill {{ $payClass }}">{{ payment_status_label($order->payment_status) }}</span>
         </div>
       </div>
     </header>

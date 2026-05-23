@@ -211,13 +211,13 @@ new #[Title('Orders')] class extends Component {
             <flux:select wire:model.live="statusFilter">
                 <flux:select.option value="">{{ __('All statuses') }}</flux:select.option>
                 @foreach ($this->statuses() as $status)
-                    <flux:select.option value="{{ $status }}">{{ ucfirst($status) }}</flux:select.option>
+                    <flux:select.option value="{{ $status }}">{{ order_status_label($status) }}</flux:select.option>
                 @endforeach
             </flux:select>
             <flux:select wire:model.live="paymentFilter">
                 <flux:select.option value="">{{ __('All payments') }}</flux:select.option>
                 @foreach ($this->paymentStatuses() as $payment)
-                    <flux:select.option value="{{ $payment }}">{{ ucfirst($payment) }}</flux:select.option>
+                    <flux:select.option value="{{ $payment }}">{{ payment_status_label($payment) }}</flux:select.option>
                 @endforeach
             </flux:select>
             <flux:input
@@ -249,7 +249,7 @@ new #[Title('Orders')] class extends Component {
                 <flux:select wire:model="bulkStatus" placeholder="{{ __('Set status to…') }}" class="max-w-xs">
                     <flux:select.option value="">{{ __('Set status to…') }}</flux:select.option>
                     @foreach ($this->statuses() as $status)
-                        <flux:select.option value="{{ $status }}">{{ ucfirst($status) }}</flux:select.option>
+                        <flux:select.option value="{{ $status }}">{{ order_status_label($status) }}</flux:select.option>
                     @endforeach
                 </flux:select>
                 <flux:button
@@ -310,7 +310,7 @@ new #[Title('Orders')] class extends Component {
                                     default => 'zinc',
                                 };
                             @endphp
-                            <flux:badge :color="$color" size="sm">{{ ucfirst($order->status) }}</flux:badge>
+                            <flux:badge :color="$color" size="sm">{{ order_status_label($order->status) }}</flux:badge>
                         </flux:table.cell>
                         <flux:table.cell>
                             @php
@@ -323,7 +323,7 @@ new #[Title('Orders')] class extends Component {
                                     default => 'zinc',
                                 };
                             @endphp
-                            <flux:badge :color="$payColor" size="sm">{{ ucfirst($order->payment_status) }}</flux:badge>
+                            <flux:badge :color="$payColor" size="sm">{{ payment_status_label($order->payment_status) }}</flux:badge>
                         </flux:table.cell>
                         <flux:table.cell>{{ $order->created_at->diffForHumans() }}</flux:table.cell>
                         <flux:table.cell>

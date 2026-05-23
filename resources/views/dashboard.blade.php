@@ -76,7 +76,7 @@
                                 @php
                                     $color = $order->isPaid() ? 'green' : ($order->payment_status === 'pending' ? 'amber' : 'zinc');
                                 @endphp
-                                <flux:badge :color="$color" size="sm">{{ ucfirst($order->payment_status) }}</flux:badge>
+                                <flux:badge :color="$color" size="sm">{{ payment_status_label($order->payment_status) }}</flux:badge>
                             </div>
                         </a>
                     @empty

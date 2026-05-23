@@ -55,9 +55,9 @@
           <p class="confirmation-meta">{{ $order->shipping_address }}</p>
 
           <div class="confirmation-status">
-            <span class="stock-pill stock-pill--in">{{ __('Pesanan:') }} {{ ucfirst($order->status) }}</span>
+            <span class="stock-pill stock-pill--in">{{ __('Pesanan:') }} {{ order_status_label($order->status) }}</span>
             <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">
-              {{ __('Pembayaran:') }} {{ ucfirst($order->payment_status) }}
+              {{ __('Pembayaran:') }} {{ payment_status_label($order->payment_status) }}
             </span>
             @if ($order->payment_method && $order->payment_method !== 'midtrans')
               <span class="stock-pill stock-pill--in">{{ __('Metode:') }} {{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</span>

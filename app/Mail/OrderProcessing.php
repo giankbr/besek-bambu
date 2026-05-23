@@ -18,7 +18,7 @@ class OrderProcessing extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('Order being processed: :number', ['number' => $this->order->number]),
+            subject: __('Pesanan sedang diproses: :number', ['number' => $this->order->number]),
         );
     }
 

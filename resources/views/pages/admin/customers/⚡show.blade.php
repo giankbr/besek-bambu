@@ -194,7 +194,7 @@ new #[Title('Customer detail')] class extends Component {
                                                 default => 'zinc',
                                             };
                                         @endphp
-                                        <flux:badge :color="$color" size="sm">{{ ucfirst($order->status) }}</flux:badge>
+                                        <flux:badge :color="$color" size="sm">{{ order_status_label($order->status) }}</flux:badge>
                                     </flux:table.cell>
                                     <flux:table.cell>
                                         @php
@@ -207,7 +207,7 @@ new #[Title('Customer detail')] class extends Component {
                                                 default => 'zinc',
                                             };
                                         @endphp
-                                        <flux:badge :color="$payColor" size="sm">{{ ucfirst($order->payment_status) }}</flux:badge>
+                                        <flux:badge :color="$payColor" size="sm">{{ payment_status_label($order->payment_status) }}</flux:badge>
                                     </flux:table.cell>
                                     <flux:table.cell>{{ $order->created_at->format('M d, Y') }}</flux:table.cell>
                                     <flux:table.cell>

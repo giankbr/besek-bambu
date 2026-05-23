@@ -295,7 +295,7 @@ new #[Title('New manual order')] class extends Component {
                                 <flux:select wire:model.live="items.{{ $i }}.product_id" placeholder="{{ __('— Custom item —') }}">
                                     @foreach ($this->productOptions as $p)
                                         <flux:select.option value="{{ $p->id }}">
-                                            {{ $p->icon }} {{ $p->name }} — {{ idr($p->price) }} ({{ $p->stock }} stk)
+                                            {{ $p->icon }} {{ $p->name }} — {{ idr($p->price) }} ({{ $p->stock }} {{ __('buah') }})
                                         </flux:select.option>
                                     @endforeach
                                 </flux:select>
@@ -336,12 +336,12 @@ new #[Title('New manual order')] class extends Component {
                 <div class="mt-4 grid gap-3 md:grid-cols-3">
                     <flux:select wire:model="status" :label="__('Order status')">
                         @foreach (\App\Models\Order::STATUSES as $s)
-                            <flux:select.option value="{{ $s }}">{{ ucfirst($s) }}</flux:select.option>
+                            <flux:select.option value="{{ $s }}">{{ order_status_label($s) }}</flux:select.option>
                         @endforeach
                     </flux:select>
                     <flux:select wire:model="payment_status" :label="__('Payment status')">
                         @foreach (\App\Models\Order::PAYMENT_STATUSES as $s)
-                            <flux:select.option value="{{ $s }}">{{ ucfirst($s) }}</flux:select.option>
+                            <flux:select.option value="{{ $s }}">{{ order_status_label($s) }}</flux:select.option>
                         @endforeach
                     </flux:select>
                     <flux:input wire:model="payment_method" :label="__('Payment method')" placeholder="cash, bank, qris…" />

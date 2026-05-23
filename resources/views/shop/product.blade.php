@@ -462,7 +462,7 @@
             </aside>
           @elseif ($hasReviewed)
             <div class="product-reviews__notice confirmation-card" role="status">
-              <p class="confirmation-meta">{{ __('Terima kasih — Anda sudah mengulas produk ini.') }}</p>
+              <p class="confirmation-meta">{{ __('Terima kasih, Anda sudah mengulas produk ini.') }}</p>
             </div>
           @else
             <div class="product-reviews__notice confirmation-card" role="status">
