@@ -79,8 +79,8 @@
           @else
             <div class="confirmation-card">
               <h3 class="confirmation-section-title" style="margin-top:0">{{ __('Workshop') }}</h3>
-              <p class="confirmation-meta">Jl. Kasongan, Bantul</p>
-              <p class="confirmation-meta">Yogyakarta, Indonesia 55184</p>
+              <p class="confirmation-meta">Tunggur, Lembeyan, Magetan</p>
+              <p class="confirmation-meta">Jawa Timur 63372</p>
             </div>
           @endif
 
