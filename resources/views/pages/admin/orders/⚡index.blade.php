@@ -86,6 +86,11 @@ new #[Title('Orders')] class extends Component {
         $this->selected = array_values(array_diff($this->selected, $this->pageIds));
     }
 
+    public function confirmBulkUpdateStatus(): void
+    {
+        Flux::modal('bulk-update-orders')->show();
+    }
+
     public function bulkUpdateStatus(): void
     {
         try {
@@ -103,8 +108,10 @@ new #[Title('Orders')] class extends Component {
             $this->selected = [];
             $this->bulkStatus = '';
 
+            Flux::modal('bulk-update-orders')->close();
             Flux::toast(variant: 'success', text: __(':count order(s) updated.', ['count' => $count]));
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Flux::modal('bulk-update-orders')->close();
             Flux::toast(
                 variant: 'danger',
                 heading: __('Failed to update'),
@@ -112,6 +119,7 @@ new #[Title('Orders')] class extends Component {
             );
             throw $e;
         } catch (\Throwable $e) {
+            Flux::modal('bulk-update-orders')->close();
             Flux::toast(
                 variant: 'danger',
                 heading: __('Failed to update'),
@@ -248,8 +256,7 @@ new #[Title('Orders')] class extends Component {
                     size="sm"
                     variant="primary"
                     icon="check"
-                    wire:click="bulkUpdateStatus"
-                    wire:confirm="{{ __('Apply status to all selected orders?') }}"
+                    wire:click="confirmBulkUpdateStatus"
                 >
                     {{ __('Apply') }}
                 </flux:button>
@@ -341,4 +348,12 @@ new #[Title('Orders')] class extends Component {
             </flux:table.rows>
         </flux:table>
     </div>
+
+    <x-admin.confirm-modal
+        name="bulk-update-orders"
+        :title="__('Apply status to all selected orders?')"
+        :confirm="__('Apply')"
+        variant="primary"
+        action="bulkUpdateStatus"
+    />
 </section>

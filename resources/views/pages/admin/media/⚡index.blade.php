@@ -27,6 +27,8 @@ new #[Title('Media library')] class extends Component {
 
     public string $editingAlt = '';
 
+    public ?int $deletingId = null;
+
     public function updatedSearch(): void { $this->resetPage(); }
     public function updatedTypeFilter(): void { $this->resetPage(); }
 
@@ -139,10 +141,20 @@ new #[Title('Media library')] class extends Component {
         }
     }
 
-    public function delete(int $id): void
+    public function confirmDelete(int $id): void
     {
+        $this->deletingId = $id;
+        Flux::modal('delete-media')->show();
+    }
+
+    public function delete(): void
+    {
+        if (! $this->deletingId) {
+            return;
+        }
+
         try {
-            $media = Media::findOrFail($id);
+            $media = Media::findOrFail($this->deletingId);
 
             if (Storage::disk($media->disk)->exists($media->path)) {
                 Storage::disk($media->disk)->delete($media->path);
@@ -150,12 +162,16 @@ new #[Title('Media library')] class extends Component {
 
             $media->delete();
 
-            if ($this->editingId === $id) {
+            if ($this->editingId === $this->deletingId) {
                 $this->cancelEdit();
             }
 
+            $this->deletingId = null;
+            Flux::modal('delete-media')->close();
             Flux::toast(variant: 'success', text: __('Media deleted.'));
+            unset($this->items);
         } catch (\Throwable $e) {
+            Flux::modal('delete-media')->close();
             Flux::toast(variant: 'danger', heading: __('Failed to delete'), text: $e->getMessage());
         }
     }
@@ -265,8 +281,7 @@ new #[Title('Media library')] class extends Component {
                                     size="xs"
                                     variant="ghost"
                                     icon="trash"
-                                    wire:click="delete({{ $media->id }})"
-                                    wire:confirm="{{ __('Delete this file? It will also be removed from disk.') }}"
+                                    wire:click="confirmDelete({{ $media->id }})"
                                 />
                             </div>
                         @endif
@@ -277,4 +292,10 @@ new #[Title('Media library')] class extends Component {
             <div>{{ $this->items->links() }}</div>
         @endif
     </div>
+
+    <x-admin.confirm-modal
+        name="delete-media"
+        :title="__('Delete this file? It will also be removed from disk.')"
+        action="delete"
+    />
 </section>

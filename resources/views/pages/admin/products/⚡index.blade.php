@@ -157,18 +157,10 @@ new #[Title('Products')] class extends Component {
         </flux:table>
     </div>
 
-    <flux:modal name="delete-product" class="md:w-96">
-        <div class="space-y-6">
-            <div>
-                <flux:heading size="lg">{{ __('Delete product?') }}</flux:heading>
-                <flux:subheading>{{ __('This action cannot be undone.') }}</flux:subheading>
-            </div>
-            <div class="flex justify-end gap-2">
-                <flux:modal.close>
-                    <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                </flux:modal.close>
-                <flux:button variant="danger" wire:click="delete">{{ __('Delete') }}</flux:button>
-            </div>
-        </div>
-    </flux:modal>
+    <x-admin.confirm-modal
+        name="delete-product"
+        :title="__('Delete product?')"
+        :description="__('This action cannot be undone.')"
+        action="delete"
+    />
 </section>

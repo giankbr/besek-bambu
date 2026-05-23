@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Mail\OrderPaid;
 use App\Mail\OrderPaymentFailed;
+use App\Mail\OrderProcessing;
 use App\Mail\OrderRefunded;
 use App\Models\Order;
 use Illuminate\Mail\Mailable;
@@ -240,6 +241,10 @@ class MidtransService
 
             if ($becamePaid) {
                 $this->sendCustomerMail($orderForMail, new OrderPaid($orderForMail));
+
+                if ($orderForMail->status === 'paid') {
+                    $this->sendCustomerMail($orderForMail, new OrderProcessing($orderForMail));
+                }
             } elseif ($becameExpired) {
                 $this->sendCustomerMail($orderForMail, new OrderPaymentFailed($orderForMail, 'expired'));
             } elseif ($becameFailed) {

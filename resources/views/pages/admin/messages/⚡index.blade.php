@@ -19,6 +19,8 @@ new #[Title('Messages')] class extends Component {
 
     public ?int $openedId = null;
 
+    public ?int $deletingId = null;
+
     public function updatedSearch(): void { $this->resetPage(); }
     public function updatedStateFilter(): void { $this->resetPage(); }
 
@@ -54,15 +56,30 @@ new #[Title('Messages')] class extends Component {
         }
     }
 
-    public function delete(int $id): void
+    public function confirmDelete(int $id): void
     {
+        $this->deletingId = $id;
+        Flux::modal('delete-message')->show();
+    }
+
+    public function delete(): void
+    {
+        if (! $this->deletingId) {
+            return;
+        }
+
         try {
+            $id = $this->deletingId;
             ContactMessage::where('id', $id)->delete();
             if ($this->openedId === $id) {
                 $this->openedId = null;
             }
+            $this->deletingId = null;
+            Flux::modal('delete-message')->close();
             Flux::toast(variant: 'success', text: __('Message deleted.'));
+            unset($this->messages, $this->opened);
         } catch (\Throwable $e) {
+            Flux::modal('delete-message')->close();
             Flux::toast(
                 variant: 'danger',
                 heading: __('Failed to delete'),
@@ -135,8 +152,7 @@ new #[Title('Messages')] class extends Component {
                                             size="sm"
                                             variant="ghost"
                                             icon="trash"
-                                            wire:click="delete({{ $message->id }})"
-                                            wire:confirm="{{ __('Delete this message?') }}"
+                                            wire:click="confirmDelete({{ $message->id }})"
                                         />
                                     </div>
                                 </flux:table.cell>
@@ -182,4 +198,11 @@ new #[Title('Messages')] class extends Component {
             </div>
         </div>
     </div>
+
+    <x-admin.confirm-modal
+        name="delete-message"
+        :title="__('Delete this message?')"
+        :description="__('This action cannot be undone.')"
+        action="delete"
+    />
 </section>

@@ -18,7 +18,7 @@ class OrderShipped extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your order is on its way — '.$this->order->number,
+            subject: 'Your order is on its way: '.$this->order->number,
         );
     }
 

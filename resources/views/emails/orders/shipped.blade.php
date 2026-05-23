@@ -1,7 +1,7 @@
 <x-mail::message>
 # {{ mail_greeting($order->customer_name) }}
 
-Good news — order **{{ $order->number }}** has been handed over to the courier and is on its way to you.
+Good news! Order **{{ $order->number }}** has been handed over to the courier and is on its way to you.
 
 @if ($order->shipping_courier)
 **Courier:** {{ strtoupper($order->shipping_courier) }} {{ $order->shipping_service }}

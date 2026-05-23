@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderPlaced extends Mailable
+class OrderProcessing extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -18,14 +18,14 @@ class OrderPlaced extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Order received: '.$this->order->number,
+            subject: __('Order being processed: :number', ['number' => $this->order->number]),
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.orders.placed',
+            markdown: 'emails.orders.processing',
             with: ['order' => $this->order],
         );
     }

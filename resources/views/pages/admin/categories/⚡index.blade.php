@@ -111,18 +111,10 @@ new #[Title('Categories')] class extends Component {
         </flux:table>
     </div>
 
-    <flux:modal name="delete-category" class="md:w-96">
-        <div class="space-y-6">
-            <div>
-                <flux:heading size="lg">{{ __('Delete category?') }}</flux:heading>
-                <flux:subheading>{{ __('Products in this category will be unassigned, not deleted.') }}</flux:subheading>
-            </div>
-            <div class="flex justify-end gap-2">
-                <flux:modal.close>
-                    <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                </flux:modal.close>
-                <flux:button variant="danger" wire:click="delete">{{ __('Delete') }}</flux:button>
-            </div>
-        </div>
-    </flux:modal>
+    <x-admin.confirm-modal
+        name="delete-category"
+        :title="__('Delete category?')"
+        :description="__('Products in this category will be unassigned, not deleted.')"
+        action="delete"
+    />
 </section>

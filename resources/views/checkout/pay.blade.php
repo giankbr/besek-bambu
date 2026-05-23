@@ -28,7 +28,7 @@
         <div class="payment-page__main">
           <div class="payment-panel">
             <p class="payment-panel__lead">
-              {!! __('Pesanan :num — total :total', ['num' => '<strong>'.e($order->number).'</strong>', 'total' => '<strong>'.idr($order->total).'</strong>']) !!}
+              {!! __('Pesanan :num, total :total', ['num' => '<strong>'.e($order->number).'</strong>', 'total' => '<strong>'.idr($order->total).'</strong>']) !!}
             </p>
 
             <x-checkout-midtrans-methods />

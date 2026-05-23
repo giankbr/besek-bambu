@@ -42,6 +42,12 @@ new #[Title('Edit Product')] class extends Component {
     public array $variants = [];
     public array $tiers = [];
 
+    public ?string $confirmAction = null;
+
+    public ?int $confirmIndex = null;
+
+    public ?int $confirmImageId = null;
+
     public function mount(Product $product): void
     {
         $this->product = $product;
@@ -93,6 +99,56 @@ new #[Title('Edit Product')] class extends Component {
             'min_quantity' => $nextMin,
             'unit_price' => (string) (float) $this->price,
         ];
+    }
+
+    #[Computed]
+    public function confirmTitle(): string
+    {
+        return match ($this->confirmAction) {
+            'variant' => __('Delete this variant?'),
+            'tier' => __('Delete this tier?'),
+            'image' => __('Remove this image?'),
+            default => '',
+        };
+    }
+
+    public function confirmRemoveVariant(int $index): void
+    {
+        $this->confirmAction = 'variant';
+        $this->confirmIndex = $index;
+        $this->confirmImageId = null;
+        Flux::modal('product-edit-confirm')->show();
+    }
+
+    public function confirmRemoveTier(int $index): void
+    {
+        $this->confirmAction = 'tier';
+        $this->confirmIndex = $index;
+        $this->confirmImageId = null;
+        Flux::modal('product-edit-confirm')->show();
+    }
+
+    public function confirmDeleteImage(int $imageId): void
+    {
+        $this->confirmAction = 'image';
+        $this->confirmImageId = $imageId;
+        $this->confirmIndex = null;
+        Flux::modal('product-edit-confirm')->show();
+    }
+
+    public function applyConfirm(): void
+    {
+        match ($this->confirmAction) {
+            'variant' => $this->removeVariant($this->confirmIndex ?? -1),
+            'tier' => $this->removeTier($this->confirmIndex ?? -1),
+            'image' => $this->deleteImage($this->confirmImageId ?? 0),
+            default => null,
+        };
+
+        $this->confirmAction = null;
+        $this->confirmIndex = null;
+        $this->confirmImageId = null;
+        Flux::modal('product-edit-confirm')->close();
     }
 
     public function removeTier(int $index): void
@@ -537,7 +593,7 @@ new #[Title('Edit Product')] class extends Component {
                             <flux:checkbox wire:model="variants.{{ $i }}.is_default" :label="__('Default')" />
                         </div>
                         <div class="md:col-span-1 flex items-center gap-2">
-                            <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="removeVariant({{ $i }})" wire:confirm="{{ __('Delete this variant?') }}" />
+                            <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="confirmRemoveVariant({{ $i }})" />
                         </div>
                     </div>
                 @endforeach
@@ -572,7 +628,7 @@ new #[Title('Edit Product')] class extends Component {
                             @error("tiers.$i.unit_price")<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
                         </div>
                         <div class="md:col-span-2 flex items-center justify-end">
-                            <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="removeTier({{ $i }})" wire:confirm="{{ __('Delete this tier?') }}" />
+                            <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="confirmRemoveTier({{ $i }})" />
                         </div>
                     </div>
                 @endforeach
@@ -605,7 +661,7 @@ new #[Title('Edit Product')] class extends Component {
                             @else
                                 <flux:badge color="green" size="sm">{{ __('Primary') }}</flux:badge>
                             @endif
-                            <flux:button size="xs" variant="ghost" icon="trash" wire:click="deleteImage({{ $img->id }})" wire:confirm="{{ __('Remove this image?') }}" />
+                            <flux:button size="xs" variant="ghost" icon="trash" wire:click="confirmDeleteImage({{ $img->id }})" />
                         </div>
                     </div>
                 @endforeach
@@ -624,4 +680,11 @@ new #[Title('Edit Product')] class extends Component {
             </form>
         </div>
     </div>
+
+    <x-admin.confirm-modal
+        name="product-edit-confirm"
+        :title="$this->confirmTitle"
+        :description="__('This action cannot be undone.')"
+        action="applyConfirm"
+    />
 </section>

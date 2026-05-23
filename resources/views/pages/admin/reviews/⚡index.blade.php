@@ -17,6 +17,8 @@ new #[Title('Reviews')] class extends Component {
     #[Url(as: 'state', except: '')]
     public string $stateFilter = '';
 
+    public ?int $deletingId = null;
+
     public function updatedSearch(): void { $this->resetPage(); }
     public function updatedStateFilter(): void { $this->resetPage(); }
 
@@ -55,12 +57,26 @@ new #[Title('Reviews')] class extends Component {
         }
     }
 
-    public function delete(int $id): void
+    public function confirmDelete(int $id): void
     {
+        $this->deletingId = $id;
+        Flux::modal('delete-review')->show();
+    }
+
+    public function delete(): void
+    {
+        if (! $this->deletingId) {
+            return;
+        }
+
         try {
-            ProductReview::where('id', $id)->delete();
+            ProductReview::where('id', $this->deletingId)->delete();
+            $this->deletingId = null;
+            Flux::modal('delete-review')->close();
             Flux::toast(variant: 'success', text: __('Review deleted.'));
+            unset($this->reviews);
         } catch (\Throwable $e) {
+            Flux::modal('delete-review')->close();
             Flux::toast(
                 variant: 'danger',
                 heading: __('Failed to delete'),
@@ -148,8 +164,7 @@ new #[Title('Reviews')] class extends Component {
                                     size="sm"
                                     variant="ghost"
                                     icon="trash"
-                                    wire:click="delete({{ $review->id }})"
-                                    wire:confirm="{{ __('Delete this review?') }}"
+                                    wire:click="confirmDelete({{ $review->id }})"
                                 />
                             </div>
                         </flux:table.cell>
@@ -164,4 +179,11 @@ new #[Title('Reviews')] class extends Component {
             </flux:table.rows>
         </flux:table>
     </div>
+
+    <x-admin.confirm-modal
+        name="delete-review"
+        :title="__('Delete this review?')"
+        :description="__('This action cannot be undone.')"
+        action="delete"
+    />
 </section>

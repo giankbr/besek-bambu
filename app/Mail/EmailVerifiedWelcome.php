@@ -18,7 +18,7 @@ class EmailVerifiedWelcome extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('Akun Anda sudah aktif — :store', ['store' => store_name()]),
+            subject: __('Akun Anda sudah aktif: :store', ['store' => store_name()]),
         );
     }
 

@@ -25,7 +25,7 @@ class OrderPaymentFailed extends Mailable
             : 'Payment could not be completed';
 
         return new Envelope(
-            subject: $subject.' — '.$this->order->number,
+            subject: $subject.': '.$this->order->number,
         );
     }
 

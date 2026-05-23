@@ -14,6 +14,8 @@ new #[Title('Coupons')] class extends Component {
     #[Url(as: 'q', except: '')]
     public string $search = '';
 
+    public ?int $deletingId = null;
+
     public function updatedSearch(): void { $this->resetPage(); }
 
     #[Computed]
@@ -28,12 +30,26 @@ new #[Title('Coupons')] class extends Component {
             ->paginate(15);
     }
 
-    public function delete(int $id): void
+    public function confirmDelete(int $id): void
     {
+        $this->deletingId = $id;
+        Flux::modal('delete-coupon')->show();
+    }
+
+    public function delete(): void
+    {
+        if (! $this->deletingId) {
+            return;
+        }
+
         try {
-            Coupon::where('id', $id)->delete();
+            Coupon::where('id', $this->deletingId)->delete();
+            $this->deletingId = null;
+            Flux::modal('delete-coupon')->close();
             Flux::toast(variant: 'success', text: __('Coupon deleted.'));
+            unset($this->coupons);
         } catch (\Throwable $e) {
+            Flux::modal('delete-coupon')->close();
             Flux::toast(
                 variant: 'danger',
                 heading: __('Failed to delete'),
@@ -135,8 +151,7 @@ new #[Title('Coupons')] class extends Component {
                                     size="sm"
                                     variant="ghost"
                                     icon="trash"
-                                    wire:click="delete({{ $coupon->id }})"
-                                    wire:confirm="{{ __('Delete this coupon?') }}"
+                                    wire:click="confirmDelete({{ $coupon->id }})"
                                 />
                             </div>
                         </flux:table.cell>
@@ -151,4 +166,11 @@ new #[Title('Coupons')] class extends Component {
             </flux:table.rows>
         </flux:table>
     </div>
+
+    <x-admin.confirm-modal
+        name="delete-coupon"
+        :title="__('Delete this coupon?')"
+        :description="__('This action cannot be undone.')"
+        action="delete"
+    />
 </section>

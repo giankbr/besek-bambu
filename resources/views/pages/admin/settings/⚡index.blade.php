@@ -173,13 +173,20 @@ new #[Title('Store settings')] class extends Component {
         }
     }
 
+    public function confirmClearLogo(): void
+    {
+        Flux::modal('clear-logo')->show();
+    }
+
     public function clearLogo(): void
     {
         try {
             Setting::put('store_logo', '');
             $this->store_logo = '';
+            Flux::modal('clear-logo')->close();
             Flux::toast(variant: 'success', text: __('Logo removed.'));
         } catch (\Throwable $e) {
+            Flux::modal('clear-logo')->close();
             Flux::toast(variant: 'danger', heading: __('Failed'), text: $e->getMessage());
         }
     }
@@ -477,7 +484,7 @@ new #[Title('Store settings')] class extends Component {
                     @if ($store_logo)
                         <div class="flex items-center gap-3">
                             <img src="{{ image_src($store_logo) }}" alt="{{ __('Logo') }}" class="h-16 w-16 rounded-lg border border-zinc-200 object-contain p-1 dark:border-zinc-700" />
-                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="clearLogo" wire:confirm="{{ __('Remove logo?') }}" type="button">
+                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmClearLogo" type="button">
                                 {{ __('Remove') }}
                             </flux:button>
                         </div>
@@ -783,4 +790,11 @@ new #[Title('Store settings')] class extends Component {
             </form>
         @endif
     </div>
+
+    <x-admin.confirm-modal
+        name="clear-logo"
+        :title="__('Remove logo?')"
+        :confirm="__('Remove')"
+        action="clearLogo"
+    />
 </section>

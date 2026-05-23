@@ -19,7 +19,7 @@ class AbandonedCart extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'You left items in your cart — '.store_name(),
+            subject: 'You left items in your cart: '.store_name(),
         );
     }
 

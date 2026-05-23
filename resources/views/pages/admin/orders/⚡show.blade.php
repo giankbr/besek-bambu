@@ -126,6 +126,8 @@ new #[Title('Order detail')] class extends Component {
 
         try {
             match ($to) {
+                'paid' => \Illuminate\Support\Facades\Mail::to($this->order->customer_email)
+                    ->send(new \App\Mail\OrderProcessing($this->order)),
                 'shipped' => \Illuminate\Support\Facades\Mail::to($this->order->customer_email)
                     ->send(new \App\Mail\OrderShipped($this->order)),
                 'delivered' => \Illuminate\Support\Facades\Mail::to($this->order->customer_email)
@@ -214,7 +216,7 @@ new #[Title('Order detail')] class extends Component {
                         </dl>
                     @elseif ($order->shipping_region)
                         <flux:separator class="my-3" />
-                        <flux:text class="text-zinc-500 text-sm">{{ __('Region:') }} {{ $order->shipping_region }} — {{ idr($order->shipping_cost) }}</flux:text>
+                        <flux:text class="text-zinc-500 text-sm">{{ __('Region:') }} {{ $order->shipping_region }}, {{ idr($order->shipping_cost) }}</flux:text>
                     @endif
 
                     @if ($order->notes)

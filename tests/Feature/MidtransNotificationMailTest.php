@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Mail\OrderPaid;
 use App\Mail\OrderPaymentFailed;
+use App\Mail\OrderProcessing;
 use App\Mail\OrderRefunded;
 use App\Models\Order;
 use App\Services\MidtransService;
@@ -50,6 +51,7 @@ class MidtransNotificationMailTest extends TestCase
         app(MidtransService::class)->applyNotification($order, $this->notification('settlement', '225000.00'));
 
         Mail::assertSent(OrderPaid::class, fn (OrderPaid $mail) => $mail->hasTo('buyer@example.com'));
+        Mail::assertSent(OrderProcessing::class, fn (OrderProcessing $mail) => $mail->hasTo('buyer@example.com'));
     }
 
     public function test_deny_sends_payment_failed_email(): void

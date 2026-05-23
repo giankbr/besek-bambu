@@ -18,7 +18,7 @@ class OrderRefunded extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Refund processed — '.$this->order->number,
+            subject: 'Refund processed: '.$this->order->number,
         );
     }
 
