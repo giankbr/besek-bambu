@@ -298,7 +298,7 @@
                 @if ($moq > 1)
                   <span class="stock-pill stock-pill--moq">{{ __('Min. order :n pcs', ['n' => $moq]) }}</span>
                 @endif
-                @if ($leadDays > 0)
+                @if (config('features.production_lead_days') && $leadDays > 0)
                   <span class="stock-pill stock-pill--lead">{{ __('Produksi :n hari kerja', ['n' => $leadDays]) }}</span>
                 @endif
               </div>

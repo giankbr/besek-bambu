@@ -419,11 +419,10 @@ new #[Title('Edit Product')] class extends Component {
                     min="0"
                     step="1"
                     placeholder="1000"
-                    description="{{ __('Required when using RajaOngkir.') }}"
                 />
             </div>
 
-            <div class="grid gap-5 md:grid-cols-2">
+            <div class="@if (config('features.production_lead_days')) grid gap-5 md:grid-cols-2 @endif">
                 <flux:input
                     wire:model="min_order_quantity"
                     :label="__('Minimum order quantity (MOQ)')"
@@ -432,14 +431,16 @@ new #[Title('Edit Product')] class extends Component {
                     required
                     description="{{ __('Smallest pack the customer must order. Set to 1 if sold per piece.') }}"
                 />
-                <flux:input
-                    wire:model="production_lead_days"
-                    :label="__('Production lead time (days)')"
-                    type="number"
-                    min="0"
-                    required
-                    description="{{ __('Extra days needed before dispatch. 0 means ready stock.') }}"
-                />
+                @if (config('features.production_lead_days'))
+                    <flux:input
+                        wire:model="production_lead_days"
+                        :label="__('Production lead time (days)')"
+                        type="number"
+                        min="0"
+                        required
+                        description="{{ __('Extra days needed before dispatch. 0 means ready stock.') }}"
+                    />
+                @endif
             </div>
 
             <livewire:admin.media-picker
@@ -466,8 +467,10 @@ new #[Title('Edit Product')] class extends Component {
                 <flux:input wire:model="rating" :label="__('Rating')" type="number" min="1" max="5" />
             </div>
 
-            <div class="grid gap-5 md:grid-cols-2">
-                <flux:input wire:model="sort_order" :label="__('Sort order')" type="number" min="0" />
+            <div class="flex flex-wrap items-end gap-x-6 gap-y-4">
+                <div class="w-full max-w-[10rem]">
+                    <flux:input wire:model="sort_order" :label="__('Sort order')" type="number" min="0" />
+                </div>
                 <flux:checkbox wire:model="is_active" :label="__('Active (visible on storefront)')" />
             </div>
 
