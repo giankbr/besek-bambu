@@ -143,7 +143,9 @@
             </flux:dropdown>
         </flux:header>
 
-        {{ $slot }}
+        <div class="flex min-w-0 flex-1 flex-col overflow-x-hidden">
+            {{ $slot }}
+        </div>
 
         @persist('toast')
             <flux:toast.group>
