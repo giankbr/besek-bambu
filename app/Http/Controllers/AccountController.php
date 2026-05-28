@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateAccountProfileRequest;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\ShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -86,6 +87,10 @@ class AccountController extends Controller
         DB::transaction(function () use ($order) {
             foreach ($order->items as $item) {
                 Product::query()->whereKey($item->product_id)->increment('stock', $item->quantity);
+
+                if ($item->product_variant_id) {
+                    ProductVariant::query()->whereKey($item->product_variant_id)->increment('stock', $item->quantity);
+                }
             }
 
             $order->update([

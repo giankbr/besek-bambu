@@ -18,16 +18,22 @@ class ShippingController extends Controller
 
     public function regencies(string $provinceCode, WilayahService $wilayah): JsonResponse
     {
+        abort_if(! preg_match('/^\d{2}$/', $provinceCode), 422);
+
         return response()->json(['results' => $wilayah->regencies($provinceCode)]);
     }
 
     public function districts(string $regencyCode, WilayahService $wilayah): JsonResponse
     {
+        abort_if(! preg_match('/^\d{2}\.\d{2}$/', $regencyCode), 422);
+
         return response()->json(['results' => $wilayah->districts($regencyCode)]);
     }
 
     public function villages(string $districtCode, WilayahService $wilayah): JsonResponse
     {
+        abort_if(! preg_match('/^\d{2}\.\d{2}\.\d{2}$/', $districtCode), 422);
+
         return response()->json(['results' => $wilayah->villages($districtCode)]);
     }
 
