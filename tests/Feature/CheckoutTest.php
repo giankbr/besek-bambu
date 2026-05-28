@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Coupon;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\CartService;
 use App\Services\CheckoutService;
@@ -113,5 +114,33 @@ class CheckoutTest extends TestCase
 
         $this->assertSame('cancelled', $order->fresh()->status);
         $this->assertSame(5, $product->fresh()->stock);
+    }
+
+    public function test_cancel_order_restores_variant_stock(): void
+    {
+        Mail::fake();
+
+        $product = $this->product(['stock' => 5]);
+        $variant = ProductVariant::create([
+            'product_id' => $product->id,
+            'label' => 'M',
+            'sku' => 'TEST-M',
+            'price' => null,
+            'stock' => 5,
+            'sort_order' => 0,
+        ]);
+        $user = User::factory()->create(['email_verified_at' => now()]);
+
+        $this->actingAs($user);
+        app(CartService::class)->add($product, 2, $variant);
+        $order = app(CheckoutService::class)->place($this->customer());
+
+        $this->assertSame(3, $variant->fresh()->stock);
+
+        $this->post(route('account.orders.cancel', $order))
+            ->assertRedirect(route('account.orders.show', $order));
+
+        $this->assertSame('cancelled', $order->fresh()->status);
+        $this->assertSame(5, $variant->fresh()->stock);
     }
 }
