@@ -187,7 +187,12 @@ new #[Title('Media library')] class extends Component {
         <flux:card>
             <flux:heading size="lg">{{ __('Upload') }}</flux:heading>
             <form wire:submit="uploadFiles" class="mt-4 grid gap-3">
-                <input type="file" wire:model="uploads" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" class="block w-full text-sm" />
+                <div class="relative inline-flex">
+                    <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
+                        {{ ! empty($uploads) ? count($uploads).' '.__('file(s) selected') : __('Choose files…') }}
+                    </flux:button>
+                    <input type="file" wire:model="uploads" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                </div>
                 @error('uploads')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
                 @error('uploads.*')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
 
