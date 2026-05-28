@@ -14,7 +14,7 @@
       <x-story-band />
       <x-gallery-section :gallery-items="$galleryItems" />
       <x-reviews-section :reviews="$reviews" />
-      <x-collage-section />
+      <x-collage-section :gallery-items="$galleryItems" />
       <x-newsletter :gallery-items="$galleryItems" />
     </div>
     <x-site-footer />
