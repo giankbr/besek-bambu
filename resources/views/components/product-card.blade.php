@@ -8,7 +8,13 @@
 
 <div class="product-card-wrap">
   <a class="product {{ $product->color_class }}" href="{{ route('shop.product', $product) }}">
-    <div class="product-img">{{ $product->icon }}</div>
+    <div class="product-img">
+      @if ($product->image_url)
+        <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="lazy" />
+      @else
+        {{ $product->icon }}
+      @endif
+    </div>
     <div class="product-name">{{ $product->name }}</div>
     <div class="product-stars">{{ str_repeat('★', $product->rating) }}{{ str_repeat('☆', 5 - $product->rating) }}</div>
     <div class="product-foot">
