@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Mail\EmailVerifiedWelcome;
 use App\Models\User;
-use App\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
@@ -29,7 +29,7 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
-        Notification::fake();
+        Mail::fake();
 
         $response = $this->post(route('register.store'), [
             'name' => 'John Doe',
@@ -45,10 +45,8 @@ class RegistrationTest extends TestCase
 
         $user = User::query()->where('email', 'test@example.com')->first();
         $this->assertNotNull($user);
-        Notification::assertSentTo($user, VerifyEmail::class, function (VerifyEmail $notification) use ($user) {
-            $mail = $notification->toMail($user);
+        $this->assertNotNull($user->email_verified_at);
 
-            return $mail->greeting === mail_greeting($user->name);
-        });
+        Mail::assertSent(EmailVerifiedWelcome::class, fn ($mail) => $mail->hasTo('test@example.com'));
     }
 }
