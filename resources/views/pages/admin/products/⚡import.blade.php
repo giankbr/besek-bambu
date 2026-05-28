@@ -56,10 +56,9 @@ new #[Title('Import products')] class extends Component {
 
         $csv = implode(',', $headers)."\n".implode(',', array_map(fn ($v) => '"'.str_replace('"', '""', $v).'"', $sample))."\n";
 
-        return response($csv, 200, [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="products-template.csv"',
-        ]);
+        return response()->streamDownload(function () use ($csv) {
+            echo $csv;
+        }, 'products-template.csv', ['Content-Type' => 'text/csv']);
     }
 
     public function import(): void
@@ -245,7 +244,12 @@ new #[Title('Import products')] class extends Component {
         <flux:card>
             <flux:heading size="lg">{{ __('Upload') }}</flux:heading>
             <form wire:submit="import" class="mt-4 grid gap-4">
-                <input type="file" wire:model="file" accept=".csv,text/csv" class="block w-full text-sm" />
+                <div class="relative inline-flex">
+                    <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
+                        {{ $file ? $file->getClientOriginalName() : __('Choose CSV file…') }}
+                    </flux:button>
+                    <input type="file" wire:model="file" accept=".csv,text/csv" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                </div>
                 @error('file')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
 
                 <flux:checkbox wire:model="update_existing" :label="__('Update existing products when slug matches')" />
