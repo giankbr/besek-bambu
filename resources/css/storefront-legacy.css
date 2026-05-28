@@ -5250,10 +5250,10 @@ body.sf-confirm-open {
   background: #25D366;
   color: #fff;
   border-radius: 999px;
-  padding: 12px 18px 12px 14px;
+  padding: 14px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
   font-weight: 600;
