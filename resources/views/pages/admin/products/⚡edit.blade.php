@@ -509,7 +509,12 @@ new #[Title('Edit Product')] class extends Component {
             @endif
             <div>
                 <flux:label>{{ __('…or upload directly') }}</flux:label>
-                <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
+                <div class="relative mt-1 inline-flex">
+                    <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
+                        {{ $image ? $image->getClientOriginalName() : __('Choose file…') }}
+                    </flux:button>
+                    <input type="file" wire:model="image" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                </div>
                 @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
             </div>
 
@@ -672,7 +677,12 @@ new #[Title('Edit Product')] class extends Component {
 
             <form wire:submit="uploadExtraImages" class="mt-5 grid gap-3">
                 <flux:label>{{ __('Add more images (multiple allowed)') }}</flux:label>
-                <input type="file" wire:model="extraImages" multiple accept="image/*" class="block w-full text-sm" />
+                <div class="relative inline-flex">
+                    <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
+                        {{ $extraImages ? count($extraImages).' '.__('file(s) selected') : __('Choose files…') }}
+                    </flux:button>
+                    <input type="file" wire:model="extraImages" multiple accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                </div>
                 @error('extraImages.*')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
                 <div>
                     <flux:button type="submit" variant="primary">{{ __('Upload images') }}</flux:button>
