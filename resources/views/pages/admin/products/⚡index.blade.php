@@ -197,43 +197,41 @@ new #[Title('Products')] class extends Component {
         {{-- Mobile card grid --}}
         <div class="grid grid-cols-2 gap-3 md:hidden">
             @forelse ($this->products as $product)
-                <div class="relative rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                    <div class="absolute left-2 top-2 z-10">
-                        <flux:checkbox wire:model.live="selected" value="{{ $product->id }}" />
-                    </div>
+                <div class="rounded-xl border border-zinc-200 bg-white overflow-hidden dark:border-zinc-700 dark:bg-zinc-900">
                     <a href="{{ route('admin.products.edit', $product) }}" wire:navigate class="block">
-                        <div class="aspect-square overflow-hidden rounded-t-xl bg-zinc-100 dark:bg-zinc-800">
+                        <div class="aspect-square bg-zinc-100 dark:bg-zinc-800">
                             @if ($product->image_url)
                                 <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="lazy" />
                             @else
                                 <div class="flex h-full items-center justify-center text-4xl">{{ $product->icon }}</div>
                             @endif
                         </div>
-                        <div class="p-2">
-                            <div class="truncate text-sm font-medium">{{ $product->name }}</div>
-                            <div class="mt-0.5 text-xs text-zinc-500">{{ idr($product->price) }}</div>
-                            <div class="mt-1">
-                                @if ($product->is_active)
-                                    <flux:badge color="green" size="sm">{{ __('Active') }}</flux:badge>
-                                @else
-                                    <flux:badge color="zinc" size="sm">{{ __('Hidden') }}</flux:badge>
-                                @endif
-                            </div>
-                        </div>
                     </a>
-                    <div class="absolute right-2 top-2 z-10">
-                        <flux:dropdown position="bottom" align="end">
-                            <flux:button size="sm" variant="ghost" icon="ellipsis-horizontal" class="bg-white/80 dark:bg-zinc-900/80" />
-                            <flux:menu>
-                                <flux:menu.item icon="pencil-square" :href="route('admin.products.edit', $product)" wire:navigate>
-                                    {{ __('Edit') }}
-                                </flux:menu.item>
-                                <flux:menu.separator />
-                                <flux:menu.item icon="trash" variant="danger" wire:click="confirmDelete({{ $product->id }})">
-                                    {{ __('Delete') }}
-                                </flux:menu.item>
-                            </flux:menu>
-                        </flux:dropdown>
+                    <div class="p-2">
+                        <div class="truncate text-sm font-medium">
+                            <a href="{{ route('admin.products.edit', $product) }}" wire:navigate>{{ $product->name }}</a>
+                        </div>
+                        <div class="mt-0.5 text-xs text-zinc-500">{{ idr($product->price) }}</div>
+                        <div class="mt-2 flex items-center justify-between gap-1">
+                            <flux:checkbox wire:model.live="selected" value="{{ $product->id }}" />
+                            @if ($product->is_active)
+                                <flux:badge color="green" size="sm">{{ __('Active') }}</flux:badge>
+                            @else
+                                <flux:badge color="zinc" size="sm">{{ __('Hidden') }}</flux:badge>
+                            @endif
+                            <flux:dropdown position="top" align="end">
+                                <flux:button size="sm" variant="ghost" icon="ellipsis-horizontal" />
+                                <flux:menu>
+                                    <flux:menu.item icon="pencil-square" :href="route('admin.products.edit', $product)" wire:navigate>
+                                        {{ __('Edit') }}
+                                    </flux:menu.item>
+                                    <flux:menu.separator />
+                                    <flux:menu.item icon="trash" variant="danger" wire:click="confirmDelete({{ $product->id }})">
+                                        {{ __('Delete') }}
+                                    </flux:menu.item>
+                                </flux:menu>
+                            </flux:dropdown>
+                        </div>
                     </div>
                 </div>
             @empty
