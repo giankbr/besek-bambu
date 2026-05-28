@@ -465,7 +465,7 @@ new #[Title('Edit Product')] class extends Component {
 
         <form wire:submit="save" class="grid w-full gap-5">
             <div class="grid gap-5 md:grid-cols-2">
-                <flux:input wire:model="name" :label="__('Name')" required />
+                <flux:input wire:model.live.debounce.500ms="name" :label="__('Name')" required />
                 <flux:input wire:model="slug" :label="__('Slug')" required />
             </div>
 

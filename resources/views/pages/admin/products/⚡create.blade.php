@@ -104,7 +104,7 @@ new #[Title('New Product')] class extends Component {
 
         <form wire:submit="save" class="grid w-full gap-5">
             <div class="grid gap-5 md:grid-cols-2">
-                <flux:input wire:model.blur="name" :label="__('Name')" required />
+                <flux:input wire:model.live.debounce.500ms="name" :label="__('Name')" required />
                 <flux:input wire:model="slug" :label="__('Slug')" required description="{{ __('URL-friendly identifier.') }}" />
             </div>
 
