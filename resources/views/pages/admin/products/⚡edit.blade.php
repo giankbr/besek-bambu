@@ -5,6 +5,7 @@ use App\Models\Product;
 use App\Models\ProductPriceTier;
 use App\Models\ProductVariant;
 use Flux\Flux;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
@@ -86,6 +87,11 @@ new #[Title('Edit Product')] class extends Component {
             'min_quantity' => (int) $t->min_quantity,
             'unit_price' => (string) $t->unit_price,
         ])->toArray();
+    }
+
+    public function updatedName(string $value): void
+    {
+        $this->slug = Str::slug($value);
     }
 
     public function addTier(): void

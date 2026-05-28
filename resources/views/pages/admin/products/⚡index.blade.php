@@ -217,7 +217,11 @@ new #[Title('Products')] class extends Component {
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-3">
-                                <span class="text-2xl">{{ $product->icon }}</span>
+                                @if ($product->image_url)
+                                    <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" class="h-10 w-10 rounded-lg object-cover shrink-0" />
+                                @else
+                                    <span class="text-2xl">{{ $product->icon }}</span>
+                                @endif
                                 <div>
                                     <div class="font-medium">{{ $product->name }}</div>
                                     <flux:text size="sm" class="text-zinc-500">{{ $product->slug }}</flux:text>
