@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Media;
-use Flux\Flux;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
@@ -23,8 +22,6 @@ new class extends Component {
 
     public bool $allowExternalUrl = true;
 
-    public bool $open = false;
-
     public string $search = '';
 
     public string $externalUrl = '';
@@ -40,15 +37,8 @@ new class extends Component {
             : '';
     }
 
-    public function openPicker(): void
-    {
-        $this->open = true;
-        Flux::modal('media-picker-'.$this->getId())->show();
-    }
-
     public function closePicker(): void
     {
-        $this->open = false;
         $this->search = '';
     }
 
@@ -171,7 +161,8 @@ new class extends Component {
         @endif
 
         <div class="flex flex-wrap items-center gap-2">
-            <flux:button size="sm" variant="primary" icon="folder-open" wire:click="openPicker" type="button">
+            <flux:button size="sm" variant="primary" icon="folder-open" type="button"
+                x-on:click="$flux.modal('media-picker-{{ $this->getId() }}').show()">
                 {{ __('Pick from library') }}
             </flux:button>
             @if ($value)
@@ -202,7 +193,7 @@ new class extends Component {
     @endif
 
     <flux:modal name="media-picker-{{ $this->getId() }}" x-on:close="$wire.closePicker()" class="md:w-4xl">
-        @if ($open)
+
             <div class="flex flex-col gap-4">
                 <div>
                     <flux:heading size="lg">{{ __('Pick from media library') }}</flux:heading>
@@ -249,12 +240,12 @@ new class extends Component {
                         <flux:button size="sm" variant="primary" icon="arrow-up-tray" wire:click="uploadAndPick" :disabled="! $upload" type="button">
                             {{ __('Upload & select') }}
                         </flux:button>
-                        <flux:button size="sm" variant="ghost" wire:click="closePicker" type="button">
+                        <flux:button size="sm" variant="ghost" type="button"
+                            x-on:click="$flux.modal('media-picker-{{ $this->getId() }}').close()">
                             {{ __('Close') }}
                         </flux:button>
                     </div>
                 </div>
             </div>
-        @endif
     </flux:modal>
 </div>
