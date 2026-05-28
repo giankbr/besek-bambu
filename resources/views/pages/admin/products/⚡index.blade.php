@@ -240,7 +240,8 @@ new #[Title('Products')] class extends Component {
         </div>
 
         {{-- Desktop table --}}
-        <flux:table :paginate="$this->products" class="hidden md:block">
+        <div class="hidden md:block">
+        <flux:table :paginate="$this->products">
             <flux:table.columns>
                 <flux:table.column class="w-10">
                     <flux:checkbox
@@ -304,6 +305,7 @@ new #[Title('Products')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 
     <x-admin.confirm-modal
