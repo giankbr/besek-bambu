@@ -1182,7 +1182,7 @@
     -webkit-overflow-scrolling: touch;
     padding: 12px 0 8px;
     scrollbar-width: none;
-    align-items: flex-start;
+    align-items: center;
     height: 280px;
     width: 100%;
     max-width: 100%;
@@ -1208,6 +1208,8 @@
   }
 
   .gallery-card.drop { align-self: flex-end; height: 200px; }
+  .gallery-card:nth-child(even) { align-self: flex-end; }
+  .gallery-card:nth-child(odd) { align-self: flex-start; }
 
   .gallery-card::after {
     content: "";

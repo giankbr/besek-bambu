@@ -15,7 +15,7 @@
       <x-gallery-section :gallery-items="$galleryItems" />
       <x-reviews-section :reviews="$reviews" />
       <x-collage-section />
-      <x-newsletter />
+      <x-newsletter :gallery-items="$galleryItems" />
     </div>
     <x-site-footer />
   </main>
