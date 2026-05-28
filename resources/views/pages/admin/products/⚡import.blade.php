@@ -8,6 +8,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 
 new #[Title('Import products')] class extends Component {
     use WithFileUploads;
@@ -65,50 +66,59 @@ new #[Title('Import products')] class extends Component {
     {
         try {
             $this->validate([
-                'file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
+                'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:10240'],
             ]);
 
-            $handle = fopen($this->file->getRealPath(), 'r');
+            $ext = strtolower($this->file->getClientOriginalExtension());
+            $isExcel = in_array($ext, ['xlsx', 'xls'], true);
 
-            if (! $handle) {
-                throw new \RuntimeException(__('Could not open the uploaded file.'));
+            if ($isExcel) {
+                $rows = Excel::toArray([], $this->file->getRealPath())[0] ?? [];
+                if (empty($rows)) {
+                    throw new \RuntimeException(__('File is empty.'));
+                }
+                $rawHeaders = array_shift($rows);
+                $headers = array_map(fn ($h) => strtolower(trim((string) $h)), $rawHeaders);
+                $allRows = $rows;
+            } else {
+                $handle = fopen($this->file->getRealPath(), 'r');
+                if (! $handle) {
+                    throw new \RuntimeException(__('Could not open the uploaded file.'));
+                }
+                $rawHeaders = fgetcsv($handle);
+                if (! $rawHeaders) {
+                    fclose($handle);
+                    throw new \RuntimeException(__('CSV is empty.'));
+                }
+                if (isset($rawHeaders[0])) {
+                    $rawHeaders[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $rawHeaders[0]);
+                }
+                $headers = array_map(fn ($h) => strtolower(trim((string) $h)), $rawHeaders);
+                $allRows = [];
+                while (($data = fgetcsv($handle)) !== false) {
+                    $allRows[] = $data;
+                }
+                fclose($handle);
             }
-
-            $headers = fgetcsv($handle);
-
-            if (! $headers) {
-                throw new \RuntimeException(__('CSV is empty.'));
-            }
-
-            // Strip UTF-8 BOM that Excel inserts at the start of the
-            // first cell, otherwise the first column name will not
-            // match anything.
-            if (isset($headers[0])) {
-                $headers[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $headers[0]);
-            }
-
-            $headers = array_map(fn ($h) => strtolower(trim((string) $h)), $headers);
 
             $required = ['name', 'price'];
             foreach ($required as $col) {
                 if (! in_array($col, $headers, true)) {
-                    fclose($handle);
                     throw new \RuntimeException(__('Missing required column: :col', ['col' => $col]));
                 }
             }
 
             $report = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
-            $row = 1;
             $maxRows = 5000;
 
-            try {
-                while (($data = fgetcsv($handle)) !== false) {
-                $row++;
-                if ($row - 1 > $maxRows) {
+            foreach ($allRows as $i => $data) {
+                $row = $i + 2;
+                if ($i >= $maxRows) {
                     $report['errors'][] = __('Stopped at row :row — file exceeds the :max row limit.', ['row' => $row, 'max' => $maxRows]);
                     break;
                 }
-                if (count(array_filter($data, fn ($v) => trim((string) $v) !== '')) === 0) {
+                $data = array_map(fn ($v) => $v === null ? '' : (string) $v, (array) $data);
+                if (count(array_filter($data, fn ($v) => trim($v) !== '')) === 0) {
                     continue;
                 }
 
@@ -133,11 +143,7 @@ new #[Title('Import products')] class extends Component {
                     if ($categoryTitle !== '') {
                         $categoryId = Category::firstOrCreate(
                             ['slug' => Str::slug($categoryTitle)],
-                            [
-                                'title' => $categoryTitle,
-                                'image_url' => '',
-                                'sort_order' => 0,
-                            ],
+                            ['title' => $categoryTitle, 'image_url' => '', 'sort_order' => 0],
                         )->id;
                     }
 
@@ -164,11 +170,9 @@ new #[Title('Import products')] class extends Component {
                     }
 
                     $existing = Product::where('slug', $slug)->first();
-
                     if ($existing) {
                         if (! $this->update_existing) {
                             $report['skipped']++;
-
                             continue;
                         }
                         $existing->update($payload);
@@ -180,9 +184,6 @@ new #[Title('Import products')] class extends Component {
                 } catch (\Throwable $e) {
                     $report['errors'][] = __('Row :row: :msg', ['row' => $row, 'msg' => $e->getMessage()]);
                 }
-                }
-            } finally {
-                fclose($handle);
             }
 
             $this->report = $report;
@@ -219,7 +220,7 @@ new #[Title('Import products')] class extends Component {
         <div class="flex items-start justify-between gap-4">
             <div>
                 <flux:heading size="xl">{{ __('Import products') }}</flux:heading>
-                <flux:subheading>{{ __('Upload a CSV to create or update products in bulk.') }}</flux:subheading>
+                <flux:subheading>{{ __('Upload a CSV or Excel file to create or update products in bulk.') }}</flux:subheading>
             </div>
             <flux:button :href="route('admin.products.index')" variant="ghost" icon="arrow-left" wire:navigate>
                 {{ __('Back to products') }}
@@ -227,7 +228,7 @@ new #[Title('Import products')] class extends Component {
         </div>
 
         <flux:card>
-            <flux:heading size="lg">{{ __('CSV format') }}</flux:heading>
+            <flux:heading size="lg">{{ __('CSV / Excel format') }}</flux:heading>
             <flux:text class="mt-2 text-zinc-500">
                 {{ __('Required columns: name, price. Optional: slug, description, icon, stock, weight, rating, sort_order, is_active, category_title, image_url, meta_title, meta_description.') }}
             </flux:text>
@@ -246,9 +247,9 @@ new #[Title('Import products')] class extends Component {
             <form wire:submit="import" class="mt-4 grid gap-4">
                 <div class="relative inline-flex">
                     <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
-                        {{ $file ? $file->getClientOriginalName() : __('Choose CSV file…') }}
+                        {{ $file ? $file->getClientOriginalName() : __('Choose CSV or Excel file…') }}
                     </flux:button>
-                    <input type="file" wire:model="file" accept=".csv,text/csv" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                    <input type="file" wire:model="file" accept=".csv,.xlsx,.xls,text/csv" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
                 </div>
                 @error('file')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
 
