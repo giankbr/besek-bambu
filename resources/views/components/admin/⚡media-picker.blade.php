@@ -238,11 +238,11 @@ new class extends Component {
 
                 <div class="flex flex-col gap-3">
                     <flux:label>{{ __('Or upload new') }}</flux:label>
-                    <div x-data>
-                        <flux:button size="sm" variant="outline" icon="paper-clip" type="button" @click="$refs.uploadInput.click()">
+                    <div class="relative inline-flex">
+                        <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
                             {{ $upload ? $upload->getClientOriginalName() : __('Choose file…') }}
                         </flux:button>
-                        <input type="file" wire:model="upload" accept="image/*" x-ref="uploadInput" class="sr-only" />
+                        <input type="file" wire:model="upload" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
                     </div>
                     @error('upload')<flux:text class="text-sm text-red-500">{{ $message }}</flux:text>@enderror
                     <div class="flex items-center gap-2">
