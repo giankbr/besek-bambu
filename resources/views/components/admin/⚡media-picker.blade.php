@@ -43,6 +43,7 @@ new class extends Component {
     public function openPicker(): void
     {
         $this->open = true;
+        Flux::modal('media-picker-'.$this->getId())->show();
     }
 
     public function closePicker(): void
@@ -200,8 +201,8 @@ new class extends Component {
         <flux:text size="sm" class="mt-2 break-all text-zinc-500">{{ $value }}</flux:text>
     @endif
 
-    @if ($open)
-        <flux:modal name="media-picker-{{ $this->getId() }}" :show="true" x-on:close="$wire.closePicker()" class="md:w-4xl">
+    <flux:modal name="media-picker-{{ $this->getId() }}" x-on:close="$wire.closePicker()" class="md:w-4xl">
+        @if ($open)
             <div class="flex flex-col gap-4">
                 <div>
                     <flux:heading size="lg">{{ __('Pick from media library') }}</flux:heading>
@@ -237,7 +238,12 @@ new class extends Component {
 
                 <div class="flex flex-col gap-3">
                     <flux:label>{{ __('Or upload new') }}</flux:label>
-                    <input type="file" wire:model="upload" accept="image/*" class="block w-full text-sm" />
+                    <label class="flex cursor-pointer items-center gap-2">
+                        <flux:button size="sm" variant="outline" icon="paper-clip" as="span" type="button">
+                            {{ $upload ? $upload->getClientOriginalName() : __('Choose file…') }}
+                        </flux:button>
+                        <input type="file" wire:model="upload" accept="image/*" class="sr-only" />
+                    </label>
                     @error('upload')<flux:text class="text-sm text-red-500">{{ $message }}</flux:text>@enderror
                     <div class="flex items-center gap-2">
                         <flux:button size="sm" variant="primary" icon="arrow-up-tray" wire:click="uploadAndPick" :disabled="! $upload" type="button">
@@ -249,6 +255,6 @@ new class extends Component {
                     </div>
                 </div>
             </div>
-        </flux:modal>
-    @endif
+        @endif
+    </flux:modal>
 </div>

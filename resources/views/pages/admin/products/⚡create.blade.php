@@ -154,7 +154,12 @@ new #[Title('New Product')] class extends Component {
             @endif
             <div>
                 <flux:label>{{ __('…or upload directly') }}</flux:label>
-                <input type="file" wire:model="image" accept="image/*" class="mt-1 block w-full text-sm" />
+                <label class="mt-1 flex cursor-pointer items-center gap-2">
+                    <flux:button size="sm" variant="outline" icon="paper-clip" as="span" type="button">
+                        {{ $image ? $image->getClientOriginalName() : __('Choose file…') }}
+                    </flux:button>
+                    <input type="file" wire:model="image" accept="image/*" class="sr-only" />
+                </label>
                 @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
             </div>
 
