@@ -50,12 +50,12 @@ html[data-theme="dark"] {
 
 @layer components {
     .sf-brand-logo {
-        @apply block h-8 w-auto max-h-8;
+        @apply block h-11 w-auto max-h-11;
     }
 
     @media (max-width: 520px) {
         .sf-brand-logo {
-            @apply h-7 max-h-7;
+            @apply h-9 max-h-9;
         }
     }
 

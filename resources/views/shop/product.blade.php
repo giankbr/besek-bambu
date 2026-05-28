@@ -100,14 +100,12 @@
         $heroSrc = $primary ? image_src($primary->path) : ($product->image_url ? image_src($product->image_url) : null);
 
         $allMedia = collect();
-        if ($product->image_url) {
-          $allMedia->push(image_src($product->image_url));
-        }
         foreach ($galleryImages as $img) {
           $src = image_src($img->path);
-          if ($src && ! $allMedia->contains($src)) {
-            $allMedia->push($src);
-          }
+          if ($src) $allMedia->push($src);
+        }
+        if ($allMedia->isEmpty() && $product->image_url) {
+          $allMedia->push(image_src($product->image_url));
         }
         $allMedia = $allMedia->values()->all();
         $hasMultiple = count($allMedia) > 1;
@@ -116,19 +114,20 @@
       <div
         class="product-detail"
         x-data='{
-          images: @js($allMedia),
+          images: {{ json_encode($allMedia) }},
           index: 0,
+          imgError: false,
           get active() { return this.images[this.index] ?? null },
-          next() { if (this.images.length) this.index = (this.index + 1) % this.images.length },
-          prev() { if (this.images.length) this.index = (this.index - 1 + this.images.length) % this.images.length },
+          next() { this.imgError = false; if (this.images.length) this.index = (this.index + 1) % this.images.length },
+          prev() { this.imgError = false; if (this.images.length) this.index = (this.index - 1 + this.images.length) % this.images.length },
         }'
         @keydown.window.arrow-right="next()"
         @keydown.window.arrow-left="prev()"
       >
         <div class="product-detail__media {{ $product->color_class }}">
           @if ($heroSrc)
-            <div class="product-detail__hero">
-              <img :src="active" src="{{ $heroSrc }}" alt="{{ $product->name }}" />
+            <div class="product-detail__hero" x-show="!imgError">
+              <img :src="active" src="{{ $heroSrc }}" alt="{{ $product->name }}" x-on:error="imgError = true" />
               @if ($hasMultiple)
                 <button
                   type="button"
@@ -145,6 +144,7 @@
                 <div class="product-detail__counter" x-text="(index + 1) + ' / ' + images.length"></div>
               @endif
             </div>
+            <div class="product-detail__icon" x-show="imgError" style="display:none">{{ $product->icon }}</div>
           @else
             <div class="product-detail__icon">{{ $product->icon }}</div>
           @endif
@@ -263,7 +263,7 @@
               </div>
 
               @if ($product->description)
-                <p class="product-detail__desc">{{ $product->description }}</p>
+                <p class="product-detail__desc">{!! nl2br(e($product->description)) !!}</p>
               @endif
 
               @if ($hasVariants)
