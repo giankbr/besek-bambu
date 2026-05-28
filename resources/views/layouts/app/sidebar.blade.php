@@ -7,7 +7,10 @@
         <flux:sidebar sticky collapsible class="min-h-dvh border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.header>
                 <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
-                <flux:sidebar.collapse />
+                <div class="ml-auto flex items-center gap-1">
+                    <livewire:admin.notification-bell />
+                    <flux:sidebar.collapse />
+                </div>
             </flux:sidebar.header>
 
             @php
@@ -84,6 +87,8 @@
             <flux:sidebar.toggle icon="bars-2" inset="left" />
 
             <flux:spacer />
+
+            <livewire:admin.notification-bell />
 
             <flux:dropdown position="top" align="end">
                 <flux:profile

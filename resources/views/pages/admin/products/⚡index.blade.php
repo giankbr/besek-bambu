@@ -16,9 +16,13 @@ new #[Title('Products')] class extends Component {
 
     public ?int $deletingId = null;
 
+    public array $selected = [];
+    public string $bulkAction = '';
+
     public function updatedSearch(): void
     {
         $this->resetPage();
+        $this->selected = [];
     }
 
     #[Computed]
@@ -31,6 +35,76 @@ new #[Title('Products')] class extends Component {
             })
             ->orderBy('sort_order')
             ->paginate(10);
+    }
+
+    #[Computed]
+    public function pageIds(): array
+    {
+        return $this->products->pluck('id')->all();
+    }
+
+    public function toggleSelectAll(bool $checked): void
+    {
+        if ($checked) {
+            $this->selected = array_values(array_unique(array_merge($this->selected, $this->pageIds)));
+            return;
+        }
+
+        $this->selected = array_values(array_diff($this->selected, $this->pageIds));
+    }
+
+    public function confirmBulkAction(): void
+    {
+        if (empty($this->selected)) {
+            Flux::toast(variant: 'danger', text: __('Select at least one product.'));
+            return;
+        }
+
+        if ($this->bulkAction === '') {
+            Flux::toast(variant: 'danger', text: __('Pick an action to apply.'));
+            return;
+        }
+
+        Flux::modal('bulk-action-products')->show();
+    }
+
+    public function bulkApply(): void
+    {
+        try {
+            $this->validate([
+                'bulkAction' => ['required', 'in:activate,deactivate,delete'],
+                'selected' => ['array', 'min:1'],
+                'selected.*' => ['integer'],
+            ]);
+
+            $count = match ($this->bulkAction) {
+                'activate' => Product::whereIn('id', $this->selected)->update(['is_active' => true]),
+                'deactivate' => Product::whereIn('id', $this->selected)->update(['is_active' => false]),
+                'delete' => (function () {
+                    $c = Product::whereIn('id', $this->selected)->count();
+                    Product::whereIn('id', $this->selected)->delete();
+                    return $c;
+                })(),
+            };
+
+            $this->selected = [];
+            $this->bulkAction = '';
+
+            Flux::modal('bulk-action-products')->close();
+            Flux::toast(variant: 'success', text: __(':count product(s) updated.', ['count' => $count]));
+            unset($this->products);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Flux::modal('bulk-action-products')->close();
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::modal('bulk-action-products')->close();
+            Flux::toast(variant: 'danger', heading: __('Failed'), text: $e->getMessage());
+        }
     }
 
     public function confirmDelete(int $id): void
@@ -94,8 +168,40 @@ new #[Title('Products')] class extends Component {
             />
         </div>
 
+        @if (count($selected) > 0)
+            <div class="flex flex-wrap items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                <flux:text>
+                    <span class="font-semibold">{{ count($selected) }}</span>
+                    {{ __('selected') }}
+                </flux:text>
+                <flux:select wire:model="bulkAction" placeholder="{{ __('Choose action…') }}" class="max-w-xs">
+                    <flux:select.option value="">{{ __('Choose action…') }}</flux:select.option>
+                    <flux:select.option value="activate">{{ __('Activate') }}</flux:select.option>
+                    <flux:select.option value="deactivate">{{ __('Deactivate') }}</flux:select.option>
+                    <flux:select.option value="delete">{{ __('Delete') }}</flux:select.option>
+                </flux:select>
+                <flux:button
+                    size="sm"
+                    variant="primary"
+                    icon="check"
+                    wire:click="confirmBulkAction"
+                >
+                    {{ __('Apply') }}
+                </flux:button>
+                <flux:button size="sm" variant="ghost" wire:click="$set('selected', [])">
+                    {{ __('Clear selection') }}
+                </flux:button>
+            </div>
+        @endif
+
         <flux:table :paginate="$this->products">
             <flux:table.columns>
+                <flux:table.column class="w-10">
+                    <flux:checkbox
+                        :checked="count($selected) > 0 && count(array_diff($this->pageIds, $selected)) === 0"
+                        x-on:change="$wire.toggleSelectAll($event.target.checked)"
+                    />
+                </flux:table.column>
                 <flux:table.column>{{ __('Name') }}</flux:table.column>
                 <flux:table.column>{{ __('Price') }}</flux:table.column>
                 <flux:table.column>{{ __('Stock') }}</flux:table.column>
@@ -106,6 +212,9 @@ new #[Title('Products')] class extends Component {
             <flux:table.rows>
                 @forelse ($this->products as $product)
                     <flux:table.row :key="$product->id">
+                        <flux:table.cell>
+                            <flux:checkbox wire:model.live="selected" value="{{ $product->id }}" />
+                        </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-3">
                                 <span class="text-2xl">{{ $product->icon }}</span>
@@ -148,7 +257,7 @@ new #[Title('Products')] class extends Component {
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="5" class="text-center text-zinc-500">
+                        <flux:table.cell colspan="6" class="text-center text-zinc-500">
                             {{ __('No products found.') }}
                         </flux:table.cell>
                     </flux:table.row>
@@ -156,6 +265,14 @@ new #[Title('Products')] class extends Component {
             </flux:table.rows>
         </flux:table>
     </div>
+
+    <x-admin.confirm-modal
+        name="bulk-action-products"
+        :title="__('Apply action to all selected products?')"
+        :confirm="__('Apply')"
+        variant="primary"
+        action="bulkApply"
+    />
 
     <x-admin.confirm-modal
         name="delete-product"

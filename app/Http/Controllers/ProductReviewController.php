@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReviewReceived;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ProductReviewController extends Controller
 {
@@ -36,7 +39,7 @@ class ProductReviewController extends Controller
             return back()->with('status', 'You have already reviewed this product.');
         }
 
-        ProductReview::create([
+        $review = ProductReview::create([
             'product_id' => $product->id,
             'user_id' => Auth::id(),
             'order_id' => $eligibleOrder->id,
@@ -45,6 +48,16 @@ class ProductReviewController extends Controller
             'body' => $data['body'],
             'is_approved' => true,
         ]);
+
+        $recipient = trim((string) (setting('stock_alert_email') ?: store_email() ?: ''));
+        if ($recipient !== '') {
+            try {
+                $review->load('product', 'user');
+                Mail::to($recipient)->send(new ReviewReceived($review));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send review notification email', ['error' => $e->getMessage()]);
+            }
+        }
 
         return redirect()->route('shop.product', $product)
             ->with('status', 'Thanks for your review!');
