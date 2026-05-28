@@ -107,6 +107,42 @@ new #[Title('Reviews')] class extends Component {
             </flux:select>
         </div>
 
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->reviews as $review)
+                <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">{{ $review->product?->icon }}</span>
+                            <span class="text-sm font-medium">{{ $review->product?->name ?? '—' }}</span>
+                        </div>
+                        @if ($review->is_approved)
+                            <flux:badge color="green" size="sm">{{ __('Approved') }}</flux:badge>
+                        @else
+                            <flux:badge color="zinc" size="sm">{{ __('Hidden') }}</flux:badge>
+                        @endif
+                    </div>
+                    <div class="mt-2 text-amber-500 text-sm">{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</div>
+                    @if ($review->title)
+                        <div class="mt-1 text-sm font-medium">{{ $review->title }}</div>
+                    @endif
+                    <div class="mt-0.5 line-clamp-2 text-xs text-zinc-500">{{ $review->body }}</div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <div class="text-xs text-zinc-500">{{ $review->user?->name ?? '—' }} · {{ $review->created_at->diffForHumans() }}</div>
+                        <div class="flex gap-1">
+                            <flux:button size="sm" variant="ghost" :icon="$review->is_approved ? 'eye-slash' : 'check'" wire:click="toggleApproval({{ $review->id }})" />
+                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $review->id }})" />
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No reviews yet.') }}</p>
+            @endforelse
+            {{ $this->reviews->links() }}
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table :paginate="$this->reviews">
             <flux:table.columns>
                 <flux:table.column>{{ __('Product') }}</flux:table.column>
@@ -178,6 +214,7 @@ new #[Title('Reviews')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 
     <x-admin.confirm-modal

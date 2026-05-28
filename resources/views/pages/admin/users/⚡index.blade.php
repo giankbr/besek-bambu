@@ -202,6 +202,46 @@ new #[Title('Users')] class extends Component {
             </flux:select>
         </div>
 
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->users as $user)
+                <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-center gap-3">
+                        <flux:avatar :name="$user->name" :initials="$user->initials()" size="sm" />
+                        <div class="min-w-0 flex-1">
+                            <div class="truncate font-medium">{{ $user->name }}@if ($user->id === auth()->id()) <span class="text-xs text-zinc-400">({{ __('You') }})</span>@endif</div>
+                            <div class="truncate text-xs text-zinc-500">{{ $user->email }}</div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            @if ($user->is_admin)
+                                <flux:badge color="emerald" size="sm">{{ __('Admin') }}</flux:badge>
+                            @else
+                                <flux:badge color="zinc" size="sm">{{ __('Customer') }}</flux:badge>
+                            @endif
+                            @if ($user->email_verified_at)
+                                <flux:badge color="green" size="sm">{{ __('Verified') }}</flux:badge>
+                            @else
+                                <flux:badge color="amber" size="sm">{{ __('Pending') }}</flux:badge>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <span class="text-xs text-zinc-500">{{ $user->created_at->diffForHumans() }}</span>
+                        <div class="flex gap-1">
+                            <flux:button size="sm" variant="ghost" :icon="$user->is_admin ? 'shield-exclamation' : 'shield-check'" wire:click="confirmToggleAdmin({{ $user->id }})" />
+                            <flux:button size="sm" variant="ghost" icon="pencil-square" :href="route('admin.users.edit', $user)" wire:navigate />
+                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDeleteUser({{ $user->id }})" />
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No users match your filters.') }}</p>
+            @endforelse
+            {{ $this->users->links() }}
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table :paginate="$this->users">
             <flux:table.columns>
                 <flux:table.column>{{ __('Name') }}</flux:table.column>
@@ -277,6 +317,7 @@ new #[Title('Users')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 
     <flux:modal name="toggle-admin-user" class="md:w-96">

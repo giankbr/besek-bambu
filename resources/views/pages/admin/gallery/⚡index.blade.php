@@ -82,6 +82,45 @@ new #[Title('Gallery')] class extends Component {
             />
         </div>
 
+        {{-- Mobile grid --}}
+        <div class="grid grid-cols-2 gap-3 md:hidden">
+            @forelse ($this->items as $item)
+                <div class="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                    <a href="{{ route('admin.gallery.edit', $item) }}" wire:navigate class="block">
+                        @if ($item->image_url)
+                            <div class="aspect-square bg-zinc-100 dark:bg-zinc-800">
+                                <img src="{{ image_src($item->image_url) }}" alt="" class="h-full w-full object-cover" loading="lazy" />
+                            </div>
+                        @else
+                            <div class="flex aspect-square items-center justify-center bg-zinc-100 text-3xl dark:bg-zinc-800">🖼️</div>
+                        @endif
+                    </a>
+                    <div class="p-2">
+                        <div class="truncate text-sm font-medium">{{ $item->title }}</div>
+                        @if ($item->subtitle)
+                            <div class="truncate text-xs text-zinc-500">{{ $item->subtitle }}</div>
+                        @endif
+                        <div class="mt-2 flex items-center justify-between">
+                            @if ($item->drop)
+                                <flux:badge color="amber" size="sm">{{ __('Drop') }}</flux:badge>
+                            @else
+                                <span></span>
+                            @endif
+                            <div class="flex gap-1">
+                                <flux:button size="sm" variant="ghost" icon="pencil-square" :href="route('admin.gallery.edit', $item)" wire:navigate />
+                                <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $item->id }})" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-2 py-6 text-center text-sm text-zinc-500">{{ __('No gallery items yet.') }}</div>
+            @endforelse
+        </div>
+        <div class="md:hidden">{{ $this->items->links() }}</div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table :paginate="$this->items">
             <flux:table.columns>
                 <flux:table.column>{{ __('Image') }}</flux:table.column>
@@ -139,6 +178,7 @@ new #[Title('Gallery')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 
     <x-admin.confirm-modal

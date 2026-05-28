@@ -116,7 +116,58 @@ new #[Title('Messages')] class extends Component {
             </flux:select>
         </div>
 
-        <div class="grid gap-6 lg:grid-cols-3">
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->messages as $message)
+                <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            <div class="truncate font-medium">{{ $message->name }}</div>
+                            <div class="truncate text-xs text-zinc-500">{{ $message->email }}</div>
+                        </div>
+                        @if ($message->is_read)
+                            <flux:badge color="zinc" size="sm">{{ __('Read') }}</flux:badge>
+                        @else
+                            <flux:badge color="blue" size="sm">{{ __('New') }}</flux:badge>
+                        @endif
+                    </div>
+                    <div class="mt-1.5 text-sm font-medium">{{ $message->subject }}</div>
+                    <div class="mt-0.5 line-clamp-1 text-xs text-zinc-500">{{ $message->message }}</div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <span class="text-xs text-zinc-500">{{ $message->created_at->diffForHumans() }}</span>
+                        <div class="flex gap-1">
+                            <flux:button size="sm" variant="ghost" icon="eye" wire:click="open({{ $message->id }})">{{ __('View') }}</flux:button>
+                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $message->id }})" />
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No messages yet.') }}</p>
+            @endforelse
+            {{ $this->messages->links() }}
+        </div>
+        @if ($this->opened)
+            <flux:card class="md:hidden">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <flux:heading size="lg">{{ $this->opened->subject }}</flux:heading>
+                        <flux:subheading>{{ $this->opened->created_at->format('M d, Y · H:i') }}</flux:subheading>
+                    </div>
+                    <flux:button size="sm" variant="ghost" icon="x-mark" wire:click="$set('openedId', null)" />
+                </div>
+                <flux:separator class="my-3" />
+                <flux:text>{{ $this->opened->name }}</flux:text>
+                <a href="mailto:{{ $this->opened->email }}" class="text-sm text-blue-600 hover:underline">{{ $this->opened->email }}</a>
+                <flux:separator class="my-3" />
+                <flux:text class="whitespace-pre-line">{{ $this->opened->message }}</flux:text>
+                <div class="mt-4">
+                    <flux:button variant="primary" :href="'mailto:' . $this->opened->email . '?subject=Re: ' . urlencode($this->opened->subject)">{{ __('Reply via email') }}</flux:button>
+                </div>
+            </flux:card>
+        @endif
+
+        {{-- Desktop layout --}}
+        <div class="hidden md:grid gap-6 lg:grid-cols-3">
             <div class="lg:col-span-2">
                 <flux:table :paginate="$this->messages">
                     <flux:table.columns>
@@ -196,6 +247,7 @@ new #[Title('Messages')] class extends Component {
                     </flux:card>
                 @endif
             </div>
+        </div>
         </div>
     </div>
 

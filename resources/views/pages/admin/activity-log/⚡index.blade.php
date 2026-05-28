@@ -154,6 +154,40 @@ new #[Title('Activity log')] class extends Component {
             </div>
         @endif
 
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->logs as $log)
+                @php
+                    $eventColor = match ($log->event) { 'created' => 'green', 'updated' => 'blue', 'deleted' => 'red', default => 'zinc' };
+                @endphp
+                <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <div class="text-xs text-zinc-500">{{ $log->created_at->format('M d, Y · H:i') }}</div>
+                            <div class="mt-0.5 text-sm font-medium">{{ $log->user?->name ?? __('System') }}</div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <flux:badge :color="$eventColor" size="sm">{{ ucfirst($log->event) }}</flux:badge>
+                            @if ($log->subject_type)
+                                <flux:badge color="zinc" size="sm">{{ class_basename($log->subject_type) }}</flux:badge>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="mt-1.5 text-xs text-zinc-600 dark:text-zinc-400">{{ $log->description }}</div>
+                    @if (! empty($log->properties))
+                        <div class="mt-2 flex justify-end">
+                            <flux:button size="sm" variant="ghost" icon="eye" wire:click="preview({{ $log->id }})">{{ __('Details') }}</flux:button>
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No activity yet.') }}</p>
+            @endforelse
+            {{ $this->logs->links() }}
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table :paginate="$this->logs">
             <flux:table.columns>
                 <flux:table.column>{{ __('When') }}</flux:table.column>
@@ -219,6 +253,7 @@ new #[Title('Activity log')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
 
         @if ($this->previewLog)
             <flux:modal

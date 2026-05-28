@@ -93,6 +93,45 @@ new #[Title('Coupons')] class extends Component {
             class="max-w-sm"
         />
 
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->coupons as $coupon)
+                <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="font-mono font-semibold">{{ $coupon->code }}</span>
+                            @if ($coupon->label)
+                                <div class="text-xs text-zinc-500">{{ $coupon->label }}</div>
+                            @endif
+                        </div>
+                        @if ($coupon->is_active)
+                            <flux:badge color="green" size="sm">{{ __('Active') }}</flux:badge>
+                        @else
+                            <flux:badge color="zinc" size="sm">{{ __('Paused') }}</flux:badge>
+                        @endif
+                    </div>
+                    <div class="mt-2 flex flex-wrap gap-3 text-xs text-zinc-500">
+                        <span>{{ ucfirst($coupon->type) }}: {{ $coupon->type === 'percent' ? rtrim(rtrim((string) $coupon->value, '0'), '.').'%' : idr($coupon->value) }}</span>
+                        <span>{{ __('Min') }}: {{ idr($coupon->min_order) }}</span>
+                        <span>{{ __('Used') }}: {{ $coupon->used_count }}{{ $coupon->usage_limit ? '/'.$coupon->usage_limit : '' }}</span>
+                        @if ($coupon->expires_at)
+                            <span>{{ __('Exp') }}: {{ $coupon->expires_at->format('d M Y') }}</span>
+                        @endif
+                    </div>
+                    <div class="mt-2 flex justify-end gap-1">
+                        <flux:button size="sm" variant="ghost" :icon="$coupon->is_active ? 'pause' : 'play'" wire:click="toggleActive({{ $coupon->id }})" />
+                        <flux:button size="sm" variant="ghost" icon="pencil-square" :href="route('admin.coupons.edit', $coupon)" wire:navigate />
+                        <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $coupon->id }})" />
+                    </div>
+                </div>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No coupons yet.') }}</p>
+            @endforelse
+            {{ $this->coupons->links() }}
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table :paginate="$this->coupons">
             <flux:table.columns>
                 <flux:table.column>{{ __('Code') }}</flux:table.column>
@@ -165,6 +204,7 @@ new #[Title('Coupons')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 
     <x-admin.confirm-modal

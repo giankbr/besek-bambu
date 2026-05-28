@@ -76,6 +76,37 @@ new #[Title('Customers')] class extends Component {
             </flux:select>
         </div>
 
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->customers as $row)
+                <a href="{{ route('admin.customers.show', ['email' => $row->customer_email]) }}" wire:navigate
+                   class="block rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-center gap-3">
+                        <flux:avatar :name="$row->customer_name" size="sm" />
+                        <div class="min-w-0 flex-1">
+                            <div class="truncate font-medium">{{ $row->customer_name }}</div>
+                            <div class="truncate text-xs text-zinc-500">{{ $row->customer_email }}</div>
+                        </div>
+                        @if ($row->user_id)
+                            <flux:badge color="emerald" size="sm">{{ __('Registered') }}</flux:badge>
+                        @else
+                            <flux:badge color="zinc" size="sm">{{ __('Guest') }}</flux:badge>
+                        @endif
+                    </div>
+                    <div class="mt-2 flex gap-4 text-xs text-zinc-500">
+                        <span>{{ $row->orders_count }} {{ __('orders') }}</span>
+                        <span>Rp {{ number_format((float) $row->total_spent, 0, ',', '.') }}</span>
+                        <span class="ml-auto">{{ \Illuminate\Support\Carbon::parse($row->last_order_at)->diffForHumans() }}</span>
+                    </div>
+                </a>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No customers yet.') }}</p>
+            @endforelse
+            {{ $this->customers->links() }}
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table :paginate="$this->customers">
             <flux:table.columns>
                 <flux:table.column>{{ __('Customer') }}</flux:table.column>
@@ -131,5 +162,6 @@ new #[Title('Customers')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 </section>

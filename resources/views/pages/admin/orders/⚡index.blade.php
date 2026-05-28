@@ -266,6 +266,41 @@ new #[Title('Orders')] class extends Component {
             </div>
         @endif
 
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->orders as $order)
+                @php
+                    $color = match ($order->status) { 'pending' => 'amber', 'paid' => 'blue', 'shipped' => 'indigo', 'delivered' => 'green', 'cancelled' => 'red', default => 'zinc' };
+                    $payColor = match ($order->payment_status) { 'paid' => 'green', 'pending' => 'amber', 'unpaid' => 'zinc', 'failed', 'expired' => 'red', 'refunded' => 'purple', default => 'zinc' };
+                @endphp
+                <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="font-mono text-sm font-semibold">{{ $order->number }}</span>
+                            <div class="mt-0.5 text-xs text-zinc-500">{{ $order->created_at->diffForHumans() }}</div>
+                        </div>
+                        <flux:button size="sm" variant="ghost" icon="eye" :href="route('admin.orders.show', $order)" wire:navigate />
+                    </div>
+                    <div class="mt-2 text-sm font-medium">{{ $order->customer_name }}</div>
+                    <div class="text-xs text-zinc-500">{{ $order->customer_email }}</div>
+                    <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                        <flux:badge :color="$color" size="sm">{{ order_status_label($order->status) }}</flux:badge>
+                        <flux:badge :color="$payColor" size="sm">{{ payment_status_label($order->payment_status) }}</flux:badge>
+                        <span class="ml-auto text-sm font-semibold">Rp {{ number_format((float) $order->total, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="mt-2 flex items-center gap-2">
+                        <flux:checkbox wire:model.live="selected" value="{{ $order->id }}" />
+                        <span class="text-xs text-zinc-500">{{ $order->items_count }} {{ __('item(s)') }}</span>
+                    </div>
+                </div>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No orders match your filters.') }}</p>
+            @endforelse
+            {{ $this->orders->links() }}
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table :paginate="$this->orders">
             <flux:table.columns>
                 <flux:table.column class="w-10">
@@ -347,6 +382,7 @@ new #[Title('Orders')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 
     <x-admin.confirm-modal

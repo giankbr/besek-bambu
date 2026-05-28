@@ -167,6 +167,30 @@ new #[Title('Customer detail')] class extends Component {
             <div class="lg:col-span-2">
                 <flux:card>
                     <flux:heading size="lg">{{ __('Order history') }}</flux:heading>
+                    {{-- Mobile order cards --}}
+                    <div class="mt-4 flex flex-col gap-2 md:hidden">
+                        @foreach ($this->orders as $order)
+                            @php
+                                $color = match ($order->status) { 'pending' => 'amber', 'paid' => 'blue', 'shipped' => 'indigo', 'delivered' => 'green', 'cancelled' => 'red', default => 'zinc' };
+                                $payColor = match ($order->payment_status) { 'paid' => 'green', 'pending' => 'amber', 'unpaid' => 'zinc', 'failed', 'expired' => 'red', 'refunded' => 'purple', default => 'zinc' };
+                            @endphp
+                            <a href="{{ route('admin.orders.show', $order) }}" wire:navigate
+                               class="block rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-mono text-sm font-semibold">{{ $order->number }}</span>
+                                    <span class="text-xs text-zinc-500">{{ $order->created_at->format('M d, Y') }}</span>
+                                </div>
+                                <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                    <flux:badge :color="$color" size="sm">{{ order_status_label($order->status) }}</flux:badge>
+                                    <flux:badge :color="$payColor" size="sm">{{ payment_status_label($order->payment_status) }}</flux:badge>
+                                    <span class="ml-auto text-sm font-semibold">Rp {{ number_format((float) $order->total, 0, ',', '.') }}</span>
+                                </div>
+                            </a>
+                        @endforeach
+                        {{ $this->orders->links() }}
+                    </div>
+                    {{-- Desktop table --}}
+                    <div class="hidden md:block">
                     <flux:table :paginate="$this->orders" class="mt-4">
                         <flux:table.columns>
                             <flux:table.column>{{ __('Order') }}</flux:table.column>
@@ -223,6 +247,7 @@ new #[Title('Customer detail')] class extends Component {
                             @endforeach
                         </flux:table.rows>
                     </flux:table>
+                    </div>
                 </flux:card>
             </div>
         </div>

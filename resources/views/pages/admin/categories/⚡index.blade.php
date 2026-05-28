@@ -62,6 +62,29 @@ new #[Title('Categories')] class extends Component {
             </flux:button>
         </div>
 
+        {{-- Mobile cards --}}
+        <div class="flex flex-col gap-2 md:hidden">
+            @forelse ($this->categories as $category)
+                <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <div class="font-medium">{{ $category->title }}</div>
+                            <div class="text-xs text-zinc-500">{{ $category->slug }}</div>
+                        </div>
+                        <flux:badge color="zinc" size="sm">{{ $category->products_count }} {{ __('products') }}</flux:badge>
+                    </div>
+                    <div class="mt-2 flex justify-end gap-1">
+                        <flux:button size="sm" variant="ghost" icon="pencil-square" :href="route('admin.categories.edit', $category)" wire:navigate>{{ __('Edit') }}</flux:button>
+                        <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $category->id }})">{{ __('Delete') }}</flux:button>
+                    </div>
+                </div>
+            @empty
+                <p class="py-6 text-center text-sm text-zinc-500">{{ __('No categories yet.') }}</p>
+            @endforelse
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('Title') }}</flux:table.column>
@@ -109,6 +132,7 @@ new #[Title('Categories')] class extends Component {
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
     </div>
 
     <x-admin.confirm-modal
