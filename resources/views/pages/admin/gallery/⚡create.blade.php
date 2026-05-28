@@ -70,7 +70,7 @@ new #[Title('New gallery item')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div>
             <flux:heading size="xl">{{ __('New gallery item') }}</flux:heading>
             <flux:subheading>{{ __('Add an image to the storefront gallery.') }}</flux:subheading>

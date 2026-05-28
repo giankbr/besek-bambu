@@ -96,7 +96,7 @@ new #[Title('Messages')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div>
             <flux:heading size="xl">{{ __('Messages') }}</flux:heading>
             <flux:subheading>{{ __('Customer enquiries from the contact form.') }}</flux:subheading>

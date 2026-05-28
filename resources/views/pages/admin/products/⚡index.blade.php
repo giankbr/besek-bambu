@@ -143,7 +143,7 @@ new #[Title('Products')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div class="flex items-center justify-between">
             <div>
                 <flux:heading size="xl">{{ __('Products') }}</flux:heading>
@@ -195,7 +195,8 @@ new #[Title('Products')] class extends Component {
         @endif
 
         {{-- Mobile card grid --}}
-        <div class="grid grid-cols-2 gap-3 md:hidden">
+        <div class="md:hidden">
+        <div class="grid grid-cols-2 gap-3">
             @forelse ($this->products as $product)
                 <div class="rounded-xl border border-zinc-200 bg-white overflow-hidden dark:border-zinc-700 dark:bg-zinc-900">
                     <a href="{{ route('admin.products.edit', $product) }}" wire:navigate class="block">
@@ -237,6 +238,8 @@ new #[Title('Products')] class extends Component {
             @empty
                 <div class="col-span-2 py-10 text-center text-zinc-500">{{ __('No products found.') }}</div>
             @endforelse
+        </div>
+        <div class="mt-3">{{ $this->products->links() }}</div>
         </div>
 
         {{-- Desktop table --}}

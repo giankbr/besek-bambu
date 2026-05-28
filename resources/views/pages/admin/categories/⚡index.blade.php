@@ -51,7 +51,7 @@ new #[Title('Categories')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div class="flex items-center justify-between">
             <div>
                 <flux:heading size="xl">{{ __('Categories') }}</flux:heading>

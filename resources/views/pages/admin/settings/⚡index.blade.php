@@ -433,7 +433,7 @@ new #[Title('Store settings')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div>
             <flux:heading size="xl">{{ __('Store settings') }}</flux:heading>
             <flux:subheading>{{ __('Configure how your store presents itself and operates.') }}</flux:subheading>

@@ -178,7 +178,7 @@ new #[Title('Media library')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div>
             <flux:heading size="xl">{{ __('Media library') }}</flux:heading>
             <flux:subheading>{{ __('Centralised storage for product, gallery, and other site images.') }}</flux:subheading>

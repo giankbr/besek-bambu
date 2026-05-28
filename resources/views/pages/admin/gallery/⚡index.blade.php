@@ -62,7 +62,7 @@ new #[Title('Gallery')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div class="flex items-start justify-between gap-4">
             <div>
                 <flux:heading size="xl">{{ __('Gallery') }}</flux:heading>

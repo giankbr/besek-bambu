@@ -113,7 +113,7 @@ new #[Title('Activity log')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div>
             <flux:heading size="xl">{{ __('Activity log') }}</flux:heading>
             <flux:subheading>{{ __('Audit trail of admin actions across the store.') }}</flux:subheading>

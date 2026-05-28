@@ -96,7 +96,7 @@ new #[Title('New Product')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    <div class="flex flex-col gap-6 p-6">
+    <div class="flex flex-col gap-6 p-4 md:p-6">
         <div>
             <flux:heading size="xl">{{ __('New Product') }}</flux:heading>
             <flux:subheading>{{ __('Add a new product to the catalog.') }}</flux:subheading>
