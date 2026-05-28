@@ -223,7 +223,7 @@ new #[Title('Products')] class extends Component {
                                     <span class="text-2xl">{{ $product->icon }}</span>
                                 @endif
                                 <div>
-                                    <div class="font-medium">{{ $product->name }}</div>
+                                    <a href="{{ route('admin.products.edit', $product) }}" wire:navigate class="font-medium hover:underline">{{ $product->name }}</a>
                                     <flux:text size="sm" class="text-zinc-500">{{ $product->slug }}</flux:text>
                                 </div>
                             </div>
