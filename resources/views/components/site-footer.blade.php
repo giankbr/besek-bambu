@@ -27,11 +27,17 @@
 
     <div class="mega-logo" data-mega-brand>
       <div class="word mega-brand" aria-label="{{ $brandName }}">
-        @foreach (array_values(array_filter(explode(' ', $brandName))) as $index => $part)
+        @php
+          $words = array_values(array_filter(explode(' ', $brandName)));
+          $half = (int) ceil(count($words) / 2);
+          $lines = [
+            implode(' ', array_slice($words, 0, $half)),
+            implode(' ', array_slice($words, $half)),
+          ];
+        @endphp
+        @foreach (array_filter($lines) as $index => $line)
           <span class="mega-brand__line">
-            <span
-              class="mega-brand__fill @if ($index > 0) mega-brand__fill--accent @endif"
-            >{{ $part }}</span>
+            <span class="mega-brand__fill @if ($index > 0) mega-brand__fill--accent @endif">{{ $line }}</span>
           </span>
         @endforeach
       </div>
