@@ -5,7 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\ContactMessage;
 use App\Models\Order;
 use App\Models\ProductReview;
-use Illuminate\Support\Carbon;
+use Carbon\CarbonInterface;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -22,11 +22,11 @@ class NotificationBell extends Component
     }
 
     #[Computed]
-    public function seenAt(): Carbon
+    public function seenAt(): CarbonInterface
     {
         $value = session('admin_notif_seen_at');
 
-        return $value ? Carbon::parse($value) : now()->subDay();
+        return $value ? now()->parse($value) : now()->subDay();
     }
 
     #[Computed]
