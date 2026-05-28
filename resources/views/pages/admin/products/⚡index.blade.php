@@ -206,7 +206,6 @@ new #[Title('Products')] class extends Component {
                 <flux:table.column>{{ __('Price') }}</flux:table.column>
                 <flux:table.column>{{ __('Stock') }}</flux:table.column>
                 <flux:table.column>{{ __('Status') }}</flux:table.column>
-                <flux:table.column></flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
@@ -222,23 +221,10 @@ new #[Title('Products')] class extends Component {
                                 @else
                                     <span class="text-2xl">{{ $product->icon }}</span>
                                 @endif
-                                <div>
+                                <div class="min-w-0 flex-1">
                                     <a href="{{ route('admin.products.edit', $product) }}" wire:navigate class="font-medium hover:underline">{{ $product->name }}</a>
                                     <flux:text size="sm" class="text-zinc-500">{{ $product->slug }}</flux:text>
                                 </div>
-                            </div>
-                        </flux:table.cell>
-                        <flux:table.cell>{{ idr($product->price) }}</flux:table.cell>
-                        <flux:table.cell>{{ $product->stock }}</flux:table.cell>
-                        <flux:table.cell>
-                            @if ($product->is_active)
-                                <flux:badge color="green" size="sm">{{ __('Active') }}</flux:badge>
-                            @else
-                                <flux:badge color="zinc" size="sm">{{ __('Hidden') }}</flux:badge>
-                            @endif
-                        </flux:table.cell>
-                        <flux:table.cell>
-                            <div class="flex items-center justify-end">
                                 <flux:dropdown position="bottom" align="end">
                                     <flux:button size="sm" variant="ghost" icon="ellipsis-horizontal" />
                                     <flux:menu>
@@ -253,10 +239,19 @@ new #[Title('Products')] class extends Component {
                                 </flux:dropdown>
                             </div>
                         </flux:table.cell>
+                        <flux:table.cell>{{ idr($product->price) }}</flux:table.cell>
+                        <flux:table.cell>{{ $product->stock }}</flux:table.cell>
+                        <flux:table.cell>
+                            @if ($product->is_active)
+                                <flux:badge color="green" size="sm">{{ __('Active') }}</flux:badge>
+                            @else
+                                <flux:badge color="zinc" size="sm">{{ __('Hidden') }}</flux:badge>
+                            @endif
+                        </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="6" class="text-center text-zinc-500">
+                        <flux:table.cell colspan="5" class="text-center text-zinc-500">
                             {{ __('No products found.') }}
                         </flux:table.cell>
                     </flux:table.row>
