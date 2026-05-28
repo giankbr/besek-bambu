@@ -65,7 +65,10 @@ class MidtransService
         ];
 
         $token = Snap::getSnapToken($payload);
-        $url = Snap::getSnapUrl($payload);
+        $baseUrl = Config::$isProduction
+            ? 'https://app.midtrans.com/snap/v2/vtweb/'
+            : 'https://app.sandbox.midtrans.com/snap/v2/vtweb/';
+        $url = $baseUrl.$token;
 
         $order->update([
             'payment_token' => $token,
