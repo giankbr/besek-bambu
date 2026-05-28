@@ -238,24 +238,19 @@ new #[Title('Products')] class extends Component {
                             @endif
                         </flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex items-center justify-end gap-2">
-                                <flux:button
-                                    size="sm"
-                                    variant="ghost"
-                                    icon="pencil-square"
-                                    :href="route('admin.products.edit', $product)"
-                                    wire:navigate
-                                >
-                                    {{ __('Edit') }}
-                                </flux:button>
-                                <flux:button
-                                    size="sm"
-                                    variant="ghost"
-                                    icon="trash"
-                                    wire:click="confirmDelete({{ $product->id }})"
-                                >
-                                    {{ __('Delete') }}
-                                </flux:button>
+                            <div class="flex items-center justify-end">
+                                <flux:dropdown position="bottom" align="end">
+                                    <flux:button size="sm" variant="ghost" icon="ellipsis-horizontal" />
+                                    <flux:menu>
+                                        <flux:menu.item icon="pencil-square" :href="route('admin.products.edit', $product)" wire:navigate>
+                                            {{ __('Edit') }}
+                                        </flux:menu.item>
+                                        <flux:menu.separator />
+                                        <flux:menu.item icon="trash" variant="danger" wire:click="confirmDelete({{ $product->id }})">
+                                            {{ __('Delete') }}
+                                        </flux:menu.item>
+                                    </flux:menu>
+                                </flux:dropdown>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
