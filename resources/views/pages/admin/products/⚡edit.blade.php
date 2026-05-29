@@ -69,7 +69,7 @@ new #[Title('Edit Product')] class extends Component {
         $this->sort_order = $product->sort_order;
         $this->meta_title = $product->meta_title;
         $this->meta_description = $product->meta_description;
-        $this->og_image = $product->og_image;
+        $this->og_image = $product->og_image ?: $product->image_url;
 
         $this->variants = $product->variants()->orderBy('sort_order')->get()->map(fn ($v) => [
             'id' => $v->id,
@@ -94,6 +94,14 @@ new #[Title('Edit Product')] class extends Component {
         if ($this->slug === '') {
             $this->slug = Str::slug($value);
         }
+    }
+
+    public function generateSeo(): void
+    {
+        $this->meta_title = Str::limit($this->name, 160, '');
+        $plain = strip_tags($this->description ?? '');
+        $plain = preg_replace('/\s+/', ' ', trim($plain));
+        $this->meta_description = Str::limit($plain, 160, '…');
     }
 
     public function addTier(): void
@@ -545,9 +553,14 @@ new #[Title('Edit Product')] class extends Component {
 
             <flux:separator />
 
-            <div>
-                <flux:heading size="lg">{{ __('SEO') }}</flux:heading>
-                <flux:subheading>{{ __('Customise how this product appears in search engines and social previews.') }}</flux:subheading>
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <flux:heading size="lg">{{ __('SEO') }}</flux:heading>
+                    <flux:subheading>{{ __('Customise how this product appears in search engines and social previews.') }}</flux:subheading>
+                </div>
+                <flux:button size="sm" variant="ghost" icon="sparkles" wire:click="generateSeo" type="button">
+                    {{ __('Generate') }}
+                </flux:button>
             </div>
 
             <flux:input

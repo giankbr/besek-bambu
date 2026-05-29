@@ -20,21 +20,13 @@ new class extends Component {
 
     public ?string $label = null;
 
-    public bool $allowExternalUrl = true;
-
     public string $search = '';
 
-    public string $externalUrl = '';
+    public array $uploads = [];
 
-    public $upload = null;
-
-    public function mount(?string $label = null, bool $allowExternalUrl = true): void
+    public function mount(?string $label = null): void
     {
         $this->label = $label;
-        $this->allowExternalUrl = $allowExternalUrl;
-        $this->externalUrl = $this->value && (str_starts_with($this->value, 'http://') || str_starts_with($this->value, 'https://'))
-            ? $this->value
-            : '';
     }
 
     public function closePicker(): void
@@ -45,7 +37,6 @@ new class extends Component {
     public function clear(): void
     {
         $this->value = null;
-        $this->externalUrl = '';
     }
 
     public function pick(int $id): void
@@ -56,58 +47,44 @@ new class extends Component {
         }
 
         $this->value = $media->path;
-        $this->externalUrl = '';
         $this->closePicker();
-    }
-
-    public function applyExternalUrl(): void
-    {
-        $url = trim($this->externalUrl);
-
-        if ($url === '') {
-            $this->value = null;
-            return;
-        }
-
-        if (! filter_var($url, FILTER_VALIDATE_URL)) {
-            Flux::toast(variant: 'danger', heading: __('Invalid URL'), text: __('Enter a full URL starting with http:// or https://'));
-            return;
-        }
-
-        $this->value = $url;
     }
 
     public function uploadAndPick(): void
     {
         try {
             $this->validate([
-                'upload' => ['required', 'image', 'max:10240'],
+                'uploads.*' => ['required', 'image', 'max:10240'],
             ]);
 
-            $path = $this->upload->store('media', 'public');
+            $lastPath = null;
+            foreach ($this->uploads as $file) {
+                $path = $file->store('media', 'public');
 
-            $width = null;
-            $height = null;
-            $abs = Storage::disk('public')->path($path);
-            $size = @getimagesize($abs);
-            if ($size !== false) {
-                [$width, $height] = $size;
+                $width = null;
+                $height = null;
+                $abs = Storage::disk('public')->path($path);
+                $size = @getimagesize($abs);
+                if ($size !== false) {
+                    [$width, $height] = $size;
+                }
+
+                Media::create([
+                    'disk' => 'public',
+                    'path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime' => $file->getMimeType(),
+                    'size' => $file->getSize(),
+                    'width' => $width,
+                    'height' => $height,
+                    'uploaded_by' => auth()->id(),
+                ]);
+
+                $lastPath = $path;
             }
 
-            $media = Media::create([
-                'disk' => 'public',
-                'path' => $path,
-                'original_name' => $this->upload->getClientOriginalName(),
-                'mime' => $this->upload->getMimeType(),
-                'size' => $this->upload->getSize(),
-                'width' => $width,
-                'height' => $height,
-                'uploaded_by' => auth()->id(),
-            ]);
-
-            $this->upload = null;
-            $this->value = $media->path;
-            $this->externalUrl = '';
+            $this->uploads = [];
+            $this->value = $lastPath;
             $this->closePicker();
 
             Flux::toast(variant: 'success', text: __('Uploaded and selected.'));
@@ -173,21 +150,6 @@ new class extends Component {
         </div>
     </div>
 
-    @if ($allowExternalUrl)
-        <div class="mt-3 flex flex-wrap items-end gap-2">
-            <div class="grow">
-                <flux:input
-                    wire:model="externalUrl"
-                    :label="__('…or paste an external URL')"
-                    placeholder="https://…"
-                />
-            </div>
-            <flux:button size="sm" variant="ghost" wire:click="applyExternalUrl" type="button">
-                {{ __('Apply URL') }}
-            </flux:button>
-        </div>
-    @endif
-
     @if ($value)
         <flux:text size="sm" class="mt-2 break-all text-zinc-500">{{ $value }}</flux:text>
     @endif
@@ -231,13 +193,13 @@ new class extends Component {
                     <flux:label>{{ __('Or upload new') }}</flux:label>
                     <div class="relative inline-flex">
                         <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
-                            {{ $upload ? $upload->getClientOriginalName() : __('Choose file…') }}
+                            {{ count($uploads) > 0 ? count($uploads).' '.__('file(s) selected') : __('Choose files…') }}
                         </flux:button>
-                        <input type="file" wire:model="upload" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                        <input type="file" wire:model="uploads" accept="image/*" multiple class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
                     </div>
-                    @error('upload')<flux:text class="text-sm text-red-500">{{ $message }}</flux:text>@enderror
+                    @error('uploads.*')<flux:text class="text-sm text-red-500">{{ $message }}</flux:text>@enderror
                     <div class="flex items-center gap-2">
-                        <flux:button size="sm" variant="primary" icon="arrow-up-tray" wire:click="uploadAndPick" :disabled="! $upload" type="button">
+                        <flux:button size="sm" variant="primary" icon="arrow-up-tray" wire:click="uploadAndPick" :disabled="count($uploads) === 0" type="button">
                             {{ __('Upload & select') }}
                         </flux:button>
                         <flux:button size="sm" variant="ghost" type="button"
