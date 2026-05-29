@@ -2528,13 +2528,15 @@
     .reviews-track-wrap { mask-image: none; -webkit-mask-image: none; }
     .newsletter-section { margin-block: 28px 40px; }
     .newsletter {
-      padding: 1.25rem 0.85rem 1.35rem;
+      padding: 0.75rem 0.65rem 0.85rem;
+      min-height: 0;
     }
     .news-center {
-      padding-inline: 0.25rem;
+      padding: 3.5rem 0.35rem 3.25rem;
+      max-width: none;
     }
     .news-center .label {
-      font-size: 1rem;
+      font-size: 0.95rem;
       margin-bottom: 0.25rem;
     }
     .news-center .big {
@@ -2545,21 +2547,36 @@
       font-size: clamp(1.35rem, 5.5vw, 1.65rem);
     }
     .big-accent {
-      font-size: clamp(1.85rem, 9vw, 2.35rem);
+      font-size: clamp(1.75rem, 8.5vw, 2.2rem);
     }
-    .news-corner--tl, .news-corner--tr { top: 4%; }
-    .news-corner--bl, .news-corner--br { bottom: 4%; }
-    .news-corner--bl,
-    .news-corner--br {
-      display: none;
+    .news-corner {
+      width: clamp(44px, 12vw, 52px);
+      border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
     }
     .news-corner--tl {
-      left: 2%;
-      width: 56px;
+      top: 10px;
+      left: 10px;
+      transform: rotate(-6deg);
     }
     .news-corner--tr {
-      right: 2%;
-      width: 56px;
+      top: 10px;
+      right: 10px;
+      transform: rotate(6deg);
+    }
+    .news-corner--bl {
+      display: block;
+      bottom: 10px;
+      left: 10px;
+      top: auto;
+      transform: rotate(5deg);
+    }
+    .news-corner--br {
+      display: block;
+      bottom: 10px;
+      right: 10px;
+      top: auto;
+      transform: rotate(-5deg);
     }
     .newsletter-form {
       flex-direction: column;
@@ -2590,8 +2607,28 @@
   }
 
   @media (max-width: 400px) {
-    .news-corner--tl { width: 44px; }
-    .news-corner--tr { width: 44px; }
+    .news-center {
+      padding: 3.25rem 0.2rem 3rem;
+    }
+    .news-corner {
+      width: 40px;
+    }
+    .news-corner--tl,
+    .news-corner--tr {
+      top: 8px;
+    }
+    .news-corner--bl,
+    .news-corner--br {
+      bottom: 8px;
+    }
+    .news-corner--tl,
+    .news-corner--bl {
+      left: 8px;
+    }
+    .news-corner--tr,
+    .news-corner--br {
+      right: 8px;
+    }
   }
 
 /* ===== Shop pages ===== */
