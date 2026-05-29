@@ -2345,11 +2345,11 @@
     }
     .news-corner--tl {
       left: 2%;
-      width: 44px;
+      width: 56px;
     }
     .news-corner--tr {
       right: 2%;
-      width: 44px;
+      width: 56px;
     }
     .newsletter-form {
       flex-direction: column;
@@ -2387,7 +2387,8 @@
   }
 
   @media (max-width: 400px) {
-    .news-corner--tr { display: none; }
+    .news-corner--tl { width: 44px; }
+    .news-corner--tr { width: 44px; }
   }
 
 /* ===== Shop pages ===== */
