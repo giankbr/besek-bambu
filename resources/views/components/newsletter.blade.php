@@ -7,7 +7,7 @@
     : collect(range(0, 3))->map(fn (int $i) => $pool->get($i % $pool->count()));
 @endphp
 
-<section class="newsletter-section" aria-labelledby="newsletter-title">
+<section id="newsletter" class="newsletter-section" aria-labelledby="newsletter-title">
   <div class="newsletter">
     @if ($photos->isNotEmpty())
       <div class="newsletter-photos" aria-hidden="true">
@@ -25,11 +25,29 @@
         <span class="big-line">{{ __('Daftar email') }}</span>
         <span class="big-accent">{{ __('diskon 10%') }}</span>
       </h2>
-      <form class="newsletter-form" action="#" method="post" onsubmit="event.preventDefault();">
+
+      @if (session('newsletter_status'))
+        <p class="newsletter-flash" role="status">{{ session('newsletter_status') }}</p>
+      @endif
+
+      @if ($errors->has('email'))
+        <p class="newsletter-flash newsletter-flash--error" role="alert">{{ $errors->first('email') }}</p>
+      @endif
+
+      <form class="newsletter-form" action="{{ route('newsletter.subscribe') }}" method="post">
         @csrf
+        <input type="text" name="company" value="" tabindex="-1" autocomplete="off" class="newsletter-honeypot" aria-hidden="true" />
         <label class="newsletter-field">
           <span class="visually-hidden">{{ __('Email') }}</span>
-          <input type="email" name="email" placeholder="{{ __('Email Anda') }}" required autocomplete="email" inputmode="email" />
+          <input
+            type="email"
+            name="email"
+            value="{{ old('email') }}"
+            placeholder="{{ __('Email Anda') }}"
+            required
+            autocomplete="email"
+            inputmode="email"
+          />
         </label>
         <button type="submit">{{ __('Daftar') }}</button>
       </form>

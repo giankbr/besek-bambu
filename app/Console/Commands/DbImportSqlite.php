@@ -28,6 +28,7 @@ class DbImportSqlite extends Command
         'orders',
         'order_items',
         'contact_messages',
+        'newsletter_subscribers',
         'wishlist_items',
         'product_reviews',
         'cart_snapshots',
