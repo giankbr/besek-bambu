@@ -8,7 +8,6 @@
             <flux:sidebar.header>
                 <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
                 <div class="ml-auto flex items-center gap-1">
-                    <livewire:admin.notification-bell />
                     <flux:sidebar.collapse />
                 </div>
             </flux:sidebar.header>

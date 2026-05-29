@@ -91,7 +91,9 @@ new #[Title('Edit Product')] class extends Component {
 
     public function updatedName(string $value): void
     {
-        $this->slug = Str::slug($value);
+        if ($this->slug === '') {
+            $this->slug = Str::slug($value);
+        }
     }
 
     public function addTier(): void
@@ -656,45 +658,6 @@ new #[Title('Edit Product')] class extends Component {
             </div>
         </div>
 
-        <flux:separator class="my-2" />
-
-        <div class="w-full">
-            <flux:heading size="lg">{{ __('Image gallery') }}</flux:heading>
-            <flux:subheading>{{ __('Upload additional images to show on the product page.') }}</flux:subheading>
-
-            <div class="mt-4 flex flex-wrap gap-3">
-                @foreach ($product->images as $img)
-                    <div class="relative">
-                        <img src="{{ image_src($img->path) }}" class="h-28 w-28 rounded-lg object-cover {{ $img->is_primary ? 'ring-2 ring-emerald-500' : '' }}" />
-                        <div class="mt-1 flex gap-1">
-                            @if (! $img->is_primary)
-                                <flux:button size="xs" variant="ghost" wire:click="setPrimary({{ $img->id }})">{{ __('Set primary') }}</flux:button>
-                            @else
-                                <flux:badge color="green" size="sm">{{ __('Primary') }}</flux:badge>
-                            @endif
-                            <flux:button size="xs" variant="ghost" icon="trash" wire:click="confirmDeleteImage({{ $img->id }})" />
-                        </div>
-                    </div>
-                @endforeach
-                @if ($product->images->isEmpty())
-                    <flux:text class="text-zinc-500">{{ __('No additional images yet.') }}</flux:text>
-                @endif
-            </div>
-
-            <form wire:submit="uploadExtraImages" class="mt-5 grid gap-3">
-                <flux:label>{{ __('Add more images (multiple allowed)') }}</flux:label>
-                <div class="relative inline-flex">
-                    <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
-                        {{ $extraImages ? count($extraImages).' '.__('file(s) selected') : __('Choose files…') }}
-                    </flux:button>
-                    <input type="file" wire:model="extraImages" multiple accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
-                </div>
-                @error('extraImages.*')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
-                <div>
-                    <flux:button type="submit" variant="primary">{{ __('Upload images') }}</flux:button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <x-admin.confirm-modal

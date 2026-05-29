@@ -174,12 +174,12 @@ new #[Title('Products')] class extends Component {
                     <span class="font-semibold">{{ count($selected) }}</span>
                     {{ __('selected') }}
                 </flux:text>
-                <flux:select wire:model="bulkAction" placeholder="{{ __('Choose action…') }}" class="max-w-xs">
-                    <flux:select.option value="">{{ __('Choose action…') }}</flux:select.option>
-                    <flux:select.option value="activate">{{ __('Activate') }}</flux:select.option>
-                    <flux:select.option value="deactivate">{{ __('Deactivate') }}</flux:select.option>
-                    <flux:select.option value="delete">{{ __('Delete') }}</flux:select.option>
-                </flux:select>
+                <select wire:model="bulkAction" class="max-w-xs rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-800 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200">
+                    <option value="">{{ __('Choose action…') }}</option>
+                    <option value="activate">{{ __('Activate') }}</option>
+                    <option value="deactivate">{{ __('Deactivate') }}</option>
+                    <option value="delete">{{ __('Delete') }}</option>
+                </select>
                 <flux:button
                     size="sm"
                     variant="primary"
@@ -256,6 +256,7 @@ new #[Title('Products')] class extends Component {
                 <flux:table.column>{{ __('Price') }}</flux:table.column>
                 <flux:table.column>{{ __('Stock') }}</flux:table.column>
                 <flux:table.column>{{ __('Status') }}</flux:table.column>
+                <flux:table.column />
             </flux:table.columns>
 
             <flux:table.rows>
@@ -275,18 +276,6 @@ new #[Title('Products')] class extends Component {
                                     <a href="{{ route('admin.products.edit', $product) }}" wire:navigate class="font-medium hover:underline">{{ $product->name }}</a>
                                     <flux:text size="sm" class="text-zinc-500">{{ $product->slug }}</flux:text>
                                 </div>
-                                <flux:dropdown position="bottom" align="end">
-                                    <flux:button size="sm" variant="ghost" icon="ellipsis-horizontal" />
-                                    <flux:menu>
-                                        <flux:menu.item icon="pencil-square" :href="route('admin.products.edit', $product)" wire:navigate>
-                                            {{ __('Edit') }}
-                                        </flux:menu.item>
-                                        <flux:menu.separator />
-                                        <flux:menu.item icon="trash" variant="danger" wire:click="confirmDelete({{ $product->id }})">
-                                            {{ __('Delete') }}
-                                        </flux:menu.item>
-                                    </flux:menu>
-                                </flux:dropdown>
                             </div>
                         </flux:table.cell>
                         <flux:table.cell>{{ idr($product->price) }}</flux:table.cell>
@@ -298,10 +287,24 @@ new #[Title('Products')] class extends Component {
                                 <flux:badge color="zinc" size="sm">{{ __('Hidden') }}</flux:badge>
                             @endif
                         </flux:table.cell>
+                        <flux:table.cell>
+                            <flux:dropdown position="bottom" align="end">
+                                <flux:button size="sm" variant="ghost" icon="ellipsis-horizontal" />
+                                <flux:menu>
+                                    <flux:menu.item icon="pencil-square" :href="route('admin.products.edit', $product)" wire:navigate>
+                                        {{ __('Edit') }}
+                                    </flux:menu.item>
+                                    <flux:menu.separator />
+                                    <flux:menu.item icon="trash" variant="danger" wire:click="confirmDelete({{ $product->id }})">
+                                        {{ __('Delete') }}
+                                    </flux:menu.item>
+                                </flux:menu>
+                            </flux:dropdown>
+                        </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="5" class="text-center text-zinc-500">
+                        <flux:table.cell colspan="6" class="text-center text-zinc-500">
                             {{ __('No products found.') }}
                         </flux:table.cell>
                     </flux:table.row>

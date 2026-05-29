@@ -20,7 +20,7 @@
             ->get();
     @endphp
 
-    <div class="flex h-full w-full flex-1 flex-col gap-6 p-6">
+    <div class="flex h-full w-full flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6">
         @if (session('status'))
             <flux:callout variant="success" icon="check-circle" :heading="session('status')" />
         @endif
@@ -30,7 +30,7 @@
             <flux:subheading>{{ __('Overview of your store today.') }}</flux:subheading>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <flux:card>
                 <flux:text class="text-zinc-500">{{ __('Revenue (paid)') }}</flux:text>
                 <div class="mt-1 text-2xl font-bold">{{ idr($totalRevenue) }}</div>
