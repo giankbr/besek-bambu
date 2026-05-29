@@ -2,33 +2,21 @@
 
 @php
   $pool = $galleryItems->whereNotNull('image_url')->where('image_url', '!=', '')->values();
-  // Always fill 4 corners; repeat images when gallery has fewer than 4
-  $corners = $pool->isEmpty()
+  $photos = $pool->isEmpty()
     ? collect()
     : collect(range(0, 3))->map(fn (int $i) => $pool->get($i % $pool->count()));
 @endphp
 
 <section class="newsletter-section" aria-labelledby="newsletter-title">
   <div class="newsletter">
-    @if ($corners->get(0))
-    <figure class="news-corner news-corner--tl" aria-hidden="true">
-      <img src="{{ image_src($corners->get(0)->image_url) }}" alt="" width="200" height="200" loading="lazy" decoding="async" />
-    </figure>
-    @endif
-    @if ($corners->get(1))
-    <figure class="news-corner news-corner--bl" aria-hidden="true">
-      <img src="{{ image_src($corners->get(1)->image_url) }}" alt="" width="200" height="200" loading="lazy" decoding="async" />
-    </figure>
-    @endif
-    @if ($corners->get(2))
-    <figure class="news-corner news-corner--tr" aria-hidden="true">
-      <img src="{{ image_src($corners->get(2)->image_url) }}" alt="" width="200" height="200" loading="lazy" decoding="async" />
-    </figure>
-    @endif
-    @if ($corners->get(3))
-    <figure class="news-corner news-corner--br" aria-hidden="true">
-      <img src="{{ image_src($corners->get(3)->image_url) }}" alt="" width="200" height="200" loading="lazy" decoding="async" />
-    </figure>
+    @if ($photos->isNotEmpty())
+      <div class="newsletter-photos" aria-hidden="true">
+        @foreach ($photos as $photo)
+          <figure class="news-photo">
+            <img src="{{ image_src($photo->image_url) }}" alt="" width="200" height="200" loading="lazy" decoding="async" />
+          </figure>
+        @endforeach
+      </div>
     @endif
 
     <div class="news-center">
