@@ -1,7 +1,11 @@
 @props(['galleryItems' => collect()])
 
 @php
-  $corners = $galleryItems->whereNotNull('image_url')->where('image_url', '!=', '')->take(4)->values();
+  $pool = $galleryItems->whereNotNull('image_url')->where('image_url', '!=', '')->values();
+  // Always fill 4 corners; repeat images when gallery has fewer than 4
+  $corners = $pool->isEmpty()
+    ? collect()
+    : collect(range(0, 3))->map(fn (int $i) => $pool->get($i % $pool->count()));
 @endphp
 
 <section class="newsletter-section" aria-labelledby="newsletter-title">
