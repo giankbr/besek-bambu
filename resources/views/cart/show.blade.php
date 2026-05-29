@@ -136,7 +136,7 @@
                 <label for="coupon-code">{{ __('Kode promo') }}</label>
                 <div class="cart-coupon__row">
                   <input id="coupon-code" type="text" name="code" placeholder="{{ __('Masukkan kode') }}" maxlength="64" />
-                  <button type="submit" class="cart-link-btn">{{ __('Terapkan') }}</button>
+                  <button type="submit" class="cart-coupon__btn">{{ __('Terapkan') }}</button>
                 </div>
               </form>
             @endif
