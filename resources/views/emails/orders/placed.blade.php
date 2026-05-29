@@ -7,7 +7,7 @@ We've received your order **{{ $order->number }}**. Here's a summary:
 | Item | Qty | Price |
 |:-----|:---:|------:|
 @foreach ($order->items as $item)
-| {{ $item->product_icon }} {{ $item->product_name }} | {{ $item->quantity }} | {{ idr($item->line_total) }} |
+| {{ $item->product_name }} | {{ $item->quantity }} | {{ idr($item->line_total) }} |
 @endforeach
 </x-mail::table>
 

@@ -17,7 +17,7 @@
           <ul class="checkout-items">
             @foreach ($order->items as $item)
               <li>
-                <span class="checkout-item__name">{{ $item->product_icon }} {{ $item->product_name }} <small>× {{ $item->quantity }}</small></span>
+                <span class="checkout-item__name">{{ $item->product_name }} <small>× {{ $item->quantity }}</small></span>
                 <span>{{ idr($item->line_total) }}</span>
               </li>
             @endforeach
@@ -54,15 +54,7 @@
           <p class="confirmation-meta">{{ $order->customer_phone }}</p>
           <p class="confirmation-meta">{{ $order->shipping_address }}</p>
 
-          <div class="confirmation-status">
-            <span class="stock-pill stock-pill--in">{{ __('Pesanan:') }} {{ order_status_label($order->status) }}</span>
-            <span class="stock-pill {{ $order->isPaid() ? 'stock-pill--in' : 'stock-pill--low' }}">
-              {{ __('Pembayaran:') }} {{ payment_status_label($order->payment_status) }}
-            </span>
-            @if ($order->payment_method && $order->payment_method !== 'midtrans')
-              <span class="stock-pill stock-pill--in">{{ __('Metode:') }} {{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</span>
-            @endif
-          </div>
+          <x-order-status-summary :order="$order" hide-midtrans-method />
 
           @php
             $bankInfo = setting('payment_bank_info');

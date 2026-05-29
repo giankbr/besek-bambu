@@ -49,7 +49,7 @@
           <ul class="checkout-items">
             @foreach ($order->items as $item)
               <li>
-                <span class="checkout-item__name">{{ $item->product_icon }} {{ $item->product_name }} <small>× {{ $item->quantity }}</small></span>
+                <span class="checkout-item__name">{{ $item->product_name }} <small>× {{ $item->quantity }}</small></span>
                 <span>{{ idr($item->line_total) }}</span>
               </li>
             @endforeach

@@ -235,7 +235,7 @@
         @foreach ($order->items as $item)
           <tr>
             <td>
-              <strong>{{ $item->product_icon }} {{ $item->product_name }}</strong>
+              <strong>{{ $item->product_name }}</strong>
             </td>
             <td class="right">{{ $item->quantity }}</td>
             <td class="right">{{ idr($item->price) }}</td>

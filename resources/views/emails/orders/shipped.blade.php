@@ -19,7 +19,7 @@ Good news! Order **{{ $order->number }}** has been handed over to the courier an
 | Item | Qty | Price |
 |:-----|:---:|------:|
 @foreach ($order->items as $item)
-| {{ $item->product_icon }} {{ $item->product_name }} | {{ $item->quantity }} | {{ idr($item->line_total) }} |
+| {{ $item->product_name }} | {{ $item->quantity }} | {{ idr($item->line_total) }} |
 @endforeach
 </x-mail::table>
 
