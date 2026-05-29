@@ -106,11 +106,11 @@
             <div class="checkout-payment-methods" style="margin-bottom:0.75rem">
               <label class="checkout-payment-method">
                 <input type="radio" name="checkout_mode" value="ship" x-model="mode" />
-                <span><strong>🚚 {{ __('Kirim ke alamat saya') }}</strong><small>{{ __('Dihitung berdasarkan tujuan') }}</small></span>
+                <span><strong>{{ __('Kirim ke alamat saya') }}</strong><small>{{ __('Dihitung berdasarkan tujuan') }}</small></span>
               </label>
               <label class="checkout-payment-method">
                 <input type="radio" name="checkout_mode" value="pickup" x-model="mode" />
-                <span><strong>🏪 {{ __('Ambil sendiri di lokasi kami') }}</strong><small>{{ __('Gratis, ambil di lokasi kami') }}</small></span>
+                <span><strong>{{ __('Ambil sendiri di lokasi kami') }}</strong><small>{{ __('Gratis, ambil di lokasi kami') }}</small></span>
               </label>
             </div>
           @endif
@@ -268,7 +268,6 @@
                     <span>
                       @if ($key === 'midtrans')
                         <strong>{{ __('Bayar online (Midtrans)') }}</strong>
-                        <small>{{ __('Kartu, transfer bank VA, GoPay, ShopeePay, QRIS, dan lainnya') }}</small>
                       @else
                         {{ $label }}
                       @endif
@@ -292,7 +291,7 @@
           <ul class="checkout-items">
             @foreach ($items as $item)
               <li>
-                <span class="checkout-item__name">{{ $item->product->icon }} {{ $item->product->name }} <small>× {{ $item->quantity }}</small></span>
+                <span class="checkout-item__name">{{ $item->product->name }} <small>× {{ $item->quantity }}</small></span>
                 <span>{{ idr($item->line_total) }}</span>
               </li>
             @endforeach

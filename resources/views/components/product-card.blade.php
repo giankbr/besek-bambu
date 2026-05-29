@@ -22,6 +22,14 @@
       <span class="add-btn">{{ __('Lihat') }}</span>
     </div>
   </a>
+  @if (!$product->hasVariants() && $product->stock > 0)
+    <form method="post" action="{{ route('cart.add') }}" class="product-cart-overlay">
+      @csrf
+      <input type="hidden" name="product_id" value="{{ $product->id }}">
+      <input type="hidden" name="quantity" value="{{ $product->min_order_quantity ?? 1 }}">
+      <button type="submit" class="cart-btn" aria-label="{{ __('Tambah ke keranjang') }}">+</button>
+    </form>
+  @endif
 
   @if (config('features.wishlist'))
     @auth
