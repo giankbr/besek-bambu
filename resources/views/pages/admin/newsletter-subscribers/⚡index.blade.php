@@ -117,7 +117,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
             }
         }
 
-        $this->composeSubject = __('[ :store ] Kode diskon 10% untuk Anda', ['store' => store_name()]);
+        $this->composeSubject = __('[:store] Kode diskon 10% untuk Anda', ['store' => store_name()]);
         $this->composeBody = $service->welcomeTemplateBody($couponCode);
     }
 

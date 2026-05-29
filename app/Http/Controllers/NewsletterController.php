@@ -17,7 +17,7 @@ class NewsletterController extends Controller
     public function subscribe(Request $request): RedirectResponse
     {
         if (filled($request->input('company'))) {
-            return $this->redirectWithStatus(__('Terima kasih! Cek inbox Anda untuk info promo dan diskon.'));
+            return $this->redirectWithStatus(__('Terima kasih! Cek inbox Anda untuk email konfirmasi.'));
         }
 
         $data = $request->validate([
@@ -35,11 +35,11 @@ class NewsletterController extends Controller
         $status = $this->welcomeService->ensureWelcome($subscriber);
 
         $message = match ($status) {
-            NewsletterWelcomeStatus::Sent => __('Terima kasih! Kami sudah mengirim kode diskon 10% ke email Anda.'),
-            NewsletterWelcomeStatus::AlreadySent => __('Email ini sudah terdaftar. Cek inbox Anda untuk kode diskon.'),
+            NewsletterWelcomeStatus::Sent => __('Terima kasih! Cek inbox Anda — kami sudah kirim email konfirmasi.'),
+            NewsletterWelcomeStatus::AlreadySent => __('Email ini sudah terdaftar.'),
             NewsletterWelcomeStatus::Failed => $wasExisting
-                ? __('Email ini sudah terdaftar. Nanti kami kirim promo ke inbox Anda.')
-                : __('Terima kasih! Email tercatat — jika kode belum masuk, hubungi kami.'),
+                ? __('Email ini sudah terdaftar.')
+                : __('Terima kasih! Email tercatat — jika belum ada email, hubungi kami.'),
         };
 
         return $this->redirectWithStatus($message);

@@ -13,7 +13,7 @@ class NewsletterSubscribeTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_subscribe_creates_coupon_and_sends_welcome_email(): void
+    public function test_subscribe_sends_welcome_email_without_coupon(): void
     {
         Mail::fake();
 
@@ -27,12 +27,8 @@ class NewsletterSubscribeTest extends TestCase
         $subscriber = NewsletterSubscriber::where('email', 'pelanggan@example.com')->first();
         $this->assertNotNull($subscriber);
         $this->assertNotNull($subscriber->welcome_sent_at);
-        $this->assertNotNull($subscriber->coupon_id);
-
-        $coupon = Coupon::find($subscriber->coupon_id);
-        $this->assertSame('percent', $coupon->type);
-        $this->assertEquals(10, (float) $coupon->value);
-        $this->assertSame(1, $coupon->usage_limit);
+        $this->assertNull($subscriber->coupon_id);
+        $this->assertSame(0, Coupon::count());
 
         Mail::assertSent(NewsletterWelcome::class, function (NewsletterWelcome $mail) {
             return $mail->hasTo('pelanggan@example.com');

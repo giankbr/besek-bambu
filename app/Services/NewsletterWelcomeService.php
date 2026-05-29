@@ -30,13 +30,6 @@ class NewsletterWelcomeService
                     return NewsletterWelcomeStatus::AlreadySent;
                 }
 
-                if (! $subscriber->coupon_id) {
-                    $coupon = $this->createWelcomeCoupon($subscriber);
-                    $subscriber->update(['coupon_id' => $coupon->id]);
-                }
-
-                $subscriber->load('coupon');
-
                 Mail::to($subscriber->email)->send(new NewsletterWelcome($subscriber));
 
                 $subscriber->update(['welcome_sent_at' => now()]);
@@ -99,15 +92,6 @@ class NewsletterWelcomeService
                     ->whereKey($subscriber->id)
                     ->lockForUpdate()
                     ->firstOrFail();
-
-                if (! $subscriber->coupon_id) {
-                    $coupon = $this->createWelcomeCoupon($subscriber);
-                    $subscriber->update(['coupon_id' => $coupon->id]);
-                } else {
-                    $subscriber->coupon?->update(['is_active' => true]);
-                }
-
-                $subscriber->load('coupon');
 
                 Mail::to($subscriber->email)->send(new NewsletterWelcome($subscriber));
 

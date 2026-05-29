@@ -20,10 +20,10 @@
     @endif
 
     <div class="news-center">
-      <p class="label">{{ __('Info & promo') }}</p>
+      <p class="label">{{ __('Newsletter') }}</p>
       <h2 id="newsletter-title" class="big">
         <span class="big-line">{{ __('Daftar email') }}</span>
-        <span class="big-accent">{{ __('diskon 10%') }}</span>
+        <span class="big-accent">{{ __('info terbaru') }}</span>
       </h2>
 
       @if (session('newsletter_status'))
@@ -51,7 +51,7 @@
         </label>
         <button type="submit">{{ __('Daftar') }}</button>
       </form>
-      <p class="sub">{{ __('Tips packing hantaran, ide isian besek, dan kode diskon untuk pembelian besek anyaman bambu berikutnya.') }}</p>
+      <p class="sub">{{ __('Kabar produk, tips packing hantaran, dan cerita dari pengrajin kami.') }}</p>
     </div>
   </div>
 </section>

@@ -18,7 +18,7 @@ class NewsletterWelcome extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('[ :store ] Kode diskon 10% untuk Anda', ['store' => store_name()]),
+            subject: __('[:store] Terima kasih sudah berlangganan', ['store' => store_name()]),
         );
     }
 
@@ -28,8 +28,6 @@ class NewsletterWelcome extends Mailable
             markdown: 'emails.newsletter.welcome',
             with: [
                 'subscriber' => $this->subscriber,
-                'couponCode' => $this->subscriber->coupon?->code,
-                'shopUrl' => route('shop.index'),
             ],
         );
     }
