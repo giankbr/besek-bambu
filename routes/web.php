@@ -133,6 +133,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::livewire('/', 'pages::admin.messages.index')->name('index');
         });
 
+        Route::prefix('newsletter-subscribers')->name('newsletter-subscribers.')->group(function () {
+            Route::livewire('/', 'pages::admin.newsletter-subscribers.index')->name('index');
+        });
+
         Route::prefix('coupons')->name('coupons.')->group(function () {
             Route::livewire('/', 'pages::admin.coupons.index')->name('index');
             Route::livewire('create', 'pages::admin.coupons.create')->name('create');

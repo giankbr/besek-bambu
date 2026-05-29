@@ -12,8 +12,8 @@ use Livewire\Component;
 class NotificationBell extends Component
 {
     /**
-     * Mark new-orders as seen: store current time in session so the
-     * next render only counts orders after this moment.
+     * Mark unpaid/pending orders as seen (session timestamp). Only call
+     * when the admin opens an order or explicitly dismisses — not on bell open.
      */
     public function markOrdersSeen(): void
     {

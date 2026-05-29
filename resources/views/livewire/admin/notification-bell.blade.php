@@ -3,7 +3,6 @@
         <button
             type="button"
             class="relative flex items-center justify-center rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800 dark:hover:bg-zinc-700 dark:hover:text-zinc-100"
-            x-on:click="$wire.markOrdersSeen()"
             title="{{ __('Notifications') }}"
         >
             <flux:icon.bell class="size-5" />
@@ -26,7 +25,12 @@
             </div>
 
             @forelse ($this->newOrders as $order)
-                <flux:menu.item :href="route('admin.orders.show', $order)" wire:navigate class="flex items-center justify-between gap-2">
+                <flux:menu.item
+                    :href="route('admin.orders.show', $order)"
+                    wire:navigate
+                    wire:click="markOrdersSeen"
+                    class="flex items-center justify-between gap-2"
+                >
                     <div>
                         <span class="font-mono text-sm">{{ $order->number }}</span>
                         <flux:text size="sm" class="text-zinc-500">{{ $order->customer_name }}</flux:text>
@@ -43,6 +47,12 @@
             <flux:menu.item :href="route('admin.orders.index')" wire:navigate class="text-xs text-zinc-500">
                 {{ __('View all orders →') }}
             </flux:menu.item>
+
+            @if ($this->newOrdersCount > 0)
+                <flux:menu.item wire:click="markOrdersSeen" class="text-xs text-zinc-500">
+                    {{ __('Mark new orders as read') }}
+                </flux:menu.item>
+            @endif
 
             <flux:menu.separator />
 

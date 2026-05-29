@@ -51,6 +51,9 @@
                 <flux:sidebar.item icon="envelope" :href="route('admin.messages.index')" :current="request()->routeIs('admin.messages.*')" wire:navigate>
                     {{ __('Messages') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="megaphone" :href="route('admin.newsletter-subscribers.index')" :current="request()->routeIs('admin.newsletter-subscribers.*')" wire:navigate>
+                    {{ __('Newsletter') }}
+                </flux:sidebar.item>
 
                 <div class="{{ $dividerClass }}"></div>
                 <div class="{{ $headingClass }}">{{ __('Content') }}</div>

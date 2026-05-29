@@ -57,9 +57,15 @@ html[data-theme="dark"] {
         filter: brightness(1.15) saturate(1.1);
     }
 
+    @media (max-width: 900px) {
+        .logo .sf-brand-logo {
+            @apply h-auto max-h-11 w-auto max-w-[min(52vw,13.75rem)] object-contain;
+        }
+    }
+
     @media (max-width: 520px) {
-        .sf-brand-logo {
-            @apply h-9 max-h-9;
+        .logo .sf-brand-logo {
+            @apply max-h-9;
         }
     }
 
