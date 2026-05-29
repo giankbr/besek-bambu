@@ -34,6 +34,14 @@
     ['route' => 'about', 'label' => __('nav.about'), 'active' => $isAbout],
     ['route' => 'contact', 'label' => __('nav.contact'), 'active' => $isContact],
   ];
+
+  $brandWords = array_values(array_filter(preg_split('/\s+/', trim($brandName)) ?: []));
+  $brandLineCount = count($brandWords);
+  $brandLineSplit = $brandLineCount > 1 ? max(1, (int) floor($brandLineCount / 2)) : $brandLineCount;
+  $brandLineOne = \Illuminate\Support\Str::lower(implode(' ', array_slice($brandWords, 0, $brandLineSplit)));
+  $brandLineTwo = $brandLineCount > 1
+      ? \Illuminate\Support\Str::lower(implode(' ', array_slice($brandWords, $brandLineSplit)))
+      : null;
 @endphp
 
 <header class="site-header">
@@ -72,7 +80,12 @@
         @if ($brandLogo)
           <img src="{{ $brandLogo }}" alt="{{ $brandName }}" class="sf-brand-logo" />
         @else
-          {{ \Illuminate\Support\Str::lower($brandName) }}
+          <span class="logo__text" aria-hidden="true">
+            <span class="logo__line">{{ $brandLineOne }}</span>
+            @if ($brandLineTwo)
+              <span class="logo__line logo__line--sub">{{ $brandLineTwo }}</span>
+            @endif
+          </span>
         @endif
       </a>
 

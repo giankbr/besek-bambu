@@ -27,10 +27,9 @@
           <h2 class="confirmation-section-title" style="margin-top:1.5rem">{{ __('Mengapa bambu') }}</h2>
           <p class="about-body">{{ __('Bambu tumbuh kembali dalam hitungan bulan, bukan dekade. Tidak butuh pupuk, hampir tanpa air, dan menyerap lebih banyak CO₂ daripada kebanyakan kayu keras. Saat sebuah besek akhirnya kembali ke tanah, ia tidak meninggalkan jejak.') }}</p>
 
-          <h2 class="confirmation-section-title" style="margin-top:1.5rem">{{ __('Janji kami') }}</h2>
+          <h2 class="confirmation-section-title" style="margin-top:1.5rem">{{ __('Standar kami') }}</h2>
           <ul class="about-list">
             <li>{{ __('Bahan 100% alami dan mudah terurai') }}</li>
-            <li>{{ __('Upah yang adil untuk setiap pengrajin yang bekerja dengan kami') }}</li>
             <li>{{ __('Pengemasan aman untuk pengiriman ke seluruh Indonesia') }}</li>
             <li>{{ __('Kualitas anyaman dicek sebelum dikirim ke pelanggan') }}</li>
           </ul>
