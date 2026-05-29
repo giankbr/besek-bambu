@@ -2,7 +2,7 @@
   $brandLogo = store_logo_url();
   $brandName = store_name();
   $navTagline = \Illuminate\Support\Str::limit(
-    (string) (setting('store_tagline') ?: __('Besek anyaman bambu untuk hantaran & kemasan ramah lingkungan')),
+    (string) (setting('store_tagline') ?: __('Besek bambu handmade untuk Hantaran, hampers & kemasan.')),
     90,
   );
   $isHome = request()->routeIs('home');

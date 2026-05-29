@@ -557,7 +557,7 @@ new #[Title('Store settings')] class extends Component {
 
                             <flux:separator />
 
-                            <flux:heading size="md">{{ __('Origin (warehouse location)') }}</flux:heading>
+                            <flux:heading size="md">{{ __('Origin') }}</flux:heading>
                             <flux:text size="sm" class="text-zinc-500">
                                 {{ __('Search by district, city, or postal code (e.g. "Yogyakarta", "Sleman", "55281").') }}
                             </flux:text>

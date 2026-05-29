@@ -1,6 +1,6 @@
 @php
   $brandName = store_name();
-  $tagline = setting('store_tagline') ?: __('Besek anyaman bambu untuk hantaran, kurban, dan kebutuhan ramah lingkungan Anda');
+  $tagline = setting('store_tagline') ?: __('Besek bambu handmade untuk Hantaran, hampers & kemasan.');
   $socials = store_socials();
   $socialLabels = [
     'instagram' => 'Instagram',
@@ -13,7 +13,7 @@
   <div class="container">
     <div class="foot-band">
       <div>
-        <p class="foot-tag">{{ $tagline }}, <em>{{ __('besek bambu') }}</em></p>
+        <p class="foot-tag">{{ $tagline }}</p>
         <a class="join-btn" href="{{ route('shop.index') }}">{{ __('Belanja sekarang') }} ↗</a>
       </div>
       <div class="foot-cols">
