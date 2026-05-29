@@ -17,6 +17,14 @@ class NewsletterWelcomeService
 
     public const COUPON_VALID_DAYS = 90;
 
+    public const PLACEHOLDER_NAME = '{NAMA}';
+
+    public const PLACEHOLDER_COUPON = '{KODE_KUPON}';
+
+    public function __construct(
+        protected NewsletterEmailLogService $emailLogService,
+    ) {}
+
     public function ensureWelcome(NewsletterSubscriber $subscriber): NewsletterWelcomeStatus
     {
         try {
@@ -30,7 +38,14 @@ class NewsletterWelcomeService
                     return NewsletterWelcomeStatus::AlreadySent;
                 }
 
-                Mail::to($subscriber->email)->send(new NewsletterWelcome($subscriber));
+                $mailable = new NewsletterWelcome($subscriber);
+                Mail::to($subscriber->email)->send($mailable);
+
+                $this->emailLogService->record(
+                    $subscriber,
+                    $mailable->envelope()->subject,
+                    $this->welcomeEmailBodyForLog($subscriber),
+                );
 
                 $subscriber->update(['welcome_sent_at' => now()]);
 
@@ -66,22 +81,47 @@ class NewsletterWelcomeService
         });
     }
 
-    public function welcomeTemplateBody(?string $couponCode = null): string
+    public function welcomeTemplateBody(?string $couponCode = null, ?NewsletterSubscriber $subscriber = null): string
     {
         $lines = [
-            __('Halo, terima kasih sudah mendaftar newsletter').' '.store_name().'.',
+            __('Halo, :name, terima kasih sudah mendaftar newsletter', [
+                'name' => self::PLACEHOLDER_NAME,
+            ]).' '.store_name().'.',
             __('Gunakan kode berikut untuk diskon :percent% pada pembelian besek berikutnya:', ['percent' => self::DISCOUNT_PERCENT]),
         ];
 
         if ($couponCode) {
             $lines[] = $couponCode;
         } else {
-            $lines[] = '{KODE_KUPON}';
+            $lines[] = self::PLACEHOLDER_COUPON;
         }
 
         $lines[] = __('Kode berlaku sekali pakai. Masukkan saat checkout di keranjang belanja.');
 
-        return implode("\n\n", $lines);
+        $body = implode("\n\n", $lines);
+
+        if ($subscriber) {
+            $body = $this->personalizeBody($subscriber, $body);
+        }
+
+        return $body;
+    }
+
+    public function personalizeBody(NewsletterSubscriber $subscriber, string $body): string
+    {
+        if (str_contains($body, self::PLACEHOLDER_NAME)) {
+            $body = str_replace(self::PLACEHOLDER_NAME, $subscriber->displayName(), $body);
+        }
+
+        if (str_contains($body, self::PLACEHOLDER_COUPON)) {
+            $body = str_replace(
+                self::PLACEHOLDER_COUPON,
+                $this->couponCodeForSubscriber($subscriber),
+                $body,
+            );
+        }
+
+        return $body;
     }
 
     public function resendWelcome(NewsletterSubscriber $subscriber): NewsletterWelcomeStatus
@@ -93,7 +133,14 @@ class NewsletterWelcomeService
                     ->lockForUpdate()
                     ->firstOrFail();
 
-                Mail::to($subscriber->email)->send(new NewsletterWelcome($subscriber));
+                $mailable = new NewsletterWelcome($subscriber);
+                Mail::to($subscriber->email)->send($mailable);
+
+                $this->emailLogService->record(
+                    $subscriber,
+                    $mailable->envelope()->subject,
+                    $this->welcomeEmailBodyForLog($subscriber),
+                );
 
                 $subscriber->update(['welcome_sent_at' => now()]);
             });
@@ -108,6 +155,18 @@ class NewsletterWelcomeService
         }
 
         return NewsletterWelcomeStatus::Sent;
+    }
+
+    protected function welcomeEmailBodyForLog(NewsletterSubscriber $subscriber): string
+    {
+        return implode("\n\n", [
+            __('Terima kasih sudah berlangganan!'),
+            __('Halo, :name, terima kasih sudah mendaftar newsletter', [
+                'name' => $subscriber->displayName(),
+            ]).' '.store_name().'.',
+            __('Kami akan mengirim kabar produk, tips packing hantaran, dan cerita dari pengrajin kami ke email ini.'),
+            __('Tanpa spam. Hanya yang relevan untuk Anda.'),
+        ]);
     }
 
     protected function createWelcomeCoupon(NewsletterSubscriber $subscriber): Coupon

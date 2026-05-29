@@ -22,6 +22,7 @@ class NewsletterSubscribersExport implements FromQuery, WithHeadings, WithMappin
             ->when($this->search !== '', function ($q) {
                 $q->where(function ($w) {
                     $w->where('email', 'like', "%{$this->search}%")
+                        ->orWhere('name', 'like', "%{$this->search}%")
                         ->orWhereHas('coupon', fn ($c) => $c->where('code', 'like', "%{$this->search}%"));
                 });
             })
@@ -33,11 +34,12 @@ class NewsletterSubscribersExport implements FromQuery, WithHeadings, WithMappin
     public function headings(): array
     {
         return [
-            'Email',
-            'Locale',
-            'Coupon code',
-            'Welcome sent at',
-            'Subscribed at',
+            __('Name'),
+            __('Email'),
+            __('Locale'),
+            __('Coupon code'),
+            __('Welcome sent at'),
+            __('Subscribed at'),
         ];
     }
 
@@ -47,6 +49,7 @@ class NewsletterSubscribersExport implements FromQuery, WithHeadings, WithMappin
     public function map($subscriber): array
     {
         return [
+            $subscriber->name ?? '',
             $subscriber->email,
             $subscriber->locale ?? '',
             $subscriber->coupon?->code ?? '',

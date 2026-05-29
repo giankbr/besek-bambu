@@ -21,6 +21,7 @@ class NewsletterController extends Controller
         }
 
         $data = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255'],
         ]);
 
@@ -29,6 +30,7 @@ class NewsletterController extends Controller
         $subscriber = NewsletterSubscriber::firstOrNew(['email' => $email]);
         $wasExisting = $subscriber->exists;
 
+        $subscriber->name = trim($data['name']);
         $subscriber->locale = app()->getLocale();
         $subscriber->save();
 

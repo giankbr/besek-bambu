@@ -30,13 +30,26 @@
         <p class="newsletter-flash" role="status">{{ session('newsletter_status') }}</p>
       @endif
 
-      @if ($errors->has('email'))
-        <p class="newsletter-flash newsletter-flash--error" role="alert">{{ $errors->first('email') }}</p>
+      @if ($errors->has('name') || $errors->has('email'))
+        <p class="newsletter-flash newsletter-flash--error" role="alert">
+          {{ $errors->first('name') ?: $errors->first('email') }}
+        </p>
       @endif
 
       <form class="newsletter-form" action="{{ route('newsletter.subscribe') }}" method="post">
         @csrf
         <input type="text" name="company" value="" tabindex="-1" autocomplete="off" class="newsletter-honeypot" aria-hidden="true" />
+        <label class="newsletter-field">
+          <span class="visually-hidden">{{ __('Nama Anda') }}</span>
+          <input
+            type="text"
+            name="name"
+            value="{{ old('name') }}"
+            placeholder="{{ __('Nama Anda') }}"
+            required
+            autocomplete="name"
+          />
+        </label>
         <label class="newsletter-field">
           <span class="visually-hidden">{{ __('Email') }}</span>
           <input

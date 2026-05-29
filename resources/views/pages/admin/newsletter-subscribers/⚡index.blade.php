@@ -3,6 +3,7 @@
 use App\Exports\NewsletterSubscribersExport;
 use App\Mail\NewsletterCustom;
 use App\Models\NewsletterSubscriber;
+use App\Services\NewsletterEmailLogService;
 use App\Services\NewsletterWelcomeService;
 use Carbon\Carbon;
 use Flux\Flux;
@@ -33,6 +34,8 @@ new #[Title('Newsletter subscribers')] class extends Component {
 
     public ?int $composeSubscriberId = null;
 
+    public ?int $historySubscriberId = null;
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -48,8 +51,21 @@ new #[Title('Newsletter subscribers')] class extends Component {
     {
         return $this->filteredQuery()
             ->with('coupon')
+            ->withCount('emailLogs')
             ->latest()
             ->paginate(20);
+    }
+
+    #[Computed]
+    public function historySubscriber(): ?NewsletterSubscriber
+    {
+        if (! $this->historySubscriberId) {
+            return null;
+        }
+
+        return NewsletterSubscriber::query()
+            ->with(['emailLogs' => fn ($q) => $q->latest('sent_at')])
+            ->find($this->historySubscriberId);
     }
 
     #[Computed]
@@ -62,12 +78,19 @@ new #[Title('Newsletter subscribers')] class extends Component {
         return $this->filteredQuery()->whereNull('welcome_sent_at')->count();
     }
 
+    #[Computed]
+    public function composeAudienceCount(): int
+    {
+        return $this->filteredQuery()->count();
+    }
+
     protected function filteredQuery()
     {
         return NewsletterSubscriber::query()
             ->when($this->search !== '', function ($q) {
                 $q->where(function ($w) {
                     $w->where('email', 'like', "%{$this->search}%")
+                        ->orWhere('name', 'like', "%{$this->search}%")
                         ->orWhereHas('coupon', fn ($c) => $c->where('code', 'like', "%{$this->search}%"));
                 });
             })
@@ -86,10 +109,26 @@ new #[Title('Newsletter subscribers')] class extends Component {
             return $email ?? '—';
         }
 
-        $count = $this->pendingWelcomeCount;
+        $count = $this->composeAudienceCount;
+
+        if ($this->statusFilter === 'pending') {
+            return trans_choice(
+                ':count subscriber menunggu|:count subscriber menunggu',
+                $count,
+                ['count' => $count],
+            );
+        }
+
+        if ($this->statusFilter === 'sent') {
+            return trans_choice(
+                ':count subscriber (welcome terkirim)|:count subscriber (welcome terkirim)',
+                $count,
+                ['count' => $count],
+            );
+        }
 
         return trans_choice(
-            ':count subscriber menunggu|:count subscriber menunggu',
+            ':count subscriber (sesuai filter)|:count subscriber (sesuai filter)',
             $count,
             ['count' => $count],
         );
@@ -97,6 +136,12 @@ new #[Title('Newsletter subscribers')] class extends Component {
 
     public function openComposeModal(?int $subscriberId = null): void
     {
+        if ($subscriberId === null && $this->composeAudienceCount === 0) {
+            Flux::toast(variant: 'warning', text: __('Belum ada subscriber.'));
+
+            return;
+        }
+
         $this->composeSubscriberId = $subscriberId;
         $this->composeSubject = '';
         $this->composeBody = '';
@@ -109,6 +154,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
     {
         $service = app(NewsletterWelcomeService::class);
 
+        $subscriber = null;
         $couponCode = null;
         if ($this->composeSubscriberId) {
             $subscriber = NewsletterSubscriber::find($this->composeSubscriberId);
@@ -118,7 +164,13 @@ new #[Title('Newsletter subscribers')] class extends Component {
         }
 
         $this->composeSubject = store_email_subject(__('Kode diskon 10% untuk Anda'));
-        $this->composeBody = $service->welcomeTemplateBody($couponCode);
+        $this->composeBody = $service->welcomeTemplateBody($couponCode, $subscriber);
+    }
+
+    public function openEmailHistory(int $subscriberId): void
+    {
+        $this->historySubscriberId = $subscriberId;
+        Flux::modal('newsletter-email-history')->show();
     }
 
     public function sendComposedEmail(): void
@@ -137,17 +189,20 @@ new #[Title('Newsletter subscribers')] class extends Component {
         }
 
         $service = app(NewsletterWelcomeService::class);
+        $logService = app(NewsletterEmailLogService::class);
         $sent = 0;
         $failed = 0;
         $lastError = null;
 
         foreach ($recipients as $subscriber) {
             try {
-                $body = $this->personalizeBody($service, $subscriber, $this->composeBody);
+                $body = $service->personalizeBody($subscriber, $this->composeBody);
 
                 Mail::to($subscriber->email)->send(
                     new NewsletterCustom($subscriber, $this->composeSubject, $body),
                 );
+
+                $logService->record($subscriber, $this->composeSubject, $body);
 
                 $subscriber->refresh();
                 if ($subscriber->welcome_sent_at === null && $subscriber->coupon_id) {
@@ -168,7 +223,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
 
         Flux::modal('compose-newsletter-email')->close();
         $this->composeSubscriberId = null;
-        unset($this->subscribers, $this->pendingWelcomeCount, $this->composeRecipientSummary);
+        unset($this->subscribers, $this->pendingWelcomeCount, $this->composeAudienceCount, $this->composeRecipientSummary);
 
         if ($sent > 0 && $failed === 0) {
             Flux::toast(
@@ -199,20 +254,8 @@ new #[Title('Newsletter subscribers')] class extends Component {
         }
 
         return $this->filteredQuery()
-            ->whereNull('welcome_sent_at')
             ->orderBy('id')
             ->get();
-    }
-
-    protected function personalizeBody(NewsletterWelcomeService $service, NewsletterSubscriber $subscriber, string $body): string
-    {
-        if (! str_contains($body, '{KODE_KUPON}')) {
-            return $body;
-        }
-
-        $code = $service->couponCodeForSubscriber($subscriber);
-
-        return str_replace('{KODE_KUPON}', $code, $body);
     }
 
     public function exportXlsx()
@@ -267,7 +310,6 @@ new #[Title('Newsletter subscribers')] class extends Component {
                     wire:click="openComposeModal"
                     variant="primary"
                     icon="envelope"
-                    :disabled="$this->pendingWelcomeCount === 0"
                 >
                     {{ __('Buat email') }}
                 </flux:button>
@@ -281,7 +323,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
             <flux:input
                 wire:model.live.debounce.300ms="search"
                 icon="magnifying-glass"
-                placeholder="{{ __('Search email or coupon…') }}"
+                placeholder="{{ __('Search name, email or coupon…') }}"
                 class="max-w-sm"
             />
             <flux:select wire:model.live="statusFilter" class="max-w-xs">
@@ -294,7 +336,8 @@ new #[Title('Newsletter subscribers')] class extends Component {
         <div class="flex flex-col gap-2 md:hidden">
             @forelse ($this->subscribers as $subscriber)
                 <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
-                    <div class="font-medium">{{ $subscriber->email }}</div>
+                    <div class="font-medium">{{ $subscriber->name ?: '—' }}</div>
+                    <div class="text-sm text-zinc-500">{{ $subscriber->email }}</div>
                     <div class="mt-1 flex flex-wrap gap-2 text-xs text-zinc-500">
                         @if ($subscriber->coupon)
                             <span class="font-mono">{{ $subscriber->coupon->code }}</span>
@@ -309,6 +352,17 @@ new #[Title('Newsletter subscribers')] class extends Component {
                         @endif
                     </div>
                     <div class="mt-2 flex justify-end gap-1">
+                        <flux:button
+                            size="sm"
+                            variant="ghost"
+                            icon="clock"
+                            wire:click="openEmailHistory({{ $subscriber->id }})"
+                        >
+                            {{ __('Riwayat') }}
+                            @if ($subscriber->email_logs_count > 0)
+                                <flux:badge size="sm" class="ml-1">{{ $subscriber->email_logs_count }}</flux:badge>
+                            @endif
+                        </flux:button>
                         @if ($subscriber->welcome_sent_at)
                             <flux:button
                                 size="sm"
@@ -340,6 +394,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
         <div class="hidden md:block">
             <flux:table :paginate="$this->subscribers">
                 <flux:table.columns>
+                    <flux:table.column>{{ __('Name') }}</flux:table.column>
                     <flux:table.column>{{ __('Email') }}</flux:table.column>
                     <flux:table.column>{{ __('Coupon') }}</flux:table.column>
                     <flux:table.column>{{ __('Welcome') }}</flux:table.column>
@@ -350,6 +405,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
                 <flux:table.rows>
                     @forelse ($this->subscribers as $subscriber)
                         <flux:table.row :key="$subscriber->id">
+                            <flux:table.cell>{{ $subscriber->name ?: '—' }}</flux:table.cell>
                             <flux:table.cell>{{ $subscriber->email }}</flux:table.cell>
                             <flux:table.cell>
                                 @if ($subscriber->coupon)
@@ -369,6 +425,17 @@ new #[Title('Newsletter subscribers')] class extends Component {
                             <flux:table.cell>{{ $subscriber->created_at?->format('d M Y H:i') ?? '—' }}</flux:table.cell>
                             <flux:table.cell>
                                 <div class="flex items-center justify-end gap-1">
+                                    <flux:button
+                                        size="sm"
+                                        variant="ghost"
+                                        icon="clock"
+                                        wire:click="openEmailHistory({{ $subscriber->id }})"
+                                        :title="__('Riwayat email')"
+                                    >
+                                        @if ($subscriber->email_logs_count > 0)
+                                            <span class="tabular-nums">{{ $subscriber->email_logs_count }}</span>
+                                        @endif
+                                    </flux:button>
                                     @if ($subscriber->welcome_sent_at)
                                         <flux:button
                                             size="sm"
@@ -399,7 +466,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="5" class="text-center text-zinc-500">
+                            <flux:table.cell colspan="6" class="text-center text-zinc-500">
                                 {{ __('No subscribers yet.') }}
                             </flux:table.cell>
                         </flux:table.row>
@@ -440,7 +507,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
                 </flux:button>
             </div>
             <flux:text size="sm" class="text-zinc-500">
-                {{ __('Untuk kirim massal, gunakan {KODE_KUPON}. Kode unik dibuat otomatis per subscriber.') }}
+                {{ __('Untuk kirim massal, gunakan {NAMA} dan {KODE_KUPON}. Kode unik dibuat otomatis per subscriber.') }}
             </flux:text>
 
             <div class="flex justify-end gap-2">
@@ -459,6 +526,41 @@ new #[Title('Newsletter subscribers')] class extends Component {
                 </flux:button>
             </div>
         </form>
+    </flux:modal>
+
+    <flux:modal name="newsletter-email-history" class="md:w-2xl">
+        @if ($this->historySubscriber)
+            <div class="space-y-4">
+                <div>
+                    <flux:heading size="lg">{{ __('Riwayat email') }}</flux:heading>
+                    <flux:subheading>
+                        {{ $this->historySubscriber->name }} · {{ $this->historySubscriber->email }}
+                    </flux:subheading>
+                </div>
+
+                @if ($this->historySubscriber->emailLogs->isEmpty())
+                    <flux:text class="text-zinc-500">{{ __('Belum ada email terkirim.') }}</flux:text>
+                @else
+                    <div class="max-h-[min(24rem,60vh)] space-y-3 overflow-y-auto pe-1">
+                        @foreach ($this->historySubscriber->emailLogs as $log)
+                            <article class="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                <div class="flex flex-wrap items-start justify-between gap-2">
+                                    <flux:text class="font-medium text-zinc-900 dark:text-zinc-100">{{ $log->subject }}</flux:text>
+                                    <flux:text size="sm" class="shrink-0 text-zinc-500">{{ $log->sent_at?->format('d M Y H:i') }}</flux:text>
+                                </div>
+                                <flux:text size="sm" class="mt-2 whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">{{ $log->body }}</flux:text>
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="flex justify-end">
+                    <flux:modal.close>
+                        <flux:button type="button" variant="ghost">{{ __('Close') }}</flux:button>
+                    </flux:modal.close>
+                </div>
+            </div>
+        @endif
     </flux:modal>
 
     <x-admin.confirm-modal

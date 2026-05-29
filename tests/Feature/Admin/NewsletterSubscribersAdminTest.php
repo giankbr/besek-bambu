@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Mail\NewsletterCustom;
 use App\Models\Coupon;
+use App\Models\NewsletterEmailLog;
 use App\Models\NewsletterSubscriber;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,13 +21,38 @@ class NewsletterSubscribersAdminTest extends TestCase
         return User::factory()->create(['is_admin' => true, 'email_verified_at' => now()]);
     }
 
-    private function pendingSubscriber(string $email = 'pending@example.com'): NewsletterSubscriber
+    private function pendingSubscriber(string $email = 'pending@example.com', string $name = 'Gian'): NewsletterSubscriber
     {
         return NewsletterSubscriber::create([
+            'name' => $name,
             'email' => $email,
             'welcome_sent_at' => null,
             'coupon_id' => null,
         ]);
+    }
+
+    public function test_page_shows_indonesian_copy_when_locale_is_id(): void
+    {
+        session(['locale' => 'id']);
+        app()->setLocale('id');
+
+        Livewire::actingAs($this->admin())
+            ->test('pages::admin.newsletter-subscribers.index')
+            ->assertSee('Pelanggan newsletter')
+            ->assertSee('Buat email')
+            ->assertDontSee('Newsletter subscribers');
+    }
+
+    public function test_page_shows_english_copy_when_locale_is_en(): void
+    {
+        session(['locale' => 'en']);
+        app()->setLocale('en');
+
+        Livewire::actingAs($this->admin())
+            ->test('pages::admin.newsletter-subscribers.index')
+            ->assertSee('Newsletter subscribers')
+            ->assertSee('Create email')
+            ->assertDontSee('Pelanggan newsletter');
     }
 
     public function test_admin_can_send_custom_email_to_pending_subscriber(): void
@@ -74,5 +100,33 @@ class NewsletterSubscribersAdminTest extends TestCase
         });
 
         $this->assertSame(1, Coupon::count());
+
+        $this->assertDatabaseHas('newsletter_email_logs', [
+            'newsletter_subscriber_id' => $subscriber->id,
+        ]);
+    }
+
+    public function test_custom_email_replaces_name_placeholder_and_logs_history(): void
+    {
+        Mail::fake();
+
+        $subscriber = $this->pendingSubscriber(name: 'Gian');
+
+        Livewire::actingAs($this->admin())
+            ->test('pages::admin.newsletter-subscribers.index')
+            ->call('openComposeModal', $subscriber->id)
+            ->set('composeSubject', 'Halo')
+            ->set('composeBody', 'Halo, {NAMA}, selamat datang.')
+            ->call('sendComposedEmail');
+
+        Mail::assertSent(NewsletterCustom::class, function (NewsletterCustom $mail) {
+            return str_contains($mail->body, 'Halo, Gian, selamat datang.')
+                && ! str_contains($mail->body, '{NAMA}');
+        });
+
+        $log = NewsletterEmailLog::where('newsletter_subscriber_id', $subscriber->id)->first();
+        $this->assertNotNull($log);
+        $this->assertSame('Halo', $log->subject);
+        $this->assertStringContainsString('Halo, Gian, selamat datang.', $log->body);
     }
 }

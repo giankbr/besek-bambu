@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Mail\NewsletterWelcome;
 use App\Models\Coupon;
+use App\Models\NewsletterEmailLog;
 use App\Models\NewsletterSubscriber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -18,6 +19,7 @@ class NewsletterSubscribeTest extends TestCase
         Mail::fake();
 
         $response = $this->post(route('newsletter.subscribe'), [
+            'name' => 'Gian',
             'email' => 'pelanggan@example.com',
         ]);
 
@@ -26,7 +28,9 @@ class NewsletterSubscribeTest extends TestCase
 
         $subscriber = NewsletterSubscriber::where('email', 'pelanggan@example.com')->first();
         $this->assertNotNull($subscriber);
+        $this->assertSame('Gian', $subscriber->name);
         $this->assertNotNull($subscriber->welcome_sent_at);
+        $this->assertSame(1, NewsletterEmailLog::where('newsletter_subscriber_id', $subscriber->id)->count());
         $this->assertNull($subscriber->coupon_id);
         $this->assertSame(0, Coupon::count());
 
@@ -39,8 +43,8 @@ class NewsletterSubscribeTest extends TestCase
     {
         Mail::fake();
 
-        $this->post(route('newsletter.subscribe'), ['email' => 'dupe@example.com']);
-        $this->post(route('newsletter.subscribe'), ['email' => 'dupe@example.com']);
+        $this->post(route('newsletter.subscribe'), ['name' => 'Gian', 'email' => 'dupe@example.com']);
+        $this->post(route('newsletter.subscribe'), ['name' => 'Gian', 'email' => 'dupe@example.com']);
 
         Mail::assertSent(NewsletterWelcome::class, 1);
     }
