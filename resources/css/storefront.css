@@ -49,8 +49,12 @@ html[data-theme="dark"] {
 }
 
 @layer components {
-    .sf-brand-logo {
+    .logo .sf-brand-logo {
         @apply block h-11 w-auto max-h-11;
+    }
+
+    html[data-theme="dark"] .logo .sf-brand-logo {
+        filter: brightness(1.15) saturate(1.1);
     }
 
     @media (max-width: 520px) {
