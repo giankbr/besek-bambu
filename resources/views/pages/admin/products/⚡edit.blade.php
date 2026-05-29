@@ -520,19 +520,6 @@ new #[Title('Edit Product')] class extends Component {
                 :label="__('Primary image')"
                 :key="'product-image-'.$product->id"
             />
-            @if ($image)
-                <div class="mt-1"><img src="{{ $image->temporaryUrl() }}" class="h-24 rounded-lg" alt="" /></div>
-            @endif
-            <div>
-                <flux:label>{{ __('…or upload directly') }}</flux:label>
-                <div class="relative mt-1 inline-flex">
-                    <flux:button size="sm" variant="outline" icon="paper-clip" type="button" tabindex="-1">
-                        {{ $image ? $image->getClientOriginalName() : __('Choose file…') }}
-                    </flux:button>
-                    <input type="file" wire:model="image" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
-                </div>
-                @error('image')<flux:text class="text-red-500 text-sm">{{ $message }}</flux:text>@enderror
-            </div>
 
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:select wire:model="category_id" :label="__('Category')" placeholder="{{ __('— None —') }}">
