@@ -38,14 +38,14 @@
 }
 
 html[data-theme="dark"] {
-    --color-surface: #1e2621;
-    --color-ink: #f4f6f2;
-    --color-muted: #b4bfb6;
-    --color-line: #354039;
+    --color-surface: #18181b;
+    --color-ink: #fafafa;
+    --color-muted: #a1a1aa;
+    --color-line: #27272a;
     --color-brand: #d8e25a;
-    --color-brand-ink: #1a2214;
-    --color-green-deep: #b5e4be;
-    --color-green-soft: #2f3b34;
+    --color-brand-ink: #18181b;
+    --color-green-deep: #d4d4d8;
+    --color-green-soft: #27272a;
 }
 
 @layer components {

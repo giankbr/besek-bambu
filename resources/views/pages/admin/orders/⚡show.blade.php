@@ -170,12 +170,9 @@ new #[Title('Order detail')] class extends Component {
                     <div class="mt-4 divide-y divide-zinc-200 dark:divide-zinc-700">
                         @foreach ($order->items as $item)
                             <div class="flex items-center justify-between gap-4 py-3">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-2xl">{{ $item->product_icon }}</span>
-                                    <div>
-                                        <div class="font-medium">{{ $item->product_name }}</div>
-                                        <flux:text size="sm" class="text-zinc-500">Rp {{ number_format((float) $item->price, 0, ',', '.') }} × {{ $item->quantity }}</flux:text>
-                                    </div>
+                                <div class="min-w-0">
+                                    <div class="font-medium">{{ $item->product_name }}</div>
+                                    <flux:text size="sm" class="text-zinc-500">Rp {{ number_format((float) $item->price, 0, ',', '.') }} × {{ $item->quantity }}</flux:text>
                                 </div>
                                 <div class="font-semibold">Rp {{ number_format((float) $item->line_total, 0, ',', '.') }}</div>
                             </div>

@@ -110,7 +110,7 @@ const applyTheme = (theme) => {
   const isDark = theme === 'dark'
   document.documentElement.setAttribute('data-theme', theme)
 
-  const themeColor = isDark ? '#0c100e' : '#ffffff'
+  const themeColor = isDark ? '#09090b' : '#ffffff'
   document
     .querySelectorAll('meta[name="theme-color"]')
     .forEach((meta) => meta.setAttribute('content', themeColor))
