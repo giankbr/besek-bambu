@@ -539,7 +539,7 @@ const initMicroInteractions = () => {
   })
 
   document.querySelectorAll('.product-card-wrap').forEach((wrap) => {
-    const card = wrap.querySelector(':scope > a.product')
+    const card = wrap.querySelector(':scope > .product')
     if (!card) return
 
     const hoverTween = gsap.to(card, {

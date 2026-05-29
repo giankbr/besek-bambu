@@ -4,32 +4,38 @@
   $isSaved = config('features.wishlist') && auth()->check()
     ? $product->isInWishlistOf(auth()->id())
     : false;
+  $canQuickAdd = $product->stock > 0 && ! $product->hasVariants();
 @endphp
 
 <div class="product-card-wrap">
-  <a class="product {{ $product->color_class }}" href="{{ route('shop.product', $product) }}">
-    <div class="product-img">
-      @if ($product->image_url)
-        <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="lazy" />
-      @else
-        {{ $product->icon }}
-      @endif
-    </div>
-    <div class="product-name">{{ $product->name }}</div>
-    <div class="product-stars">{{ str_repeat('★', $product->rating) }}{{ str_repeat('☆', 5 - $product->rating) }}</div>
+  <div class="product {{ $product->color_class }}">
+    <a class="product-card__link" href="{{ route('shop.product', $product) }}">
+      <div class="product-img">
+        @if ($product->image_url)
+          <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="lazy" />
+        @else
+          {{ $product->icon }}
+        @endif
+      </div>
+      <div class="product-name">{{ $product->name }}</div>
+      <div class="product-stars">{{ str_repeat('★', $product->rating) }}{{ str_repeat('☆', 5 - $product->rating) }}</div>
+    </a>
     <div class="product-foot">
       <span class="product-price">{{ idr($product->price) }}</span>
-      <span class="add-btn">{{ __('Lihat') }}</span>
+      @if ($canQuickAdd)
+        <form method="post" action="{{ route('cart.add') }}" class="product-buy-form">
+          @csrf
+          <input type="hidden" name="product_id" value="{{ $product->id }}">
+          <input type="hidden" name="quantity" value="{{ $product->min_order_quantity ?? 1 }}">
+          <button type="submit" class="add-btn">{{ __('Tambah') }}</button>
+        </form>
+      @elseif ($product->stock > 0)
+        <a href="{{ route('shop.product', $product) }}" class="add-btn">{{ __('Tambah') }}</a>
+      @else
+        <span class="add-btn add-btn--disabled">{{ __('Habis') }}</span>
+      @endif
     </div>
-  </a>
-  @if (!$product->hasVariants() && $product->stock > 0)
-    <form method="post" action="{{ route('cart.add') }}" class="product-cart-overlay">
-      @csrf
-      <input type="hidden" name="product_id" value="{{ $product->id }}">
-      <input type="hidden" name="quantity" value="{{ $product->min_order_quantity ?? 1 }}">
-      <button type="submit" class="cart-btn" aria-label="{{ __('Tambah ke keranjang') }}">+</button>
-    </form>
-  @endif
+  </div>
 
   @if (config('features.wishlist'))
     @auth

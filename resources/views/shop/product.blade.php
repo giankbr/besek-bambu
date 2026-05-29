@@ -486,21 +486,7 @@
           </header>
           <div class="grid-4 product-related__grid">
             @foreach ($related as $r)
-              <a class="product {{ $r->color_class }}" href="{{ route('shop.product', $r) }}">
-                <div class="product-img">
-                  @if ($r->image_url)
-                    <img src="{{ image_src($r->image_url) }}" alt="{{ $r->name }}" class="h-full w-full object-cover" loading="lazy" />
-                  @else
-                    {{ $r->icon }}
-                  @endif
-                </div>
-                <div class="product-name">{{ $r->name }}</div>
-                <div class="product-stars">{{ str_repeat('★', $r->rating) }}{{ str_repeat('☆', 5 - $r->rating) }}</div>
-                <div class="product-foot">
-                  <span class="product-price">{{ idr($r->price) }}</span>
-                  <span class="add-btn">{{ __('Lihat') }}</span>
-                </div>
-              </a>
+              <x-product-card :product="$r" />
             @endforeach
           </div>
         </section>

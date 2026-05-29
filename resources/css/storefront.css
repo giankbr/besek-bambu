@@ -67,7 +67,7 @@ html[data-theme="dark"] {
     .hero-cta,
     .view-more,
     .cart-link-btn,
-    .product-card-wrap > a.product,
+    .product-card-wrap > .product,
     .cat {
         will-change: transform;
     }
