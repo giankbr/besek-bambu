@@ -7,7 +7,7 @@
     : collect(range(0, 3))->map(fn (int $i) => $pool->get($i % $pool->count()));
 @endphp
 
-<section id="newsletter" class="newsletter-section" aria-labelledby="newsletter-title">
+<section id="newsletter" class="newsletter-section" data-motion="newsletter" aria-labelledby="newsletter-title">
   <div class="newsletter">
     @if ($photos->isNotEmpty())
       <div class="newsletter-photos" aria-hidden="true">

@@ -4,6 +4,25 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+const scrollReveal = (trigger, targets, vars = {}) => {
+  const list = gsap.utils.toArray(targets)
+  if (!trigger || !list.length) return null
+
+  return gsap.from(list, {
+    opacity: 0,
+    y: 22,
+    duration: 0.52,
+    ease: 'power2.out',
+    ...vars,
+    scrollTrigger: {
+      trigger,
+      start: 'top 88%',
+      once: true,
+      ...vars.scrollTrigger,
+    },
+  })
+}
+
 const initScrollReveal = () => {
   const main = document.querySelector('main#main-content')
   if (!main) return
@@ -19,22 +38,32 @@ const initScrollReveal = () => {
 
   blocks.forEach((el) => {
     if (
+      el.hasAttribute('data-motion') ||
       el.hasAttribute('data-collage-section') ||
       el.hasAttribute('data-gallery-slider') ||
       el.querySelector(':scope .grid-4, :scope .cat-grid')
     ) {
       return
     }
-    gsap.from(el, {
-      opacity: 0,
-      y: 28,
-      duration: 0.7,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 90%',
-        once: true,
-      },
+    scrollReveal(el, el, { y: 24, duration: 0.62 })
+  })
+
+  main.querySelectorAll('.section-head').forEach((head) => {
+    const bits = head.querySelectorAll(':scope > *')
+    if (!bits.length) return
+    scrollReveal(head.closest('section') ?? head, bits, {
+      y: 16,
+      duration: 0.48,
+      stagger: 0.07,
+      scrollTrigger: { start: 'top 90%' },
+    })
+  })
+
+  main.querySelectorAll('.story-band .story').forEach((story) => {
+    scrollReveal(story, story, {
+      y: 18,
+      duration: 0.55,
+      scrollTrigger: { start: 'top 90%' },
     })
   })
 
@@ -192,6 +221,130 @@ const initMobileNav = () => {
       if (!d.contains(e.target)) d.removeAttribute('open')
     })
   })
+}
+
+const initNewsletterMotion = () => {
+  const section = document.querySelector('[data-motion="newsletter"]')
+  if (!section) return
+
+  const photos = section.querySelectorAll('.news-photo')
+  const centerBits = section.querySelectorAll('.news-center > *')
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: 'top 85%',
+      once: true,
+    },
+  })
+
+  if (photos.length) {
+    tl.from(photos, {
+      opacity: 0,
+      y: 20,
+      scale: 0.94,
+      duration: 0.5,
+      stagger: 0.07,
+      ease: 'power2.out',
+    })
+  }
+
+  if (centerBits.length) {
+    tl.from(
+      centerBits,
+      {
+        opacity: 0,
+        y: 18,
+        duration: 0.48,
+        stagger: 0.06,
+        ease: 'power2.out',
+      },
+      photos.length ? '-=0.32' : 0,
+    )
+  }
+}
+
+const initGalleryMotion = () => {
+  const root = document.querySelector('[data-motion="gallery"]')
+  if (!root) return
+
+  const headBits = root.querySelectorAll('.gallery-head > *')
+  const cards = root.querySelectorAll('.gallery-card')
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: root,
+      start: 'top 88%',
+      once: true,
+    },
+  })
+
+  if (headBits.length) {
+    tl.from(headBits, {
+      opacity: 0,
+      y: 16,
+      duration: 0.45,
+      stagger: 0.06,
+      ease: 'power2.out',
+    })
+  }
+
+  if (cards.length) {
+    tl.from(
+      cards,
+      {
+        opacity: 0,
+        x: 24,
+        duration: 0.48,
+        stagger: 0.05,
+        ease: 'power2.out',
+      },
+      headBits.length ? '-=0.28' : 0,
+    )
+  }
+}
+
+const initReviewsMotion = () => {
+  const section = document.querySelector('[data-motion="reviews"]')
+  if (!section) return
+
+  const introBits = [
+    section.querySelector('.reviews-intro'),
+    section.querySelector('.reviews-lead'),
+  ].filter(Boolean)
+  const cards = section.querySelectorAll('.review')
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: 'top 85%',
+      once: true,
+    },
+  })
+
+  if (introBits.length) {
+    tl.from(introBits, {
+      opacity: 0,
+      y: 18,
+      duration: 0.5,
+      stagger: 0.08,
+      ease: 'power2.out',
+    })
+  }
+
+  if (cards.length) {
+    tl.from(
+      cards,
+      {
+        opacity: 0,
+        y: 20,
+        duration: 0.45,
+        stagger: 0.06,
+        ease: 'power2.out',
+      },
+      introBits.length ? '-=0.3' : 0,
+    )
+  }
 }
 
 const initCollageSection = () => {
@@ -531,6 +684,21 @@ const initMicroInteractions = () => {
   bindScaleHover('.join-btn, .view-more, .cart-link-btn', 1.03)
   bindScaleHover('.hero-cta:not(.cart-summary__cta)', 1.03)
   bindScaleHover('.add-btn', 1.06)
+  bindScaleHover('.newsletter-form button, .gallery-nav__btn', 1.04)
+
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll('.news-photo').forEach((photo) => {
+      const hoverTween = gsap.to(photo, {
+        y: -5,
+        scale: 1.04,
+        duration: 0.32,
+        ease: 'power2.out',
+        paused: true,
+      })
+      photo.addEventListener('mouseenter', () => hoverTween.play())
+      photo.addEventListener('mouseleave', () => hoverTween.reverse())
+    })
+  }
 
   document.querySelectorAll('.nav-links a').forEach((link) => {
     const yTo = gsap.quickTo(link, 'y', { duration: 0.22, ease: 'power2.out' })
@@ -756,10 +924,17 @@ const init = () => {
   if (prefersReducedMotion()) return
 
   gsap.registerPlugin(ScrollTrigger)
+  ScrollTrigger.config({
+    limitCallbacks: true,
+    ignoreMobileResize: true,
+  })
 
   initNav()
   initHero()
   initScrollReveal()
+  initNewsletterMotion()
+  initGalleryMotion()
+  initReviewsMotion()
   initCollageSection()
   initMicroInteractions()
 

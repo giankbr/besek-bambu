@@ -420,16 +420,27 @@
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   }
 
-  html[data-theme="dark"] .product-foot .add-btn,
-  html[data-theme="dark"] .hero-cta {
+  html[data-theme="dark"] .product-foot .add-btn {
     background: var(--btn-primary-bg);
     color: var(--btn-primary-ink);
     box-shadow: none;
   }
 
-  html[data-theme="dark"] .product-foot .add-btn:hover,
-  html[data-theme="dark"] .hero-cta:hover {
+  html[data-theme="dark"] .product-foot .add-btn:hover {
     filter: brightness(0.92);
+    transform: translateY(-1px);
+  }
+
+  html[data-theme="dark"] .hero-cta {
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow:
+      0 2px 12px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  }
+
+  html[data-theme="dark"] .hero-cta:hover {
+    filter: brightness(1.08);
     transform: translateY(-1px);
   }
 
@@ -941,7 +952,8 @@
 
   /* ===== Hero ===== */
   .page-hero-shell {
-    padding-block: 0;
+    padding-top: clamp(1rem, 2.5vw, 1.5rem);
+    padding-bottom: 0;
   }
 
   .page-hero-shell .hero {
@@ -1053,8 +1065,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--green-deep);
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-ink);
     text-decoration: none;
     padding: 12px 26px;
     border: 0;
@@ -1063,13 +1075,21 @@
     font-weight: 600;
     font-family: inherit;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(31, 42, 38, 0.1);
-    transition: transform 0.15s ease, filter 0.15s ease;
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    transition:
+      transform 0.15s ease,
+      filter 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .hero-cta:hover {
     transform: translateY(-1px);
-    filter: brightness(1.08);
+    filter: brightness(1.06);
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.32),
+      0 0 0 1px rgba(255, 255, 255, 0.16) inset;
   }
 
   .hero-cta:disabled {
@@ -6116,4 +6136,49 @@ body.auth-storefront-page .page-main.auth-storefront-main {
 
 .auth-storefront-footer-link a:hover {
   text-decoration: underline;
+}
+
+/* Storefront motion (transform/opacity only; disabled when reduced motion) */
+@media (prefers-reduced-motion: no-preference) {
+  .newsletter-flash {
+    animation: sf-enter 0.42s cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  .product-card-wrap > .product,
+  .gallery-card,
+  .cat,
+  .news-photo,
+  .join-btn,
+  .hero-cta,
+  .view-more {
+    backface-visibility: hidden;
+  }
+
+  .nav-mobile__panel.is-open .nav-mobile__inner > * {
+    animation: sf-enter 0.38s cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  .nav-mobile__panel.is-open .nav-mobile__inner > *:nth-child(2) {
+    animation-delay: 0.04s;
+  }
+
+  .nav-mobile__panel.is-open .nav-mobile__inner > *:nth-child(3) {
+    animation-delay: 0.08s;
+  }
+
+  .nav-mobile__panel.is-open .nav-mobile__inner > *:nth-child(4) {
+    animation-delay: 0.12s;
+  }
+}
+
+@keyframes sf-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
