@@ -147,13 +147,21 @@
       </div>
     </nav>
   </div>
+</header>
 
-  <div
-    id="nav-mobile-panel"
-    class="nav-mobile__panel"
-    data-nav-mobile-panel
-    hidden
-  >
+<div
+  class="nav-mobile__backdrop"
+  data-nav-mobile-backdrop
+  hidden
+  aria-hidden="true"
+></div>
+
+<div
+  id="nav-mobile-panel"
+  class="nav-mobile__panel"
+  data-nav-mobile-panel
+  hidden
+>
     <div class="nav-mobile__head">
       <a
         href="{{ route('home') }}"
@@ -206,4 +214,3 @@
       </div>
     </div>
   </div>
-</header>

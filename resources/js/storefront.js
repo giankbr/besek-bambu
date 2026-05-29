@@ -174,27 +174,58 @@ const initThemeToggle = () => {
 const initMobileNav = () => {
   const toggles = [...document.querySelectorAll('[data-nav-mobile-toggle]')]
   const panel = document.querySelector('[data-nav-mobile-panel]')
+  const backdrop = document.querySelector('[data-nav-mobile-backdrop]')
   if (!toggles.length || !panel) return
 
+  let scrollLockY = 0
+
   const isOpen = () => toggles[0].getAttribute('aria-expanded') === 'true'
+
+  const lockScroll = () => {
+    scrollLockY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollLockY}px`
+    document.body.style.left = '0'
+    document.body.style.right = '0'
+    document.body.style.width = '100%'
+  }
+
+  const unlockScroll = () => {
+    document.body.style.position = ''
+    document.body.style.top = ''
+    document.body.style.left = ''
+    document.body.style.right = ''
+    document.body.style.width = ''
+    window.scrollTo(0, scrollLockY)
+  }
 
   const setOpen = (open) => {
     toggles.forEach((toggle) => {
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
     })
     panel.classList.toggle('is-open', open)
+    backdrop?.classList.toggle('is-open', open)
+
     if (open) {
       panel.removeAttribute('hidden')
+      backdrop?.removeAttribute('hidden')
+      backdrop?.setAttribute('aria-hidden', 'false')
       document.body.classList.add('nav-mobile-open')
+      lockScroll()
     } else {
       panel.setAttribute('hidden', '')
+      backdrop?.setAttribute('hidden', '')
+      backdrop?.setAttribute('aria-hidden', 'true')
       document.body.classList.remove('nav-mobile-open')
+      unlockScroll()
     }
   }
 
   toggles.forEach((toggle) => {
     toggle.addEventListener('click', () => setOpen(!isOpen()))
   })
+
+  backdrop?.addEventListener('click', () => setOpen(false))
 
   panel.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => setOpen(false))
