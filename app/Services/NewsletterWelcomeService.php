@@ -69,7 +69,7 @@ class NewsletterWelcomeService
     public function welcomeTemplateBody(?string $couponCode = null): string
     {
         $lines = [
-            __('Halo, terima kasih sudah mendaftar newsletter :store.', ['store' => store_name()]),
+            __('Halo, terima kasih sudah mendaftar newsletter').' '.store_name().'.',
             __('Gunakan kode berikut untuk diskon :percent% pada pembelian besek berikutnya:', ['percent' => self::DISCOUNT_PERCENT]),
         ];
 

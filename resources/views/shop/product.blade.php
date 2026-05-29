@@ -280,7 +280,7 @@
                       >
                         {{ $v->label }}
                         @if ($v->stock === 0)
-                          <span class="variant-chip__muted">{{ __('— habis') }}</span>
+                          <span class="variant-chip__muted">{{ __('Habis') }}</span>
                         @endif
                       </button>
                     @endforeach

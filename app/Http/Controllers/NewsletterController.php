@@ -35,11 +35,11 @@ class NewsletterController extends Controller
         $status = $this->welcomeService->ensureWelcome($subscriber);
 
         $message = match ($status) {
-            NewsletterWelcomeStatus::Sent => __('Terima kasih! Cek inbox Anda — kami sudah kirim email konfirmasi.'),
+            NewsletterWelcomeStatus::Sent => __('Terima kasih! Cek inbox Anda. Kami sudah kirim email konfirmasi.'),
             NewsletterWelcomeStatus::AlreadySent => __('Email ini sudah terdaftar.'),
             NewsletterWelcomeStatus::Failed => $wasExisting
                 ? __('Email ini sudah terdaftar.')
-                : __('Terima kasih! Email tercatat — jika belum ada email, hubungi kami.'),
+                : __('Terima kasih! Email tercatat. Jika belum ada email, hubungi kami.'),
         };
 
         return $this->redirectWithStatus($message);

@@ -292,10 +292,10 @@ new #[Title('New manual order')] class extends Component {
                         <div class="grid gap-2 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700 md:grid-cols-12">
                             <div class="md:col-span-4">
                                 <flux:label class="text-xs">{{ __('Product (catalog)') }}</flux:label>
-                                <flux:select wire:model.live="items.{{ $i }}.product_id" placeholder="{{ __('— Custom item —') }}">
+                                <flux:select wire:model.live="items.{{ $i }}.product_id" placeholder="{{ __('Item khusus') }}">
                                     @foreach ($this->productOptions as $p)
                                         <flux:select.option value="{{ $p->id }}">
-                                            {{ $p->icon }} {{ $p->name }} — {{ idr($p->price) }} ({{ $p->stock }} {{ __('buah') }})
+                                            {{ $p->icon }} {{ $p->name }} · {{ idr($p->price) }} ({{ $p->stock }} {{ __('buah') }})
                                         </flux:select.option>
                                     @endforeach
                                 </flux:select>

@@ -114,7 +114,7 @@ new #[Title('Import products')] class extends Component {
             foreach ($allRows as $i => $data) {
                 $row = $i + 2;
                 if ($i >= $maxRows) {
-                    $report['errors'][] = __('Stopped at row :row — file exceeds the :max row limit.', ['row' => $row, 'max' => $maxRows]);
+                    $report['errors'][] = __('Stopped at row :row: file exceeds the :max row limit.', ['row' => $row, 'max' => $maxRows]);
                     break;
                 }
                 $data = array_map(fn ($v) => $v === null ? '' : (string) $v, (array) $data);

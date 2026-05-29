@@ -117,7 +117,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
             }
         }
 
-        $this->composeSubject = __('[:store] Kode diskon 10% untuk Anda', ['store' => store_name()]);
+        $this->composeSubject = store_email_subject(__('Kode diskon 10% untuk Anda'));
         $this->composeBody = $service->welcomeTemplateBody($couponCode);
     }
 
@@ -440,7 +440,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
                 </flux:button>
             </div>
             <flux:text size="sm" class="text-zinc-500">
-                {{ __('Untuk kirim massal, gunakan {KODE_KUPON} — kode unik dibuat otomatis per subscriber.') }}
+                {{ __('Untuk kirim massal, gunakan {KODE_KUPON}. Kode unik dibuat otomatis per subscriber.') }}
             </flux:text>
 
             <div class="flex justify-end gap-2">

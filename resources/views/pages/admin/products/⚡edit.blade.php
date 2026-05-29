@@ -522,7 +522,7 @@ new #[Title('Edit Product')] class extends Component {
             />
 
             <div class="grid gap-5 md:grid-cols-2">
-                <flux:select wire:model="category_id" :label="__('Category')" placeholder="{{ __('— None —') }}">
+                <flux:select wire:model="category_id" :label="__('Category')" placeholder="{{ __('Tidak ada') }}">
                     @foreach ($this->categories as $category)
                         <flux:select.option value="{{ $category->id }}">{{ $category->title }}</flux:select.option>
                     @endforeach

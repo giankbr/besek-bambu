@@ -18,7 +18,7 @@ class NewsletterWelcome extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('[:store] Terima kasih sudah berlangganan', ['store' => store_name()]),
+            subject: store_email_subject(__('Terima kasih sudah berlangganan')),
         );
     }
 

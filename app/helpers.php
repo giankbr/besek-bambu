@@ -30,12 +30,20 @@ if (! function_exists('store_name')) {
     {
         $value = setting('store_name');
         if ($value) {
-            return (string) $value;
+            return trim((string) $value);
         }
 
-        $appName = (string) config('app.name', 'Besek Bambu');
+        $appName = trim((string) config('app.name', 'Besek Bambu'));
 
         return $appName === 'Laravel' ? 'Besek Bambu' : $appName;
+    }
+}
+
+if (! function_exists('store_email_subject')) {
+    /** Branded subject prefix: [Store Name] without stray spaces inside brackets. */
+    function store_email_subject(string $text): string
+    {
+        return '['.store_name().'] '.$text;
     }
 }
 

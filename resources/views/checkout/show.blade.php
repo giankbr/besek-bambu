@@ -231,7 +231,7 @@
               {{ __('Wilayah') }}
               <select name="shipping_region" x-model="region" :required="mode !== 'pickup'">
                 @foreach ($regions as $key => $r)
-                  <option value="{{ $key }}" {{ old('shipping_region', $defaultRegion) === $key ? 'selected' : '' }}>{{ $r['label'] }} — {{ idr($r['cost']) }}</option>
+                  <option value="{{ $key }}" {{ old('shipping_region', $defaultRegion) === $key ? 'selected' : '' }}>{{ $r['label'] }} · {{ idr($r['cost']) }}</option>
                 @endforeach
               </select>
               @error('shipping_region')<span class="form-error">{{ $message }}</span>@enderror
