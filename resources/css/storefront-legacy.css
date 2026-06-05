@@ -6007,43 +6007,38 @@ body.sf-confirm-open {
   right: max(18px, env(safe-area-inset-right, 0px));
   bottom: max(18px, env(safe-area-inset-bottom, 0px));
   z-index: 90;
+  width: 52px;
+  height: 52px;
   background: #25d366;
   color: #fff;
-  border-radius: 999px;
-  padding: 12px 18px 12px 14px;
+  border-radius: 50%;
+  padding: 0;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   text-decoration: none;
   border: 0;
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
-  font-weight: 600;
-  font-size: 14px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  animation: wa-floating-pulse 2.5s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.wa-floating:hover,
-.wa-floating:focus-visible {
+.wa-floating:hover {
   background: #20bd5a;
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.5);
-  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .wa-floating:focus-visible {
-  box-shadow:
-    0 0 0 3px #fff,
-    0 0 0 5px #25d366,
-    0 12px 32px rgba(37, 211, 102, 0.45);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
 }
 
-.wa-floating__icon { display: inline-flex; line-height: 0; }
-.wa-floating__label { white-space: nowrap; }
-
-@keyframes wa-floating-pulse {
-  0%, 100% { box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35); }
-  50% { box-shadow: 0 8px 28px rgba(37, 211, 102, 0.55), 0 0 0 8px rgba(37, 211, 102, 0.12); }
+.wa-floating__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
 }
 
 .variant-chip {
@@ -6083,8 +6078,11 @@ body.sf-confirm-open {
   box-shadow: 0 0 0 1px rgba(47, 79, 62, 0.15);
 }
 @media (max-width: 480px) {
-  .wa-floating { padding: 12px; }
-  .wa-floating__label { display: none; }
+  .wa-floating {
+    width: 48px;
+    height: 48px;
+  }
+
   .cart-items {
     padding: 8px 10px;
   }
@@ -6398,10 +6396,6 @@ body.auth-storefront-page .page-main.auth-storefront-main {
 
 .auth-storefront-footer-link a:hover {
   text-decoration: underline;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wa-floating { animation: none; }
 }
 
 /* Storefront motion (transform/opacity only; disabled when reduced motion) */
