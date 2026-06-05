@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\Media;
 use Flux\Flux;
 use Illuminate\Support\Facades\Storage;
@@ -12,8 +13,7 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 new #[Title('Media library')] class extends Component {
-    use WithFileUploads;
-    use WithPagination;
+    use HasAdminTablePagination, WithFileUploads, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -49,7 +49,7 @@ new #[Title('Media library')] class extends Component {
                 $w->whereNull('mime')->orWhere('mime', 'not like', 'image/%');
             }))
             ->latest()
-            ->paginate(24);
+            ->paginate($this->perPage);
     }
 
     public function uploadFiles(): void
@@ -294,7 +294,10 @@ new #[Title('Media library')] class extends Component {
                 @endforeach
             </div>
 
-            <div>{{ $this->items->links() }}</div>
+            <x-admin.list-pagination
+                :paginator="$this->items"
+                :per-page-options="$this->perPageOptions()"
+            />
         @endif
     </div>
 

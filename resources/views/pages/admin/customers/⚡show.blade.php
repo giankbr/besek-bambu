@@ -1,13 +1,16 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 new #[Title('Customer detail')] class extends Component {
+    use HasAdminTablePagination, WithPagination;
     public string $email = '';
 
     public function mount(): void
@@ -50,7 +53,7 @@ new #[Title('Customer detail')] class extends Component {
             ->whereRaw('LOWER(customer_email) = ?', [strtolower($this->email)])
             ->withCount('items')
             ->latest()
-            ->paginate(10);
+            ->paginate($this->perPage);
     }
 
     #[Computed]
@@ -187,11 +190,10 @@ new #[Title('Customer detail')] class extends Component {
                                 </div>
                             </a>
                         @endforeach
-                        {{ $this->orders->links() }}
                     </div>
                     {{-- Desktop table --}}
                     <div class="hidden md:block">
-                    <flux:table :paginate="$this->orders" class="mt-4">
+                    <flux:table class="mt-4">
                         <flux:table.columns>
                             <flux:table.column>{{ __('Order') }}</flux:table.column>
                             <flux:table.column>{{ __('Items') }}</flux:table.column>
@@ -248,6 +250,11 @@ new #[Title('Customer detail')] class extends Component {
                         </flux:table.rows>
                     </flux:table>
                     </div>
+
+                    <x-admin.list-pagination
+                        :paginator="$this->orders"
+                        :per-page-options="$this->perPageOptions()"
+                    />
                 </flux:card>
             </div>
         </div>

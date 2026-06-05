@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\Order;
 use Flux\Flux;
 use Illuminate\Support\Carbon;
@@ -11,7 +12,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Orders')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -28,9 +29,6 @@ new #[Title('Orders')] class extends Component {
     #[Url(as: 'to', except: '')]
     public string $dateTo = '';
 
-    #[Url(as: 'per_page', except: 10)]
-    public int $perPage = 10;
-
     public array $selected = [];
 
     public string $bulkStatus = '';
@@ -40,16 +38,6 @@ new #[Title('Orders')] class extends Component {
     public function updatedPaymentFilter(): void { $this->resetPage(); $this->selected = []; }
     public function updatedDateFrom(): void { $this->resetPage(); $this->selected = []; }
     public function updatedDateTo(): void { $this->resetPage(); $this->selected = []; }
-
-    public function updatedPerPage(): void
-    {
-        if (! in_array($this->perPage, $this->perPageOptions(), true)) {
-            $this->perPage = 10;
-        }
-
-        $this->resetPage();
-        $this->selected = [];
-    }
 
     public function clearFilters(): void
     {
@@ -81,11 +69,6 @@ new #[Title('Orders')] class extends Component {
             ->withCount('items')
             ->latest()
             ->paginate($this->perPage);
-    }
-
-    public function perPageOptions(): array
-    {
-        return [10, 25, 50, 100];
     }
 
     #[Computed]
@@ -401,36 +384,10 @@ new #[Title('Orders')] class extends Component {
         </flux:table>
         </div>
 
-        <div class="flex flex-col gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-700 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-                <label class="inline-flex shrink-0 items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-                    <span class="whitespace-nowrap">{{ __('Per page') }}</span>
-                    <flux:select wire:model.live="perPage" class="!w-[4.25rem] min-w-0">
-                        @foreach ($this->perPageOptions() as $option)
-                            <flux:select.option value="{{ $option }}">{{ $option }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                </label>
-
-                @if ($this->orders->total() > 0)
-                    <p class="text-sm leading-5 text-zinc-500 dark:text-zinc-400">
-                        {!! __('Showing') !!}
-                        <span class="font-medium text-zinc-700 dark:text-zinc-300">{{ $this->orders->firstItem() }}</span>
-                        {!! __('to') !!}
-                        <span class="font-medium text-zinc-700 dark:text-zinc-300">{{ $this->orders->lastItem() }}</span>
-                        {!! __('of') !!}
-                        <span class="font-medium text-zinc-700 dark:text-zinc-300">{{ $this->orders->total() }}</span>
-                        {!! __('results') !!}
-                    </p>
-                @endif
-            </div>
-
-            @if ($this->orders->hasPages())
-                <div class="shrink-0 self-end sm:self-auto">
-                    {{ $this->orders->onEachSide(1)->links('vendor.pagination.admin-compact') }}
-                </div>
-            @endif
-        </div>
+        <x-admin.list-pagination
+            :paginator="$this->orders"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <x-admin.confirm-modal

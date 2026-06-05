@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\Coupon;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Coupons')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -27,7 +28,7 @@ new #[Title('Coupons')] class extends Component {
                   ->orWhere('label', 'like', "%{$this->search}%");
             })
             ->latest()
-            ->paginate(15);
+            ->paginate($this->perPage);
     }
 
     public function confirmDelete(int $id): void
@@ -127,12 +128,11 @@ new #[Title('Coupons')] class extends Component {
             @empty
                 <p class="py-6 text-center text-sm text-zinc-500">{{ __('No coupons yet.') }}</p>
             @endforelse
-            {{ $this->coupons->links() }}
         </div>
 
         {{-- Desktop table --}}
         <div class="hidden md:block">
-        <flux:table :paginate="$this->coupons">
+        <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('Code') }}</flux:table.column>
                 <flux:table.column>{{ __('Type') }}</flux:table.column>
@@ -205,6 +205,11 @@ new #[Title('Coupons')] class extends Component {
             </flux:table.rows>
         </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->coupons"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <x-admin.confirm-modal

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\ContactMessage;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Messages')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -39,7 +40,7 @@ new #[Title('Messages')] class extends Component {
             ->when($this->stateFilter === 'unread', fn ($q) => $q->where('is_read', false))
             ->when($this->stateFilter === 'read', fn ($q) => $q->where('is_read', true))
             ->latest()
-            ->paginate(15);
+            ->paginate($this->perPage);
     }
 
     public function open(int $id): void
@@ -144,7 +145,6 @@ new #[Title('Messages')] class extends Component {
             @empty
                 <p class="py-6 text-center text-sm text-zinc-500">{{ __('No messages yet.') }}</p>
             @endforelse
-            {{ $this->messages->links() }}
         </div>
         @if ($this->opened)
             <flux:card class="md:hidden">
@@ -169,7 +169,7 @@ new #[Title('Messages')] class extends Component {
         {{-- Desktop layout --}}
         <div class="hidden md:grid gap-6 lg:grid-cols-3">
             <div class="lg:col-span-2">
-                <flux:table :paginate="$this->messages">
+                <flux:table>
                     <flux:table.columns>
                         <flux:table.column>{{ __('From') }}</flux:table.column>
                         <flux:table.column>{{ __('Subject') }}</flux:table.column>
@@ -249,6 +249,11 @@ new #[Title('Messages')] class extends Component {
             </div>
         </div>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->messages"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <x-admin.confirm-modal

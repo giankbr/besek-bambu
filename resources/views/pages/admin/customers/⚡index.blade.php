@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Customers')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -51,7 +52,7 @@ new #[Title('Customers')] class extends Component {
             default => $query->orderByDesc('last_order_at'),
         };
 
-        return $query->paginate(15);
+        return $query->paginate($this->perPage);
     }
 }; ?>
 
@@ -102,12 +103,11 @@ new #[Title('Customers')] class extends Component {
             @empty
                 <p class="py-6 text-center text-sm text-zinc-500">{{ __('No customers yet.') }}</p>
             @endforelse
-            {{ $this->customers->links() }}
         </div>
 
         {{-- Desktop table --}}
         <div class="hidden md:block">
-        <flux:table :paginate="$this->customers">
+        <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('Customer') }}</flux:table.column>
                 <flux:table.column>{{ __('Account') }}</flux:table.column>
@@ -163,5 +163,10 @@ new #[Title('Customers')] class extends Component {
             </flux:table.rows>
         </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->customers"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 </section>

@@ -542,5 +542,6 @@
     "Qty": "Jml",
     "Separate multiple addresses with commas.": "Pisahkan beberapa alamat dengan koma.",
     "Enter one or more valid email addresses, separated by commas.": "Masukkan satu atau lebih alamat email yang valid, dipisah koma.",
-    "admin@besekbambu.com, owner@besekbambu.com": "admin@besekbambu.com, owner@besekbambu.com"
+    "admin@besekbambu.com, owner@besekbambu.com": "admin@besekbambu.com, owner@besekbambu.com",
+    "Showing :from–:to of :total results": "Menampilkan :from–:to dari :total hasil"
 }

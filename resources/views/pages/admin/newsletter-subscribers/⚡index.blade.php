@@ -1,6 +1,7 @@
 <?php
 
 use App\Exports\NewsletterSubscribersExport;
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Mail\NewsletterCustom;
 use App\Models\NewsletterSubscriber;
 use App\Services\NewsletterEmailLogService;
@@ -18,7 +19,7 @@ use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 
 new #[Title('Newsletter subscribers')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -53,7 +54,7 @@ new #[Title('Newsletter subscribers')] class extends Component {
             ->with('coupon')
             ->withCount('emailLogs')
             ->latest()
-            ->paginate(20);
+            ->paginate($this->perPage);
     }
 
     #[Computed]
@@ -388,11 +389,10 @@ new #[Title('Newsletter subscribers')] class extends Component {
             @empty
                 <p class="py-6 text-center text-sm text-zinc-500">{{ __('No subscribers yet.') }}</p>
             @endforelse
-            {{ $this->subscribers->links() }}
         </div>
 
         <div class="hidden md:block">
-            <flux:table :paginate="$this->subscribers">
+            <flux:table>
                 <flux:table.columns>
                     <flux:table.column>{{ __('Name') }}</flux:table.column>
                     <flux:table.column>{{ __('Email') }}</flux:table.column>
@@ -474,6 +474,11 @@ new #[Title('Newsletter subscribers')] class extends Component {
                 </flux:table.rows>
             </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->subscribers"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <flux:modal name="compose-newsletter-email" class="md:w-2xl">

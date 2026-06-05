@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\Product;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Products')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -34,7 +35,7 @@ new #[Title('Products')] class extends Component {
                     ->orWhere('slug', 'like', "%{$this->search}%");
             })
             ->orderBy('sort_order')
-            ->paginate(10);
+            ->paginate($this->perPage);
     }
 
     #[Computed]
@@ -239,12 +240,11 @@ new #[Title('Products')] class extends Component {
                 <div class="col-span-2 py-10 text-center text-zinc-500">{{ __('No products found.') }}</div>
             @endforelse
         </div>
-        <div class="mt-3">{{ $this->products->links() }}</div>
         </div>
 
         {{-- Desktop table --}}
         <div class="hidden md:block">
-        <flux:table :paginate="$this->products">
+        <flux:table>
             <flux:table.columns>
                 <flux:table.column class="w-10">
                     <flux:checkbox
@@ -312,6 +312,11 @@ new #[Title('Products')] class extends Component {
             </flux:table.rows>
         </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->products"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <x-admin.confirm-modal

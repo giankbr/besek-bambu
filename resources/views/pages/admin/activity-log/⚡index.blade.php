@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Activity log')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -66,7 +67,7 @@ new #[Title('Activity log')] class extends Component {
             ->when($this->dateFrom !== '', fn ($q) => $q->whereDate('created_at', '>=', $this->dateFrom))
             ->when($this->dateTo !== '', fn ($q) => $q->whereDate('created_at', '<=', $this->dateTo))
             ->latest()
-            ->paginate(20);
+            ->paginate($this->perPage);
     }
 
     #[Computed]
@@ -183,12 +184,11 @@ new #[Title('Activity log')] class extends Component {
             @empty
                 <p class="py-6 text-center text-sm text-zinc-500">{{ __('No activity yet.') }}</p>
             @endforelse
-            {{ $this->logs->links() }}
         </div>
 
         {{-- Desktop table --}}
         <div class="hidden md:block">
-        <flux:table :paginate="$this->logs">
+        <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('When') }}</flux:table.column>
                 <flux:table.column>{{ __('Actor') }}</flux:table.column>
@@ -254,6 +254,11 @@ new #[Title('Activity log')] class extends Component {
             </flux:table.rows>
         </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->logs"
+            :per-page-options="$this->perPageOptions()"
+        />
 
         @if ($this->previewLog)
             <flux:modal

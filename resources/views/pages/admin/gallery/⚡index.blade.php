@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\GalleryItem;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Gallery')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -29,7 +30,7 @@ new #[Title('Gallery')] class extends Component {
                 });
             })
             ->orderBy('sort_order')
-            ->paginate(12);
+            ->paginate($this->perPage);
     }
 
     public function confirmDelete(int $id): void
@@ -117,11 +118,9 @@ new #[Title('Gallery')] class extends Component {
                 <div class="col-span-2 py-6 text-center text-sm text-zinc-500">{{ __('No gallery items yet.') }}</div>
             @endforelse
         </div>
-        <div class="md:hidden">{{ $this->items->links() }}</div>
-
         {{-- Desktop table --}}
         <div class="hidden md:block">
-        <flux:table :paginate="$this->items">
+        <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('Image') }}</flux:table.column>
                 <flux:table.column>{{ __('Title') }}</flux:table.column>
@@ -179,6 +178,11 @@ new #[Title('Gallery')] class extends Component {
             </flux:table.rows>
         </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->items"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <x-admin.confirm-modal

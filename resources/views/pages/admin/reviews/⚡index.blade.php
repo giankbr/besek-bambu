@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\ProductReview;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Reviews')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -38,7 +39,7 @@ new #[Title('Reviews')] class extends Component {
             ->when($this->stateFilter === 'approved', fn ($q) => $q->where('is_approved', true))
             ->when($this->stateFilter === 'pending', fn ($q) => $q->where('is_approved', false))
             ->latest()
-            ->paginate(15);
+            ->paginate($this->perPage);
     }
 
     public function toggleApproval(int $id): void
@@ -138,12 +139,11 @@ new #[Title('Reviews')] class extends Component {
             @empty
                 <p class="py-6 text-center text-sm text-zinc-500">{{ __('No reviews yet.') }}</p>
             @endforelse
-            {{ $this->reviews->links() }}
         </div>
 
         {{-- Desktop table --}}
         <div class="hidden md:block">
-        <flux:table :paginate="$this->reviews">
+        <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('Product') }}</flux:table.column>
                 <flux:table.column>{{ __('Customer') }}</flux:table.column>
@@ -215,6 +215,11 @@ new #[Title('Reviews')] class extends Component {
             </flux:table.rows>
         </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->reviews"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <x-admin.confirm-modal

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\HasAdminTablePagination;
 use App\Models\User;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
@@ -9,7 +10,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Users')] class extends Component {
-    use WithPagination;
+    use HasAdminTablePagination, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -44,7 +45,7 @@ new #[Title('Users')] class extends Component {
             ->when($this->roleFilter === 'admin', fn ($q) => $q->where('is_admin', true))
             ->when($this->roleFilter === 'customer', fn ($q) => $q->where('is_admin', false))
             ->latest()
-            ->paginate(15);
+            ->paginate($this->perPage);
     }
 
     #[Computed]
@@ -237,12 +238,11 @@ new #[Title('Users')] class extends Component {
             @empty
                 <p class="py-6 text-center text-sm text-zinc-500">{{ __('No users match your filters.') }}</p>
             @endforelse
-            {{ $this->users->links() }}
         </div>
 
         {{-- Desktop table --}}
         <div class="hidden md:block">
-        <flux:table :paginate="$this->users">
+        <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('Name') }}</flux:table.column>
                 <flux:table.column>{{ __('Email') }}</flux:table.column>
@@ -318,6 +318,11 @@ new #[Title('Users')] class extends Component {
             </flux:table.rows>
         </flux:table>
         </div>
+
+        <x-admin.list-pagination
+            :paginator="$this->users"
+            :per-page-options="$this->perPageOptions()"
+        />
     </div>
 
     <flux:modal name="toggle-admin-user" class="md:w-96">
