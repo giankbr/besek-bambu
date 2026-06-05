@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Midtrans\Snap;
+use Midtrans\Transaction;
 
 class MidtransService
 {
@@ -24,7 +25,31 @@ class MidtransService
         Config::$is3ds = (bool) config('services.midtrans.is_3ds');
     }
 
+    public function resolveSnapToken(Order $order): string
+    {
+        if (filled($order->payment_token) && $order->canBePaid()) {
+            return $order->payment_token;
+        }
+
+        return $this->createSnapToken($order);
+    }
+
     public function createSnapToken(Order $order): string
+    {
+        try {
+            return $this->mintSnapToken($order);
+        } catch (\Throwable $e) {
+            if (! $this->isDuplicateOrderError($e)) {
+                throw $e;
+            }
+
+            $this->expirePendingTransaction($order);
+
+            return $this->mintSnapToken($order);
+        }
+    }
+
+    private function mintSnapToken(Order $order): string
     {
         $order->loadMissing('items');
 
@@ -42,6 +67,13 @@ class MidtransService
                 'gross_amount' => $grossAmount,
                 'items_total' => $itemsTotal,
             ]);
+
+            $itemDetails[] = [
+                'id' => 'adjustment',
+                'name' => 'Adjustment',
+                'price' => $grossAmount - $itemsTotal,
+                'quantity' => 1,
+            ];
         }
 
         $payload = [
@@ -76,6 +108,42 @@ class MidtransService
         ])->save();
 
         return $token;
+    }
+
+    private function isDuplicateOrderError(\Throwable $e): bool
+    {
+        $message = strtolower($e->getMessage());
+
+        return str_contains($message, 'order_id')
+            || str_contains($message, 'order id')
+            || str_contains($message, 'already')
+            || str_contains($message, 'taken')
+            || str_contains($message, 'duplicate');
+    }
+
+    private function expirePendingTransaction(Order $order): void
+    {
+        try {
+            $status = Transaction::status($order->number);
+            $transactionStatus = $status->transaction_status ?? null;
+
+            if (in_array($transactionStatus, ['pending', 'capture'], true)) {
+                Transaction::expire($order->number);
+                Log::info('Expired pending Midtrans transaction before issuing a new Snap token', [
+                    'order' => $order->number,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Could not expire Midtrans transaction', [
+                'order' => $order->number,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $order->forceFill([
+            'payment_token' => null,
+            'payment_url' => null,
+        ])->save();
     }
 
     /**

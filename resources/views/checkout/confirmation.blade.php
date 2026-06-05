@@ -80,10 +80,8 @@
         <div class="confirmation-actions">
           @if (order_can_pay_with_midtrans($order))
             <a class="hero-cta" href="{{ route('payment.pay', $order) }}">{{ __('Bayar sekarang') }}</a>
-            <p class="confirmation-meta confirmation__pay-hint">{{ __('Popup pembayaran tertutup? Klik tombol di atas untuk membuka lagi.') }}</p>
-            <p class="confirmation-meta confirmation__pay-hint">{{ __('Tanpa login, simpan halaman ini atau gunakan tautan di email konfirmasi untuk bayar nanti.') }}</p>
           @endif
-          <a class="cart-link-btn" href="{{ route('shop.index') }}">{{ __('Lanjut belanja') }}</a>
+          <a class="sf-btn sf-btn--tertiary sf-btn--md" href="{{ route('shop.index') }}">{{ __('Lanjut belanja') }}</a>
         </div>
       </div>
     </section>

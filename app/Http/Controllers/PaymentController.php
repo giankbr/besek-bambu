@@ -23,8 +23,7 @@ class PaymentController extends Controller
         }
 
         try {
-            // Snap token expires; always mint a fresh one when opening the pay page.
-            $midtrans->createSnapToken($order);
+            $midtrans->resolveSnapToken($order);
             $order->refresh();
         } catch (\Throwable $e) {
             Log::warning('Failed to create Midtrans snap token', [

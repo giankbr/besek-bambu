@@ -4876,6 +4876,7 @@ html[data-theme="dark"] .cart-summary__row--discount {
   }
 
   .confirmation-actions .hero-cta,
+  .confirmation-actions .sf-btn,
   .confirmation-actions .cart-link-btn {
     width: 100%;
     text-align: center;
