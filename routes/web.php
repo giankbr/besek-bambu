@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/newsletter', [NewsletterController::class, 'subscribe'])
-    ->middleware('throttle:10,1')
+    ->middleware('throttle:newsletter')
     ->name('newsletter.subscribe');
 
 Route::get('/lang/{locale}', function (string $locale) {
@@ -41,15 +41,15 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [PageController::class, 'contactSubmit'])
-    ->middleware('throttle:5,1')
+    ->middleware('throttle:contact')
     ->name('contact.submit');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/products/{product:slug}', [ShopController::class, 'show'])->name('shop.product');
 Route::get('/categories/{category:slug}', [ShopController::class, 'category'])->name('shop.category');
 
-Route::middleware('throttle:30,1')->group(function () {
-    Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+Route::middleware('throttle:cart')->group(function () {
     Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
     Route::patch('/cart/{key}', [CartController::class, 'update'])->where('key', '[0-9]+(-[0-9]+)?')->name('cart.update');
     Route::delete('/cart/{key}', [CartController::class, 'destroy'])->where('key', '[0-9]+(-[0-9]+)?')->name('cart.destroy');
@@ -59,13 +59,13 @@ Route::middleware('throttle:30,1')->group(function () {
 
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout', [CheckoutController::class, 'store'])
-    ->middleware('throttle:10,1')
+    ->middleware('throttle:checkout')
     ->name('checkout.store');
 Route::get('/checkout/{order}/confirmation', [CheckoutController::class, 'confirmation'])
     ->middleware('order.access')
     ->name('checkout.confirmation');
 
-Route::prefix('shipping')->name('shipping.')->middleware('throttle:60,1')->group(function () {
+Route::prefix('shipping')->name('shipping.')->middleware('throttle:shipping')->group(function () {
     Route::get('destinations', [ShippingController::class, 'searchDestinations'])->name('destinations');
     Route::post('resolve-destination', [ShippingController::class, 'resolveDestination'])->name('resolveDestination');
     Route::get('wilayah/provinces', [ShippingController::class, 'provinces'])->name('wilayah.provinces');
@@ -79,7 +79,7 @@ Route::get('/payment/{order}', [PaymentController::class, 'pay'])
     ->middleware('order.access')
     ->name('payment.pay');
 Route::post('/payment/notification', [PaymentController::class, 'notification'])
-    ->middleware('throttle:120,1')
+    ->middleware('throttle:payment-notification')
     ->name('payment.notification');
 
 Route::middleware(['auth'])->group(function () {
@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/account/orders/{order}/cancel', [AccountController::class, 'cancel'])->name('account.orders.cancel');
 
     Route::post('/products/{product:slug}/reviews', [ProductReviewController::class, 'store'])
-        ->middleware('throttle:5,1')
+        ->middleware('throttle:reviews')
         ->name('reviews.store');
 
     if (config('features.wishlist')) {

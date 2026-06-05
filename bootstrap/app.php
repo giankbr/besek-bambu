@@ -6,6 +6,8 @@ use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -44,5 +46,19 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (ThrottleRequestsException $e, Request $request) {
+            if ($request->routeIs('checkout.store')) {
+                return back()
+                    ->withInput()
+                    ->with('status', __('Terlalu banyak percobaan checkout. Tunggu sebentar lalu coba lagi.'));
+            }
+
+            if ($request->routeIs('shipping.*') && $request->expectsJson()) {
+                return response()->json([
+                    'message' => __('Terlalu banyak permintaan. Coba lagi sebentar.'),
+                ], 429);
+            }
+
+            return null;
+        });
     })->create();

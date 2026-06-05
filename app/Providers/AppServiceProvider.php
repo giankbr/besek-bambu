@@ -5,9 +5,12 @@ namespace App\Providers;
 use App\Listeners\SendEmailVerifiedWelcome;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -29,8 +32,20 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureUrlSchemeForProxiedHttps();
+        $this->configureRateLimiting();
 
         Event::listen(Verified::class, SendEmailVerifiedWelcome::class);
+    }
+
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('cart', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+        RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(20)->by($request->ip()));
+        RateLimiter::for('shipping', fn (Request $request) => Limit::perMinute(180)->by($request->ip()));
+        RateLimiter::for('contact', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('newsletter', fn (Request $request) => Limit::perMinute(15)->by($request->ip()));
+        RateLimiter::for('reviews', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('payment-notification', fn (Request $request) => Limit::perMinute(120)->by($request->ip()));
     }
 
     /**
