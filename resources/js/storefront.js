@@ -493,8 +493,8 @@ const initMegaBrandFill = () => {
 
   gsap.registerPlugin(ScrollTrigger)
 
-  const fromColor = '#d8dad2'
-  const fromAccent = '#cfd2c9'
+  const fromColor = '#d4cfc4'
+  const fromAccent = '#c8c2b6'
 
   fills.forEach((el) => {
     const isAccent = el.classList.contains('mega-brand__fill--accent')
@@ -511,7 +511,7 @@ const initMegaBrandFill = () => {
 
   fills.forEach((el, i) => {
     const isAccent = el.classList.contains('mega-brand__fill--accent')
-    const toColor = isAccent ? '#3d5248' : '#2c4a3a'
+    const toColor = isAccent ? '#4a6356' : '#2f4f3e'
     tl.fromTo(
       el,
       { color: isAccent ? fromAccent : fromColor },
@@ -753,7 +753,7 @@ const initMicroInteractions = () => {
     wrap.addEventListener('mouseleave', () => hoverTween.reverse())
   })
 
-  document.querySelectorAll('.foot-cols a, .socials a').forEach((link) => {
+  document.querySelectorAll('.foot-nav a, .foot-socials a').forEach((link) => {
     const xTo = gsap.quickTo(link, 'x', { duration: 0.25, ease: 'power2.out' })
     link.addEventListener('mouseenter', () => xTo(4))
     link.addEventListener('mouseleave', () => xTo(0))

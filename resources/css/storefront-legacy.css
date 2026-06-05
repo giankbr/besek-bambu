@@ -525,16 +525,12 @@
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
   }
 
-  html[data-theme="dark"] .foot-band {
-    border-top: 1px solid var(--line);
-  }
-
   html[data-theme="dark"] .mega-brand__fill {
-    color: #52525b;
+    color: #5c655a;
   }
 
   html[data-theme="dark"] .mega-brand__fill--accent {
-    color: #a1a1aa;
+    color: #8a948c;
   }
 
 
@@ -582,8 +578,8 @@
   .news-center .big,
   .big-line,
   .big-accent,
-  .mega-logo .word.mega-brand,
-  .mega-logo .mega-brand__fill,
+  .foot-mega__brand.mega-brand,
+  .foot-mega__brand .mega-brand__fill,
   .product-detail__name,
   .product-detail__price,
   .cart-title,
@@ -630,6 +626,7 @@
   .site-footer {
     width: 100%;
     min-width: 0;
+    border-top: 1px solid var(--line);
   }
 
   .site-header > .container,
@@ -2065,21 +2062,21 @@
     color: #fca5a5;
   }
 
-  /* ===== Footer bands ===== */
-  .foot-band {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 48px;
-    align-items: start;
-    padding: 48px 0 64px;
+  /* ===== Footer ===== */
+  .foot-upper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding-top: clamp(2rem, 5vw, 3rem);
   }
 
   .foot-tag {
-    font-size: 18px;
-    line-height: 1.45;
-    color: var(--ink);
-    max-width: 460px;
-    margin-bottom: 28px;
+    margin: 0;
+    max-width: 22rem;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
   }
 
   .foot-tag em {
@@ -2088,40 +2085,37 @@
     font-weight: 500;
   }
 
-  .join-btn {
-    gap: 8px;
-    font-size: 13px;
-    --btn-radius: 999px;
-  }
-
-  .foot-cols {
+  .foot-nav {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 22px;
-    flex-direction: column;
-    text-align: right;
+    gap: 0.35rem 1.35rem;
+    max-width: 28rem;
   }
 
-  .foot-cols a {
+  .foot-nav a {
     color: var(--ink);
     text-decoration: none;
     font-size: 14px;
-    line-height: 1.4;
-  }
-
-  .mega-logo {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-top: 1px solid var(--line);
-    padding: 32px 0 24px;
-  }
-
-  .mega-logo .word.mega-brand {
-    font-size: clamp(48px, 9vw, 108px);
     font-weight: 500;
-    line-height: 0.76;
-    letter-spacing: -1.5px;
+    line-height: 1.4;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+  }
+
+  .foot-nav a:hover {
+    color: var(--green-deep);
+  }
+
+  .foot-mega {
+    padding: clamp(1.5rem, 4vw, 2.5rem) 0 clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .foot-mega__brand.mega-brand {
+    font-size: clamp(3rem, 10vw, 6.75rem);
+    font-weight: 500;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
     color: inherit;
   }
 
@@ -2132,13 +2126,14 @@
 
   .mega-brand__fill {
     display: inline-block;
-    color: #d8dad2;
+    color: #d4cfc4;
     will-change: color;
   }
 
   .mega-brand__fill--accent {
     font-style: italic;
-    color: #cfd2c9;
+    font-weight: 500;
+    color: #c8c2b6;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -2148,25 +2143,59 @@
     }
 
     .mega-brand__fill--accent {
-      color: #3d5248;
+      color: #4a6356;
     }
   }
 
-  .socials {
+  .foot-lower {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    text-align: right;
-    padding-bottom: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    padding-bottom: clamp(1.5rem, 4vw, 2.25rem);
+    border-top: 1px solid var(--line);
+    padding-top: 1.25rem;
   }
 
-  .socials a {
+  .join-btn {
+    gap: 8px;
+    font-size: 13px;
+    --btn-radius: 999px;
+  }
+
+  .foot-socials {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 1.25rem;
+    margin-left: auto;
+  }
+
+  .foot-socials a {
     color: var(--ink);
     text-decoration: none;
     font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: color 0.15s ease;
   }
 
-  .socials a::after { content: " ↗"; opacity: .6; }
+  .foot-socials a::after {
+    content: " ↗";
+    opacity: 0.5;
+  }
+
+  .foot-socials a:hover {
+    color: var(--green-deep);
+  }
+
+  .foot-meta {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
 
   /* ===== Responsive ===== */
   @media (max-width: 900px) {
@@ -2721,17 +2750,19 @@
     .hero-lead {
       max-width: none;
     }
-    .mega-logo {
+    .foot-upper {
+      flex-direction: column;
+    }
+    .foot-nav {
+      justify-content: flex-start;
+      max-width: none;
+    }
+    .foot-socials {
+      margin-left: 0;
+    }
+    .foot-lower {
       flex-direction: column;
       align-items: flex-start;
-      gap: 14px;
-    }
-    .socials {
-      flex-direction: row;
-      flex-wrap: wrap;
-      text-align: left;
-      padding-bottom: 0;
-      gap: 10px 16px;
     }
     .reviews-top {
       grid-template-columns: 1fr;
@@ -2748,8 +2779,6 @@
     .news-photo { width: clamp(56px, 12vw, 88px); }
     .news-photo:nth-child(3),
     .news-photo:nth-child(4) { opacity: 0.92; }
-    .foot-band { grid-template-columns: 1fr; }
-    .foot-cols { text-align: left; align-items: flex-start; }
     .collage .c-side {
       width: clamp(72px, 24vw, 120px);
       height: auto;
@@ -2782,7 +2811,7 @@
       margin: 24px 0;
       border-radius: 16px;
     }
-    .mega-logo .word.mega-brand {
+    .foot-mega__brand.mega-brand {
       max-width: 100%;
       overflow-wrap: anywhere;
     }
@@ -2886,17 +2915,12 @@
       padding: 10px 20px;
       font-size: 13px;
     }
-    .mega-logo .word.mega-brand {
-      font-size: clamp(36px, 14vw, 72px);
-      line-height: 0.74;
-    }
-    .foot-band {
-      padding: 32px 0 40px;
-      gap: 28px;
+    .foot-mega__brand.mega-brand {
+      font-size: clamp(2.25rem, 14vw, 3.5rem);
+      line-height: 0.86;
     }
     .foot-tag {
-      font-size: 16px;
-      margin-bottom: 20px;
+      font-size: 14px;
     }
     .reviews { padding: 24px 18px 28px; }
     .reviews-track-wrap { mask-image: none; -webkit-mask-image: none; }
