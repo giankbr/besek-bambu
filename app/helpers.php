@@ -2,6 +2,8 @@
 
 use App\Models\Order;
 use App\Models\Setting;
+use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
 if (! function_exists('idr')) {
@@ -22,6 +24,13 @@ if (! function_exists('mail_greeting')) {
     function mail_greeting(string $name): string
     {
         return __('Halo, :name!', ['name' => $name]);
+    }
+}
+
+if (! function_exists('send_customer_mail')) {
+    function send_customer_mail(string $email, Mailable $mailable): void
+    {
+        Mail::to($email)->locale('id')->send($mailable);
     }
 }
 

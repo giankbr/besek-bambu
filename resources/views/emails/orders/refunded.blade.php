@@ -1,16 +1,16 @@
 <x-mail::message>
 # {{ mail_greeting($order->customer_name) }}
 
-We've processed a refund for order **{{ $order->number }}** ({{ idr($order->total) }}).
+{!! __('Kami telah memproses pengembalian dana untuk pesanan <strong>:number</strong> (:total).', ['number' => e($order->number), 'total' => e(idr($order->total))]) !!}
 
-Depending on your bank or payment provider, funds may take a few business days to appear in your account.
+{{ __('Dana dapat membutuhkan beberapa hari kerja untuk muncul di rekening Anda, tergantung bank atau penyedia pembayaran.') }}
 
 <x-mail::button :url="order_signed_url('checkout.confirmation', $order)">
-View order details
+{{ __('Lihat detail pesanan') }}
 </x-mail::button>
 
-If you have questions, reply to this email.
+{{ __('Jika ada pertanyaan, balas email ini.') }}
 
-Thanks,<br>
+{{ __('Terima kasih,') }}<br>
 {{ store_name() }}
 </x-mail::message>

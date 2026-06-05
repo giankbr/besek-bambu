@@ -1,28 +1,28 @@
 <x-mail::message>
 # {{ mail_greeting($order->customer_name) }}
 
-We've received your order **{{ $order->number }}**. Here's a summary:
+{!! __('Pesanan <strong>:number</strong> telah kami terima. Ringkasannya:', ['number' => e($order->number)]) !!}
 
 <x-mail::table>
-| Item | Qty | Price |
+| {{ __('Produk') }} | {{ __('Jumlah') }} | {{ __('Harga') }} |
 |:-----|:---:|------:|
 @foreach ($order->items as $item)
 | {{ $item->product_name }} | {{ $item->quantity }} | {{ idr($item->line_total) }} |
 @endforeach
 </x-mail::table>
 
-**Total: {{ idr($order->total) }}**
+**{{ __('Total') }}: {{ idr($order->total) }}**
 
 @if ($order->canBePaid())
-Please complete your payment to confirm the order.
+{{ __('Silakan selesaikan pembayaran untuk mengonfirmasi pesanan.') }}
 
 <x-mail::button :url="order_signed_url('payment.pay', $order)">
-Pay now
+{{ __('Bayar sekarang') }}
 </x-mail::button>
 @endif
 
-We'll email you again as soon as we ship your order.
+{{ __('Kami akan mengirim email lagi begitu pesanan dikirim.') }}
 
-Thanks,<br>
+{{ __('Terima kasih,') }}<br>
 {{ store_name() }}
 </x-mail::message>

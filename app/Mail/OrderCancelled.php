@@ -18,7 +18,7 @@ class OrderCancelled extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your order was cancelled: '.$this->order->number,
+            subject: __('Pesanan dibatalkan: :number', ['number' => $this->order->number]),
         );
     }
 

@@ -1,18 +1,18 @@
 <x-mail::message>
 # {{ mail_greeting($order->customer_name) }}
 
-Order **{{ $order->number }}** was marked as delivered. We hope you love it!
+{!! __('Pesanan <strong>:number</strong> telah sampai di tujuan. Semoga Anda puas!', ['number' => e($order->number)]) !!}
 
-If anything looks off, just reply to this email and we'll make it right.
+{{ __('Jika ada yang kurang sesuai, balas email ini dan kami akan bantu.') }}
 
-Mind sharing how it went? Reviews help other shoppers find us.
+{{ __('Boleh cerita pengalaman Anda? Ulasan membantu pembeli lain menemukan kami.') }}
 
 @if (config('app.url'))
 <x-mail::button :url="config('app.url').'/account/orders'">
-View order
+{{ __('Lihat pesanan') }}
 </x-mail::button>
 @endif
 
-Thanks for choosing us,<br>
+{{ __('Terima kasih telah memilih kami,') }}<br>
 {{ store_name() }}
 </x-mail::message>

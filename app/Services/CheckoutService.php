@@ -152,7 +152,7 @@ class CheckoutService
         });
 
         try {
-            Mail::to($order->customer_email)->send(new OrderPlaced($order));
+            send_customer_mail($order->customer_email, new OrderPlaced($order));
         } catch (\Throwable $e) {
             Log::warning('Failed to send order placed email', ['order' => $order->number, 'error' => $e->getMessage()]);
         }

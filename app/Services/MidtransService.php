@@ -10,7 +10,6 @@ use App\Models\Order;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Midtrans\Snap;
@@ -304,7 +303,7 @@ class MidtransService
     private function sendCustomerMail(Order $order, Mailable $mailable): void
     {
         try {
-            Mail::to($order->customer_email)->send($mailable);
+            send_customer_mail($order->customer_email, $mailable);
         } catch (\Throwable $e) {
             Log::warning('Failed to send order email', [
                 'order' => $order->number,

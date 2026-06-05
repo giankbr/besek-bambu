@@ -21,11 +21,11 @@ class OrderPaymentFailed extends Mailable
     public function envelope(): Envelope
     {
         $subject = $this->reason === 'expired'
-            ? 'Payment window expired'
-            : 'Payment could not be completed';
+            ? __('Batas waktu pembayaran habis: :number', ['number' => $this->order->number])
+            : __('Pembayaran gagal: :number', ['number' => $this->order->number]);
 
         return new Envelope(
-            subject: $subject.': '.$this->order->number,
+            subject: $subject,
         );
     }
 

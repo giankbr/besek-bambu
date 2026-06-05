@@ -126,14 +126,10 @@ new #[Title('Order detail')] class extends Component {
 
         try {
             match ($to) {
-                'paid' => \Illuminate\Support\Facades\Mail::to($this->order->customer_email)
-                    ->send(new \App\Mail\OrderProcessing($this->order)),
-                'shipped' => \Illuminate\Support\Facades\Mail::to($this->order->customer_email)
-                    ->send(new \App\Mail\OrderShipped($this->order)),
-                'delivered' => \Illuminate\Support\Facades\Mail::to($this->order->customer_email)
-                    ->send(new \App\Mail\OrderDelivered($this->order)),
-                'cancelled' => \Illuminate\Support\Facades\Mail::to($this->order->customer_email)
-                    ->send(new \App\Mail\OrderCancelled($this->order)),
+                'paid' => send_customer_mail($this->order->customer_email, new \App\Mail\OrderProcessing($this->order)),
+                'shipped' => send_customer_mail($this->order->customer_email, new \App\Mail\OrderShipped($this->order)),
+                'delivered' => send_customer_mail($this->order->customer_email, new \App\Mail\OrderDelivered($this->order)),
+                'cancelled' => send_customer_mail($this->order->customer_email, new \App\Mail\OrderCancelled($this->order)),
                 default => null,
             };
         } catch (\Throwable $e) {

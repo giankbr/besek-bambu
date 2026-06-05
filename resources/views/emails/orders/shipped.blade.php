@@ -1,33 +1,33 @@
 <x-mail::message>
 # {{ mail_greeting($order->customer_name) }}
 
-Good news! Order **{{ $order->number }}** has been handed over to the courier and is on its way to you.
+{!! __('Kabar baik! Pesanan <strong>:number</strong> telah diserahkan ke kurir dan sedang dalam perjalanan menuju Anda.', ['number' => e($order->number)]) !!}
 
 @if ($order->shipping_courier)
-**Courier:** {{ strtoupper($order->shipping_courier) }} {{ $order->shipping_service }}
+**{{ __('Kurir') }}:** {{ strtoupper($order->shipping_courier) }} {{ $order->shipping_service }}
 @endif
 
 @if ($order->tracking_number)
-**Tracking number:** `{{ $order->tracking_number }}`
+**{{ __('Nomor resi') }}:** `{{ $order->tracking_number }}`
 @endif
 
 @if ($order->shipping_etd)
-**Estimated delivery:** {{ $order->shipping_etd }} {{ Str::contains($order->shipping_etd, 'day') ? '' : 'days' }}
+**{{ __('Estimasi tiba') }}:** {{ str_ireplace(['day', 'days'], __('hari'), $order->shipping_etd) }}
 @endif
 
 <x-mail::table>
-| Item | Qty | Price |
+| {{ __('Produk') }} | {{ __('Jumlah') }} | {{ __('Harga') }} |
 |:-----|:---:|------:|
 @foreach ($order->items as $item)
 | {{ $item->product_name }} | {{ $item->quantity }} | {{ idr($item->line_total) }} |
 @endforeach
 </x-mail::table>
 
-**Shipping to:**
+**{{ __('Dikirim ke') }}:**
 {{ $order->shipping_address }}
 
-We'll let you know once it has been delivered. Thanks for shopping with us!
+{{ __('Kami akan memberi tahu setelah paket sampai. Terima kasih sudah berbelanja!') }}
 
-Best,<br>
+{{ __('Terima kasih,') }}<br>
 {{ store_name() }}
 </x-mail::message>

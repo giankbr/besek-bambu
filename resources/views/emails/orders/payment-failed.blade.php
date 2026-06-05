@@ -2,21 +2,21 @@
 # {{ mail_greeting($order->customer_name) }}
 
 @if ($reason === 'expired')
-The payment window for order **{{ $order->number }}** ({{ idr($order->total) }}) has expired. Your order is not confirmed yet.
+{!! __('Batas waktu pembayaran untuk pesanan <strong>:number</strong> (:total) telah berakhir. Pesanan belum dikonfirmasi.', ['number' => e($order->number), 'total' => e(idr($order->total))]) !!}
 @else
-We could not complete payment for order **{{ $order->number }}** ({{ idr($order->total) }}). Your order is not confirmed yet.
+{!! __('Pembayaran untuk pesanan <strong>:number</strong> (:total) tidak dapat diselesaikan. Pesanan belum dikonfirmasi.', ['number' => e($order->number), 'total' => e(idr($order->total))]) !!}
 @endif
 
 @if ($order->canBePaid())
-You can try paying again using the link below.
+{{ __('Anda dapat mencoba membayar lagi melalui tautan di bawah.') }}
 
 <x-mail::button :url="order_signed_url('payment.pay', $order)">
-Pay again
+{{ __('Bayar lagi') }}
 </x-mail::button>
 @else
-If you'd like to order again, visit our shop or reply to this email and we'll help you out.
+{{ __('Jika ingin memesan ulang, kunjungi toko kami atau balas email ini.') }}
 @endif
 
-Thanks,<br>
+{{ __('Terima kasih,') }}<br>
 {{ store_name() }}
 </x-mail::message>
