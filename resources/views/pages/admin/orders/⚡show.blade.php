@@ -333,7 +333,7 @@ new #[Title('Order detail')] class extends Component {
                         @if ($order->payment_method)
                             <div class="flex items-center justify-between">
                                 <flux:text class="text-zinc-500">{{ __('Method') }}</flux:text>
-                                <flux:text>{{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</flux:text>
+                                <flux:text>{{ payment_method_label($order->payment_method) }}</flux:text>
                             </div>
                         @endif
                         @if ($order->paid_at)

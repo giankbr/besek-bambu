@@ -54,6 +54,20 @@ class MidtransNotificationMailTest extends TestCase
         Mail::assertSent(OrderProcessing::class, fn (OrderProcessing $mail) => $mail->hasTo('buyer@example.com'));
     }
 
+    public function test_bca_va_notification_stores_specific_payment_method(): void
+    {
+        Mail::fake();
+
+        $order = $this->orderWithTotal();
+        $notification = $this->notification('settlement', '225000.00');
+        $notification->va_numbers = [(object) ['bank' => 'bca', 'va_number' => '3333333333']];
+
+        app(MidtransService::class)->applyNotification($order, $notification);
+
+        $this->assertSame('bca_va', $order->fresh()->payment_method);
+        $this->assertSame('VA BCA', payment_method_label('bca_va'));
+    }
+
     public function test_deny_sends_payment_failed_email(): void
     {
         Mail::fake();

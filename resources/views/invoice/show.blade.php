@@ -280,7 +280,7 @@
           @if ($order->payment_method)
             <div>
               <h3>Payment</h3>
-              <p>{{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</p>
+              <p>{{ payment_method_label($order->payment_method) }}</p>
               @if ($order->paid_at)
                 <p class="meta" style="color:var(--muted)">Paid: {{ $order->paid_at->format('d M Y · H:i') }}</p>
               @endif

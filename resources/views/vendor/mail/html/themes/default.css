@@ -243,6 +243,7 @@ img {
     border-left: 22px solid #c4a35a;
     border-right: 22px solid #c4a35a;
     border-top: 10px solid #c4a35a;
+    color: #ffffff !important;
 }
 
 .button-green,

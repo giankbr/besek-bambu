@@ -267,7 +267,7 @@
                     />
                     <span>
                       @if ($key === 'midtrans')
-                        <strong>{{ __('Bayar online (Midtrans)') }}</strong>
+                        <strong>{{ __('Bayar online') }}</strong>
                       @else
                         {{ $label }}
                       @endif

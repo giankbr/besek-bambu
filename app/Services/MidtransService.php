@@ -184,7 +184,6 @@ class MidtransService
 
             $transactionStatus = $notification->transaction_status ?? null;
             $fraudStatus = $notification->fraud_status ?? null;
-            $paymentType = $notification->payment_type ?? null;
 
             $newStatus = match (true) {
                 $transactionStatus === 'capture' && $fraudStatus === 'challenge' => 'pending',
@@ -228,7 +227,7 @@ class MidtransService
 
             $update = [
                 'payment_status' => $newStatus,
-                'payment_method' => $paymentType ?: $fresh->payment_method,
+                'payment_method' => $this->resolvePaymentMethod($notification, $fresh->payment_method),
             ];
 
             if ($becamePaid) {
@@ -263,6 +262,43 @@ class MidtransService
                 'payment_status' => $newStatus,
             ]);
         });
+    }
+
+    private function resolvePaymentMethod(Notification $notification, ?string $fallback): string
+    {
+        $type = trim((string) ($notification->payment_type ?? ''));
+
+        if ($type === 'bank_transfer') {
+            $bank = $this->vaBankFromNotification($notification);
+
+            if ($bank !== null) {
+                return $bank.'_va';
+            }
+        }
+
+        if ($type !== '') {
+            return $type;
+        }
+
+        return $fallback ?: 'midtrans';
+    }
+
+    private function vaBankFromNotification(Notification $notification): ?string
+    {
+        $vaNumbers = $notification->va_numbers ?? null;
+
+        if (! is_array($vaNumbers) || $vaNumbers === []) {
+            return null;
+        }
+
+        $first = $vaNumbers[0];
+        $bank = is_object($first)
+            ? ($first->bank ?? null)
+            : ($first['bank'] ?? null);
+
+        $bank = strtolower(trim((string) $bank));
+
+        return $bank !== '' ? $bank : null;
     }
 
     private function sendCustomerMail(Order $order, Mailable $mailable): void

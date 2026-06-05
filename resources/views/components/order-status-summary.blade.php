@@ -12,7 +12,7 @@
   @if ($order->payment_method && ! ($hideMidtransMethod && $order->payment_method === 'midtrans'))
     <div class="confirmation-status__row">
       <span class="confirmation-status__label">{{ __('Metode pembayaran') }}</span>
-      <span class="stock-pill stock-pill--neutral">{{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}</span>
+      <span class="stock-pill stock-pill--neutral">{{ payment_method_label($order->payment_method) }}</span>
     </div>
   @endif
 </div>

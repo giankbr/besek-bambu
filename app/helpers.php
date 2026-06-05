@@ -139,6 +139,33 @@ if (! function_exists('store_socials')) {
     }
 }
 
+if (! function_exists('midtrans_payment_logos')) {
+    /**
+     * Official payment provider logos from Midtrans (veritrans/logo).
+     *
+     * @return list<array{file: string, alt: string}>
+     */
+    function midtrans_payment_logos(): array
+    {
+        return [
+            ['file' => 'visa.png', 'alt' => 'Visa'],
+            ['file' => 'mastercard.png', 'alt' => 'Mastercard'],
+            ['file' => 'jcb.png', 'alt' => 'JCB'],
+            ['file' => 'amex.png', 'alt' => 'American Express'],
+            ['file' => 'bca.png', 'alt' => 'BCA'],
+            ['file' => 'bni.png', 'alt' => 'BNI'],
+            ['file' => 'mandiri.png', 'alt' => 'Bank Mandiri'],
+            ['file' => 'permata.png', 'alt' => 'PermataBank'],
+            ['file' => 'cimb.png', 'alt' => 'CIMB Niaga'],
+            ['file' => 'bri.png', 'alt' => 'BRI'],
+            ['file' => 'gopay.png', 'alt' => 'GoPay'],
+            ['file' => 'shopee.png', 'alt' => 'ShopeePay'],
+            ['file' => 'qris.png', 'alt' => 'QRIS'],
+            ['file' => 'dana.png', 'alt' => 'DANA'],
+        ];
+    }
+}
+
 if (! function_exists('enabled_payment_methods')) {
     /**
      * @return array<string, string> map of method key => label for enabled methods
@@ -148,7 +175,7 @@ if (! function_exists('enabled_payment_methods')) {
         $candidates = [
             'midtrans' => [
                 'enabled' => (bool) setting('payment_midtrans', true) && (bool) config('services.midtrans.server_key'),
-                'label' => 'Bayar online (Midtrans)',
+                'label' => __('Bayar online'),
             ],
             'manual_transfer' => [
                 'enabled' => (bool) setting('payment_manual_transfer', false),
@@ -245,6 +272,37 @@ if (! function_exists('payment_status_label')) {
             'expired' => __('Kedaluwarsa'),
             'refunded' => __('Dikembalikan'),
             default => ucfirst($status),
+        };
+    }
+}
+
+if (! function_exists('payment_method_label')) {
+    function payment_method_label(?string $method): string
+    {
+        if ($method === null || $method === '') {
+            return '—';
+        }
+
+        return match ($method) {
+            'midtrans' => __('Bayar online'),
+            'manual_transfer' => __('Transfer bank manual'),
+            'cod' => __('Bayar di tempat (COD)'),
+            'bank_transfer' => __('Transfer bank'),
+            'bca_va' => __('VA BCA'),
+            'bni_va' => __('VA BNI'),
+            'bri_va' => __('VA BRI'),
+            'permata_va' => __('VA Permata'),
+            'other_va' => __('Virtual Account'),
+            'echannel' => __('Mandiri Bill Payment'),
+            'credit_card' => __('Kartu kredit/debit'),
+            'gopay' => 'GoPay',
+            'shopeepay' => 'ShopeePay',
+            'qris' => 'QRIS',
+            'dana' => 'DANA',
+            'akulaku' => 'Akulaku',
+            'kredivo' => 'Kredivo',
+            'cstore', 'indomaret', 'alfamart' => __('Gerai retail'),
+            default => ucwords(str_replace('_', ' ', $method)),
         };
     }
 }
