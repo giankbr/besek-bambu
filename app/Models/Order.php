@@ -23,7 +23,7 @@ class Order extends Model
         'tracking_number', 'shipped_at', 'delivered_at',
         'notes', 'subtotal', 'discount', 'tax', 'tax_rate', 'tax_inclusive',
         'coupon_code', 'total', 'status',
-        'payment_method', 'payment_status', 'payment_token', 'payment_url', 'paid_at',
+        'payment_method', 'payment_status',
     ];
 
     public function getLoggableAttributes(): array

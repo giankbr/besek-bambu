@@ -46,7 +46,7 @@ class ProductReviewController extends Controller
             'rating' => $data['rating'],
             'title' => $data['title'] ?? null,
             'body' => $data['body'],
-            'is_approved' => true,
+            'is_approved' => false,
         ]);
 
         $recipient = trim((string) (setting('stock_alert_email') ?: store_email() ?: ''));
@@ -60,6 +60,6 @@ class ProductReviewController extends Controller
         }
 
         return redirect()->route('shop.product', $product)
-            ->with('status', 'Thanks for your review!');
+            ->with('status', __('Thanks! Your review is pending approval.'));
     }
 }

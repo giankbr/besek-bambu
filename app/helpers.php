@@ -196,8 +196,13 @@ if (! function_exists('grant_order_session_access')) {
         }
 
         $numbers[] = $order->number;
+        $numbers = array_values(array_unique($numbers));
 
-        session(['accessible_order_numbers' => array_values(array_unique($numbers))]);
+        if (count($numbers) > 20) {
+            $numbers = array_slice($numbers, -20);
+        }
+
+        session(['accessible_order_numbers' => $numbers]);
     }
 }
 

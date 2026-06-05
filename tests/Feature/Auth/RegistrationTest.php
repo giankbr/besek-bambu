@@ -39,14 +39,14 @@ class RegistrationTest extends TestCase
         ]);
 
         $response->assertSessionHasNoErrors()
-            ->assertRedirect(route('account.index', absolute: false));
+            ->assertRedirect(route('verification.notice', absolute: false));
 
         $this->assertAuthenticated();
 
         $user = User::query()->where('email', 'test@example.com')->first();
         $this->assertNotNull($user);
-        $this->assertNotNull($user->email_verified_at);
+        $this->assertNull($user->email_verified_at);
 
-        Mail::assertSent(EmailVerifiedWelcome::class, fn ($mail) => $mail->hasTo('test@example.com'));
+        Mail::assertNotSent(EmailVerifiedWelcome::class);
     }
 }

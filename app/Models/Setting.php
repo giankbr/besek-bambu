@@ -2,14 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 
 class Setting extends Model
 {
     protected $fillable = ['key', 'value'];
 
     protected const CACHE_KEY = 'app.settings.all';
+
+    /** @var list<string> */
+    protected const ENCRYPTED_KEYS = [
+        'shipping_rajaongkir_api_key',
+    ];
 
     public static function allCached(): array
     {
@@ -26,6 +33,14 @@ class Setting extends Model
             return $default;
         }
 
+        if (in_array($key, self::ENCRYPTED_KEYS, true) && $value !== '') {
+            try {
+                return Crypt::decryptString((string) $value);
+            } catch (DecryptException) {
+                return $value;
+            }
+        }
+
         $decoded = json_decode((string) $value, true);
         if (json_last_error() === JSON_ERROR_NONE) {
             return $decoded;
@@ -36,9 +51,13 @@ class Setting extends Model
 
     public static function put(string $key, mixed $value): void
     {
-        $stored = is_scalar($value) || $value === null
-            ? (string) $value
-            : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if (in_array($key, self::ENCRYPTED_KEYS, true) && is_string($value) && $value !== '') {
+            $stored = Crypt::encryptString($value);
+        } elseif (is_scalar($value) || $value === null) {
+            $stored = (string) $value;
+        } else {
+            $stored = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
 
         self::query()->updateOrCreate(['key' => $key], ['value' => $stored]);
 

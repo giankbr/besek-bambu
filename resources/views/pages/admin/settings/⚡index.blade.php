@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Setting;
+use App\Rules\HttpUrl;
 use App\Services\RajaOngkirClient;
 use App\Services\ShippingService;
 use Flux\Flux;
@@ -138,6 +139,10 @@ new #[Title('Store settings')] class extends Component {
                 'store_address' => ['nullable', 'string', 'max:1000'],
                 'logo_upload' => ['nullable', 'image', 'max:2048'],
                 'whatsapp_order_number' => ['nullable', 'string', 'max:32'],
+                'social_instagram' => ['nullable', 'string', 'max:2048', new HttpUrl],
+                'social_facebook' => ['nullable', 'string', 'max:2048', new HttpUrl],
+                'social_whatsapp' => ['nullable', 'string', 'max:2048', new HttpUrl],
+                'social_tiktok' => ['nullable', 'string', 'max:2048', new HttpUrl],
             ]);
 
             if ($this->logo_upload) {

@@ -9,12 +9,15 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@besek.test',
-            'password' => bcrypt('password'),
-            'is_admin' => true,
-        ]);
+        if (! app()->environment('production')) {
+            User::factory()->create([
+                'name' => 'Admin',
+                'email' => 'admin@besek.test',
+                'password' => bcrypt('password'),
+                'is_admin' => true,
+                'email_verified_at' => now(),
+            ]);
+        }
 
         $this->call([
             CategorySeeder::class,

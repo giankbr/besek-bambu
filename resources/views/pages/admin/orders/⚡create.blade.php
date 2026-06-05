@@ -177,8 +177,11 @@ new #[Title('New manual order')] class extends Component {
                     'status' => $this->status,
                     'payment_method' => $this->payment_method ?: null,
                     'payment_status' => $this->payment_status,
-                    'paid_at' => $this->payment_status === 'paid' ? now() : null,
                 ]);
+
+                if ($this->payment_status === 'paid') {
+                    $order->forceFill(['paid_at' => now()])->save();
+                }
 
                 foreach ($this->items as $item) {
                     $product = isset($item['product_id']) ? Product::find($item['product_id']) : null;

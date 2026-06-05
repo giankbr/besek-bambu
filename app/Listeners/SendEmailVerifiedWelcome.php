@@ -4,13 +4,13 @@ namespace App\Listeners;
 
 use App\Mail\EmailVerifiedWelcome;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class SendEmailVerifiedWelcome
 {
-    public function handle(Registered $event): void
+    public function handle(Verified $event): void
     {
         $user = $event->user;
 

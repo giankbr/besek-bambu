@@ -70,11 +70,11 @@ class MidtransService
             : 'https://app.sandbox.midtrans.com/snap/v2/vtweb/';
         $url = $baseUrl.$token;
 
-        $order->update([
+        $order->forceFill([
             'payment_token' => $token,
             'payment_url' => $url,
             'payment_status' => 'pending',
-        ]);
+        ])->save();
 
         return $token;
     }
@@ -238,7 +238,7 @@ class MidtransService
                 }
             }
 
-            $fresh->update($update);
+            $fresh->forceFill($update)->save();
 
             $orderForMail = $fresh->fresh('items');
 

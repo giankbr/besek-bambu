@@ -37,6 +37,12 @@ class FortifyResponseProvider extends ServiceProvider
                     return new JsonResponse('', 201);
                 }
 
+                $user = $request->user();
+
+                if ($user && ! $user->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice');
+                }
+
                 return redirect()->intended(route('account.index'));
             }
         });
