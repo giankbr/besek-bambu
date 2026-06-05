@@ -530,5 +530,17 @@
     "stok": "in stock",
     "ulasan": "reviews",
     "Item khusus": "Custom item",
-    "Stopped at row :row: file exceeds the :max row limit.": "Stopped at row :row: file exceeds the :max row limit."
+    "Stopped at row :row: file exceeds the :max row limit.": "Stopped at row :row: file exceeds the :max row limit.",
+    "Per page": "Per halaman",
+    "Order notifications": "Notifikasi pesanan",
+    "Send an email when a new order is placed (checkout or manual order).": "Kirim email saat ada pesanan baru (checkout atau pesanan manual).",
+    "Admin notification email": "Email notifikasi admin",
+    "New order received": "Pesanan baru masuk",
+    "A new order has been placed on your store.": "Ada pesanan baru di toko Anda.",
+    "New order: :number": "Pesanan baru: :number",
+    "View order": "Lihat pesanan",
+    "Qty": "Jml",
+    "Separate multiple addresses with commas.": "Pisahkan beberapa alamat dengan koma.",
+    "Enter one or more valid email addresses, separated by commas.": "Masukkan satu atau lebih alamat email yang valid, dipisah koma.",
+    "admin@besekbambu.com, owner@besekbambu.com": "admin@besekbambu.com, owner@besekbambu.com"
 }

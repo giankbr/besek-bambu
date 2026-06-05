@@ -1,8 +1,10 @@
 <?php
 
+use App\Mail\NewOrderReceived;
 use App\Models\Order;
 use App\Models\Setting;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
@@ -31,6 +33,69 @@ if (! function_exists('send_customer_mail')) {
     function send_customer_mail(string $email, Mailable $mailable): void
     {
         Mail::to($email)->locale('id')->send($mailable);
+    }
+}
+
+if (! function_exists('parse_email_list')) {
+    /**
+     * @return list<string>
+     */
+    function parse_email_list(?string $value): array
+    {
+        if ($value === null || trim($value) === '') {
+            return [];
+        }
+
+        $parts = preg_split('/[,;]+/', $value) ?: [];
+
+        return array_values(array_unique(array_filter(
+            array_map(static fn (string $part): string => trim($part), $parts),
+            static fn (string $email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false,
+        )));
+    }
+}
+
+if (! function_exists('admin_notification_emails')) {
+    /**
+     * @return list<string>
+     */
+    function admin_notification_emails(): array
+    {
+        $configured = parse_email_list((string) setting('order_notification_email', ''));
+
+        if ($configured !== []) {
+            return $configured;
+        }
+
+        $env = parse_email_list((string) config('mail.admin_address', ''));
+
+        if ($env !== []) {
+            return $env;
+        }
+
+        $store = store_email();
+
+        return $store ? [$store] : [];
+    }
+}
+
+if (! function_exists('notify_admin_new_order')) {
+    function notify_admin_new_order(Order $order): void
+    {
+        $recipients = admin_notification_emails();
+
+        if ($recipients === []) {
+            return;
+        }
+
+        try {
+            Mail::to($recipients)->send(new NewOrderReceived($order->loadMissing('items')));
+        } catch (Throwable $e) {
+            Log::warning('Failed to send admin new order notification', [
+                'order' => $order->number,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }
 

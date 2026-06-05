@@ -157,6 +157,8 @@ class CheckoutService
             Log::warning('Failed to send order placed email', ['order' => $order->number, 'error' => $e->getMessage()]);
         }
 
+        notify_admin_new_order($order);
+
         return $order;
     }
 

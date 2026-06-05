@@ -205,6 +205,8 @@ new #[Title('New manual order')] class extends Component {
                 return $order;
             });
 
+            notify_admin_new_order($order->fresh('items'));
+
             Flux::toast(variant: 'success', heading: __('Order created'), text: $order->number);
 
             $this->redirectRoute('admin.orders.show', ['order' => $order]);

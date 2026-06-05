@@ -59,6 +59,7 @@ new #[Title('Store settings')] class extends Component {
 
     public string $email_from_name = '';
     public string $email_from_address = '';
+    public string $order_notification_email = '';
 
     public int $stock_alert_threshold = 5;
     public string $stock_alert_email = '';
@@ -120,6 +121,7 @@ new #[Title('Store settings')] class extends Component {
 
         $this->email_from_name = (string) Setting::get('email_from_name', config('mail.from.name'));
         $this->email_from_address = (string) Setting::get('email_from_address', config('mail.from.address'));
+        $this->order_notification_email = (string) Setting::get('order_notification_email', config('mail.admin_address', ''));
 
         $this->stock_alert_threshold = (int) Setting::get('stock_alert_threshold', 5);
         $this->stock_alert_email = (string) Setting::get('stock_alert_email', '');
@@ -416,12 +418,20 @@ new #[Title('Store settings')] class extends Component {
             $this->validate([
                 'email_from_name' => ['nullable', 'string', 'max:120'],
                 'email_from_address' => ['nullable', 'email', 'max:255'],
+                'order_notification_email' => ['nullable', 'string', 'max:500'],
                 'stock_alert_threshold' => ['integer', 'min:0', 'max:1000000'],
                 'stock_alert_email' => ['nullable', 'email', 'max:255'],
             ]);
 
+            if (trim($this->order_notification_email) !== '' && parse_email_list($this->order_notification_email) === []) {
+                throw ValidationException::withMessages([
+                    'order_notification_email' => __('Enter one or more valid email addresses, separated by commas.'),
+                ]);
+            }
+
             Setting::put('email_from_name', $this->email_from_name);
             Setting::put('email_from_address', $this->email_from_address);
+            Setting::put('order_notification_email', $this->order_notification_email);
             Setting::put('stock_alert_threshold', $this->stock_alert_threshold);
             Setting::put('stock_alert_email', $this->stock_alert_email);
 
@@ -907,6 +917,22 @@ new #[Title('Store settings')] class extends Component {
                 <flux:text size="sm" class="text-zinc-500">
                     {{ __('Used as the sender for transactional emails (order confirmations, password resets).') }}
                 </flux:text>
+
+                <flux:separator />
+
+                <flux:heading size="lg">{{ __('Order notifications') }}</flux:heading>
+                <flux:text size="sm" class="text-zinc-500">
+                    {{ __('Send an email when a new order is placed (checkout or manual order).') }}
+                </flux:text>
+                <flux:input
+                    wire:model="order_notification_email"
+                    :label="__('Admin notification email')"
+                    :placeholder="__('admin@besekbambu.com, owner@besekbambu.com')"
+                />
+                <flux:text size="sm" class="text-zinc-500">
+                    {{ __('Separate multiple addresses with commas.') }}
+                </flux:text>
+                @error('order_notification_email')<flux:text class="text-rose-500 text-sm">{{ $message }}</flux:text>@enderror
 
                 <flux:separator />
 
