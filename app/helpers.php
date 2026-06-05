@@ -248,3 +248,49 @@ if (! function_exists('payment_status_label')) {
         };
     }
 }
+
+if (! function_exists('default_meta_description')) {
+    function default_meta_description(): string
+    {
+        $custom = trim((string) setting('seo_default_meta_description', ''));
+
+        if ($custom !== '') {
+            return $custom;
+        }
+
+        return __('Peralatan dapur bambu buatan tangan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.');
+    }
+}
+
+if (! function_exists('default_og_image_url')) {
+    function default_og_image_url(): ?string
+    {
+        $og = setting('seo_default_og_image');
+
+        if ($og) {
+            return image_src((string) $og);
+        }
+
+        return store_logo_url();
+    }
+}
+
+if (! function_exists('localized_url')) {
+    function localized_url(string $locale): string
+    {
+        return request()->fullUrlWithQuery(array_merge(request()->query(), ['lang' => $locale]));
+    }
+}
+
+if (! function_exists('twitter_handle')) {
+    function twitter_handle(): ?string
+    {
+        $handle = trim((string) setting('social_twitter', ''));
+
+        if ($handle === '') {
+            return null;
+        }
+
+        return str_starts_with($handle, '@') ? $handle : '@'.$handle;
+    }
+}

@@ -65,6 +65,16 @@ new #[Title('Store settings')] class extends Component {
 
     public bool $require_admin_2fa = false;
 
+    public string $seo_default_meta_description = '';
+    public string $seo_home_meta_title = '';
+    public string $seo_home_meta_description = '';
+    public string $seo_default_og_image = '';
+    public $seo_og_image_upload = null;
+    public string $social_twitter = '';
+    public string $seo_google_analytics_id = '';
+    public string $seo_google_site_verification = '';
+    public string $seo_bing_site_verification = '';
+
     public function mount(): void
     {
         $this->store_name = (string) Setting::get('store_name', config('app.name'));
@@ -115,6 +125,15 @@ new #[Title('Store settings')] class extends Component {
         $this->stock_alert_email = (string) Setting::get('stock_alert_email', '');
 
         $this->require_admin_2fa = (bool) Setting::get('require_admin_2fa', false);
+
+        $this->seo_default_meta_description = (string) Setting::get('seo_default_meta_description', '');
+        $this->seo_home_meta_title = (string) Setting::get('seo_home_meta_title', '');
+        $this->seo_home_meta_description = (string) Setting::get('seo_home_meta_description', '');
+        $this->seo_default_og_image = (string) Setting::get('seo_default_og_image', '');
+        $this->social_twitter = (string) Setting::get('social_twitter', '');
+        $this->seo_google_analytics_id = (string) Setting::get('seo_google_analytics_id', '');
+        $this->seo_google_site_verification = (string) Setting::get('seo_google_site_verification', '');
+        $this->seo_bing_site_verification = (string) Setting::get('seo_bing_site_verification', '');
     }
 
     public function addZone(): void
@@ -427,8 +446,69 @@ new #[Title('Store settings')] class extends Component {
         }
     }
 
+    public function saveSeo(): void
+    {
+        try {
+            $this->validate([
+                'seo_default_meta_description' => ['nullable', 'string', 'max:320'],
+                'seo_home_meta_title' => ['nullable', 'string', 'max:160'],
+                'seo_home_meta_description' => ['nullable', 'string', 'max:320'],
+                'seo_og_image_upload' => ['nullable', 'image', 'max:4096'],
+                'social_twitter' => ['nullable', 'string', 'max:50'],
+                'seo_google_analytics_id' => ['nullable', 'string', 'max:32', 'regex:/^(G-[A-Z0-9]+|UA-\d+-\d+)?$/'],
+                'seo_google_site_verification' => ['nullable', 'string', 'max:120'],
+                'seo_bing_site_verification' => ['nullable', 'string', 'max:120'],
+            ]);
+
+            if ($this->seo_og_image_upload) {
+                $path = $this->seo_og_image_upload->store('settings', 'public');
+                Setting::put('seo_default_og_image', $path);
+                $this->seo_default_og_image = $path;
+                $this->seo_og_image_upload = null;
+            }
+
+            Setting::put('seo_default_meta_description', $this->seo_default_meta_description);
+            Setting::put('seo_home_meta_title', $this->seo_home_meta_title);
+            Setting::put('seo_home_meta_description', $this->seo_home_meta_description);
+            Setting::put('social_twitter', ltrim(trim($this->social_twitter), '@'));
+            Setting::put('seo_google_analytics_id', trim($this->seo_google_analytics_id));
+            Setting::put('seo_google_site_verification', trim($this->seo_google_site_verification));
+            Setting::put('seo_bing_site_verification', trim($this->seo_bing_site_verification));
+
+            Flux::toast(variant: 'success', text: __('SEO settings saved.'));
+        } catch (ValidationException $e) {
+            Flux::toast(
+                variant: 'danger',
+                heading: __('Failed to save'),
+                text: collect($e->validator->errors()->all())->first() ?? __('Please check the form.'),
+            );
+            throw $e;
+        } catch (\Throwable $e) {
+            Flux::toast(variant: 'danger', heading: __('Failed to save'), text: $e->getMessage());
+        }
+    }
+
+    public function confirmClearOgImage(): void
+    {
+        Flux::modal('clear-og-image')->show();
+    }
+
+    public function clearOgImage(): void
+    {
+        try {
+            Setting::put('seo_default_og_image', '');
+            $this->seo_default_og_image = '';
+            Flux::modal('clear-og-image')->close();
+            Flux::toast(variant: 'success', text: __('Default OG image removed.'));
+        } catch (\Throwable $e) {
+            Flux::modal('clear-og-image')->close();
+            Flux::toast(variant: 'danger', heading: __('Failed'), text: $e->getMessage());
+        }
+    }
+
     public array $tabs = [
         'general' => 'General',
+        'seo' => 'SEO',
         'shipping' => 'Shipping',
         'tax' => 'Tax',
         'payment' => 'Payment',
@@ -512,6 +592,93 @@ new #[Title('Store settings')] class extends Component {
 
                 <div>
                     <flux:button type="submit" variant="primary">{{ __('Save general') }}</flux:button>
+                </div>
+            </form>
+        @endif
+
+        @if ($tab === 'seo')
+            <form wire:submit="saveSeo" class="grid w-full gap-5">
+                <flux:heading size="lg">{{ __('Search & social previews') }}</flux:heading>
+                <flux:text size="sm" class="text-zinc-500">
+                    {{ __('Defaults used when a page does not set its own meta tags. Product pages still use per-product SEO fields.') }}
+                </flux:text>
+
+                <flux:textarea
+                    wire:model="seo_default_meta_description"
+                    :label="__('Default meta description')"
+                    rows="3"
+                    :description="($seo_default_meta_description ? strlen($seo_default_meta_description) : 0).' / 320. '.__('Recommended 120–160 characters.')"
+                />
+
+                <flux:separator />
+
+                <flux:heading size="md">{{ __('Homepage overrides') }}</flux:heading>
+                <flux:input
+                    wire:model="seo_home_meta_title"
+                    :label="__('Homepage title')"
+                    :description="($seo_home_meta_title ? strlen($seo_home_meta_title) : 0).' / 160. '.__('Leave blank to use the store name and tagline.')"
+                />
+                <flux:textarea
+                    wire:model="seo_home_meta_description"
+                    :label="__('Homepage meta description')"
+                    rows="3"
+                    :description="($seo_home_meta_description ? strlen($seo_home_meta_description) : 0).' / 320. '.__('Leave blank to use the default meta description.')"
+                />
+
+                <flux:separator />
+
+                <div class="grid gap-3">
+                    <flux:label>{{ __('Default OG image') }}</flux:label>
+                    <flux:text size="sm" class="text-zinc-500">
+                        {{ __('Shown when sharing pages that do not define their own image. Recommended 1200×630 px.') }}
+                    </flux:text>
+                    @if ($seo_default_og_image)
+                        <div class="flex items-center gap-3">
+                            <img src="{{ image_src($seo_default_og_image) }}" alt="{{ __('OG image') }}" class="h-20 w-36 rounded-lg border border-zinc-200 object-cover dark:border-zinc-700" />
+                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmClearOgImage" type="button">
+                                {{ __('Remove') }}
+                            </flux:button>
+                        </div>
+                    @endif
+                    <flux:input type="file" wire:model="seo_og_image_upload" accept="image/*" />
+                    @if ($seo_og_image_upload)
+                        <flux:text size="sm" class="text-zinc-500">{{ __('New file selected. Save to apply.') }}</flux:text>
+                    @endif
+                </div>
+
+                <flux:separator />
+
+                <flux:heading size="md">{{ __('Twitter / X') }}</flux:heading>
+                <flux:input
+                    wire:model="social_twitter"
+                    :label="__('Twitter handle')"
+                    placeholder="besekbambu"
+                    description="{{ __('Without @. Used for Twitter Card site attribution.') }}"
+                />
+
+                <flux:separator />
+
+                <flux:heading size="md">{{ __('Analytics & verification') }}</flux:heading>
+                <div class="grid gap-5 md:grid-cols-2">
+                    <flux:input
+                        wire:model="seo_google_analytics_id"
+                        :label="__('Google Analytics ID')"
+                        placeholder="G-XXXXXXXXXX"
+                    />
+                    <flux:input
+                        wire:model="seo_google_site_verification"
+                        :label="__('Google Search Console verification')"
+                        placeholder="{{ __('Meta tag content value') }}"
+                    />
+                    <flux:input
+                        wire:model="seo_bing_site_verification"
+                        :label="__('Bing Webmaster verification')"
+                        placeholder="{{ __('Meta tag content value') }}"
+                    />
+                </div>
+
+                <div>
+                    <flux:button type="submit" variant="primary">{{ __('Save SEO') }}</flux:button>
                 </div>
             </form>
         @endif
@@ -801,5 +968,12 @@ new #[Title('Store settings')] class extends Component {
         :title="__('Remove logo?')"
         :confirm="__('Remove')"
         action="clearLogo"
+    />
+
+    <x-admin.confirm-modal
+        name="clear-og-image"
+        :title="__('Remove default OG image?')"
+        :confirm="__('Remove')"
+        action="clearOgImage"
     />
 </section>

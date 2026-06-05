@@ -13,12 +13,17 @@
   $brandTagline = setting('store_tagline');
   $defaultTitle = meta_title($brandName, $brandTagline ?: __('Peralatan Dapur Ramah Lingkungan'));
   $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
-  $metaDescription = trim($__env->yieldContent('meta_description', __('Peralatan dapur bambu buatan tangan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.')));
-  $metaImage = trim($__env->yieldContent('meta_image', store_logo_url() ?: asset('images/og-default.jpg')));
+  $metaDescription = trim($__env->yieldContent('meta_description', default_meta_description()));
+  $metaImage = trim($__env->yieldContent('meta_image', default_og_image_url() ?: asset('images/og-default.jpg')));
   $canonicalUrl = trim($__env->yieldContent('canonical', url()->current()));
   $ogType = trim($__env->yieldContent('og_type', 'website'));
   $robots = trim($__env->yieldContent('meta_robots', 'index,follow,max-image-preview:large'));
-  $twitterHandle = trim((string) (setting('social_twitter') ?? ''));
+  $twitterHandle = twitter_handle();
+  $activeLocale = app()->getLocale();
+  $alternateLocale = $activeLocale === 'en' ? 'id_ID' : 'en_US';
+  $googleVerification = trim((string) setting('seo_google_site_verification', ''));
+  $bingVerification = trim((string) setting('seo_bing_site_verification', ''));
+  $googleAnalyticsId = trim((string) setting('seo_google_analytics_id', ''));
   $storeAddress = preg_replace('/\s+/', ' ', trim((string) setting('store_address')));
   $socials = collect([
     setting('social_instagram'),
@@ -32,6 +37,15 @@
 <meta name="description" content="{{ $metaDescription }}" />
 <meta name="robots" content="{{ $robots }}" />
 <link rel="canonical" href="{{ $canonicalUrl }}" />
+<link rel="alternate" hreflang="id" href="{{ localized_url('id') }}" />
+<link rel="alternate" hreflang="en" href="{{ localized_url('en') }}" />
+<link rel="alternate" hreflang="x-default" href="{{ localized_url('id') }}" />
+@if ($googleVerification !== '')
+  <meta name="google-site-verification" content="{{ $googleVerification }}" />
+@endif
+@if ($bingVerification !== '')
+  <meta name="msvalidate.01" content="{{ $bingVerification }}" />
+@endif
 
 <meta property="og:type" content="{{ $ogType }}" />
 <meta property="og:title" content="{{ $pageTitle }}" />
@@ -39,7 +53,8 @@
 <meta property="og:image" content="{{ $metaImage }}" />
 <meta property="og:url" content="{{ $canonicalUrl }}" />
 <meta property="og:site_name" content="{{ $brandName }}" />
-<meta property="og:locale" content="{{ app()->getLocale() === 'en' ? 'en_US' : 'id_ID' }}" />
+<meta property="og:locale" content="{{ $activeLocale === 'en' ? 'en_US' : 'id_ID' }}" />
+<meta property="og:locale:alternate" content="{{ $alternateLocale }}" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{{ $pageTitle }}" />
@@ -95,6 +110,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
 @vite(['resources/css/storefront.css', 'resources/js/storefront.js'])
+@if ($googleAnalyticsId !== '')
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ $googleAnalyticsId }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', @json($googleAnalyticsId));
+  </script>
+@endif
 @stack('head')
 </head>
 <body class="storefront-body">

@@ -23,7 +23,11 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->session()->has('locale')) {
+        $queryLocale = $request->query('lang');
+
+        if (is_string($queryLocale) && in_array($queryLocale, self::SUPPORTED, true)) {
+            $request->session()->put('locale', $queryLocale);
+        } elseif (! $request->session()->has('locale')) {
             $request->session()->put('locale', config('app.locale', self::DEFAULT));
         }
 

@@ -1,7 +1,11 @@
 @extends('layouts.storefront')
 
-@section('title', meta_title(store_name(), __('Besek Bambu Handmade untuk Hantaran & Kemasan')))
-@section('meta_description', __('Pesan besek bambu handmade langsung dari pengrajin Indonesia. Cocok untuk hantaran, hampers, dan kemasan ramah lingkungan untuk UMKM maupun acara spesial.'))
+@php
+  $homeTitle = trim((string) setting('seo_home_meta_title', ''));
+  $homeDescription = trim((string) setting('seo_home_meta_description', ''));
+@endphp
+@section('title', $homeTitle !== '' ? $homeTitle : meta_title(store_name(), __('Besek Bambu Handmade untuk Hantaran & Kemasan')))
+@section('meta_description', $homeDescription !== '' ? $homeDescription : default_meta_description())
 
 @section('content')
   <x-navbar />
