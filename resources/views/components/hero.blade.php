@@ -1,7 +1,7 @@
 <section class="hero">
   <div class="hero-content">
     <h1 class="hero-heading">
-      {{ __('Besek bambu handmade') }}
+      <span class="hero-heading__line">{{ __('Besek bambu handmade') }}</span>
       <em class="hero-heading__accent">{!! __('untuk Hantaran, hampers&nbsp;&amp;&nbsp;kemasan') !!}</em>
     </h1>
     <div class="hero-action">
