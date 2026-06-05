@@ -285,6 +285,55 @@ if (! function_exists('payment_status_label')) {
     }
 }
 
+if (! function_exists('is_midtrans_payment_method')) {
+    /**
+     * Payment types returned by Midtrans Snap / notification webhooks.
+     */
+    function is_midtrans_payment_method(?string $method): bool
+    {
+        if ($method === null || $method === '') {
+            return false;
+        }
+
+        return in_array($method, [
+            'midtrans',
+            'qris',
+            'gopay',
+            'shopeepay',
+            'dana',
+            'bank_transfer',
+            'bca_va',
+            'bni_va',
+            'bri_va',
+            'permata_va',
+            'other_va',
+            'credit_card',
+            'echannel',
+            'akulaku',
+            'kredivo',
+            'cstore',
+            'indomaret',
+            'alfamart',
+        ], true);
+    }
+}
+
+if (! function_exists('order_can_pay_with_midtrans')) {
+    function order_can_pay_with_midtrans(Order $order): bool
+    {
+        if (! $order->canBePaid()) {
+            return false;
+        }
+
+        if (! setting('payment_midtrans', true) || ! config('services.midtrans.server_key')) {
+            return false;
+        }
+
+        return is_midtrans_payment_method($order->payment_method)
+            || filled($order->payment_token);
+    }
+}
+
 if (! function_exists('payment_method_label')) {
     function payment_method_label(?string $method): string
     {

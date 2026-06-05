@@ -58,6 +58,31 @@ class OrderAccessTest extends TestCase
         $this->get($url)->assertOk()->assertSee($order->number);
     }
 
+    public function test_guest_sees_pay_button_when_midtrans_method_is_qris(): void
+    {
+        config(['services.midtrans.server_key' => 'SB-Mid-server-test']);
+
+        $order = Order::create([
+            'number' => 'BSK-QRISTEST',
+            'customer_name' => 'Guest Buyer',
+            'customer_email' => 'guest@example.com',
+            'customer_phone' => '08123456789',
+            'shipping_address' => 'Jl. Test 1',
+            'subtotal' => 9900,
+            'shipping_cost' => 12000,
+            'total' => 21900,
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'payment_method' => 'qris',
+            'payment_token' => 'snap-token-test',
+        ]);
+
+        $this->withSession(['accessible_order_numbers' => [$order->number]])
+            ->get(route('checkout.confirmation', $order))
+            ->assertOk()
+            ->assertSee(__('Bayar sekarang'), false);
+    }
+
     public function test_owner_can_view_payment_page_without_signed_url(): void
     {
         $user = User::factory()->create(['email_verified_at' => now()]);

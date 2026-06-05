@@ -71,14 +71,18 @@
             <p class="confirmation-meta">{!! __('Silakan siapkan :total tunai. Kurir kami akan menagih saat pengantaran.', ['total' => '<strong>'.idr($order->total).'</strong>']) !!}</p>
           @endif
 
-          @if ($order->canBePaid() && $order->payment_method === 'midtrans' && setting('payment_midtrans', true) && config('services.midtrans.server_key'))
-            <div class="confirmation-actions" style="margin-top:1.25rem">
-              <a class="hero-cta" href="{{ route('payment.pay', $order) }}">{{ __('Bayar sekarang') }}</a>
-            </div>
-          @endif
         </div>
 
+        @if (session('status'))
+          <p class="form-error confirmation__notice">{{ session('status') }}</p>
+        @endif
+
         <div class="confirmation-actions">
+          @if (order_can_pay_with_midtrans($order))
+            <a class="hero-cta" href="{{ route('payment.pay', $order) }}">{{ __('Bayar sekarang') }}</a>
+            <p class="confirmation-meta confirmation__pay-hint">{{ __('Popup pembayaran tertutup? Klik tombol di atas untuk membuka lagi.') }}</p>
+            <p class="confirmation-meta confirmation__pay-hint">{{ __('Tanpa login, simpan halaman ini atau gunakan tautan di email konfirmasi untuk bayar nanti.') }}</p>
+          @endif
           <a class="cart-link-btn" href="{{ route('shop.index') }}">{{ __('Lanjut belanja') }}</a>
         </div>
       </div>
