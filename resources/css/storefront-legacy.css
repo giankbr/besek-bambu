@@ -4782,6 +4782,13 @@ html[data-theme="dark"] .cart-summary__row--discount {
   gap: 12px;
 }
 
+.confirmation-actions .hero-cta,
+.confirmation-actions .sf-btn {
+  --btn-radius: 999px;
+  padding: 12px 26px;
+  font-size: 14px;
+}
+
 @media (max-width: 900px) {
   .confirmation__title { font-size: 28px; }
 }
