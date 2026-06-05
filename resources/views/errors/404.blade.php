@@ -24,33 +24,33 @@
       width: 88px;
       height: 88px;
       border-radius: 24px;
-      background: var(--green-soft, #e9efe2);
-      color: var(--green-deep, #2c4a3a);
+      background: var(--green-soft, #e8efe4);
+      color: var(--green-deep, #2f4f3e);
       font-size: 2.5rem;
       line-height: 1;
       margin-bottom: 1.5rem;
       box-shadow: 0 12px 32px rgba(44, 74, 58, 0.12);
     }
     .error-404__code {
-      font-family: var(--font-heading, 'Sora', system-ui, sans-serif);
+      font-family: var(--font-heading, 'Inter', system-ui, sans-serif);
       font-size: clamp(3rem, 10vw, 4.5rem);
       font-weight: 600;
       letter-spacing: -0.04em;
-      color: var(--green-deep, #2c4a3a);
+      color: var(--green-deep, #2f4f3e);
       line-height: 1;
       margin-bottom: 0.5rem;
     }
     .error-404__title {
-      font-family: var(--font-heading, 'Sora', system-ui, sans-serif);
+      font-family: var(--font-heading, 'Inter', system-ui, sans-serif);
       font-size: clamp(1.25rem, 3vw, 1.5rem);
       font-weight: 500;
-      color: var(--ink, #1f2a26);
+      color: var(--ink, #1c2421);
       margin-bottom: 0.75rem;
     }
     .error-404__lead {
       font-size: 0.9375rem;
       line-height: 1.6;
-      color: var(--muted, #6b7670);
+      color: var(--muted, #6b7268);
       max-width: 28rem;
       margin: 0 auto 2rem;
     }
@@ -73,13 +73,13 @@
     }
     .error-404__btn:hover { opacity: 0.92; transform: translateY(-1px); }
     .error-404__btn--primary {
-      background: var(--green-deep, #2c4a3a);
+      background: var(--green-deep, #2f4f3e);
       color: #fff;
     }
     .error-404__btn--ghost {
       background: var(--card, #fff);
-      color: var(--ink, #1f2a26);
-      border: 1px solid var(--line, #e7e3d8);
+      color: var(--ink, #1c2421);
+      border: 1px solid var(--line, #e8e4dc);
     }
   </style>
 @endpush

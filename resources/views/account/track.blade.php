@@ -38,23 +38,23 @@
           <h2 class="confirmation-section-title">{{ __('Ringkasan') }}</h2>
           <div style="display:grid;grid-template-columns:140px 1fr;gap:0.4rem 1rem;font-size:14px">
             @if (! empty($sum['shipper_name']))
-              <span style="color:#7d6f5f">{{ __('Dari') }}</span>
+              <span style="color:var(--muted)">{{ __('Dari') }}</span>
               <span>{{ $sum['shipper_name'] }}</span>
             @endif
             @if (! empty($sum['receiver_name']))
-              <span style="color:#7d6f5f">{{ __('Kepada') }}</span>
+              <span style="color:var(--muted)">{{ __('Kepada') }}</span>
               <span>{{ $sum['receiver_name'] }}</span>
             @endif
             @if (! empty($sum['origin']))
-              <span style="color:#7d6f5f">{{ __('Asal') }}</span>
+              <span style="color:var(--muted)">{{ __('Asal') }}</span>
               <span>{{ $sum['origin'] }}</span>
             @endif
             @if (! empty($sum['destination']))
-              <span style="color:#7d6f5f">{{ __('Tujuan') }}</span>
+              <span style="color:var(--muted)">{{ __('Tujuan') }}</span>
               <span>{{ $sum['destination'] }}</span>
             @endif
             @if (! empty($sum['status']))
-              <span style="color:#7d6f5f">{{ __('Status') }}</span>
+              <span style="color:var(--muted)">{{ __('Status') }}</span>
               <span><strong>{{ $sum['status'] }}</strong></span>
             @endif
           </div>
@@ -78,9 +78,9 @@
           <ol style="list-style:none;padding-left:1.5rem;border-left:2px solid #e5e0d6;margin:0">
             @foreach (array_reverse($tracking['manifest']) as $event)
               <li style="position:relative;padding-bottom:1rem">
-                <span style="position:absolute;left:-1.65rem;top:0.4rem;width:0.6rem;height:0.6rem;border-radius:9999px;background:#1f7a3a"></span>
+                <span style="position:absolute;left:-1.65rem;top:0.4rem;width:0.6rem;height:0.6rem;border-radius:9999px;background:var(--green-deep)"></span>
                 <div style="font-size:14px;font-weight:600">{{ $event['manifest_description'] ?? $event['manifest_code'] ?? '—' }}</div>
-                <div style="font-size:12px;color:#7d6f5f">
+                <div style="font-size:12px;color:var(--muted)">
                   {{ trim(($event['manifest_date'] ?? '').' '.($event['manifest_time'] ?? '')) }}
                   @if (! empty($event['city_name']))
                     · {{ $event['city_name'] }}

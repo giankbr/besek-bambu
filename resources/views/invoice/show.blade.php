@@ -6,17 +6,17 @@
   <title>{{ meta_title('Invoice '.$order->number, store_name()) }}</title>
   <style>
     :root {
-      --ink: #1f1a14;
-      --muted: #7d6f5f;
-      --line: #e5e0d6;
-      --accent: #1f7a3a;
+      --ink: #1c2421;
+      --muted: #6b7268;
+      --line: #e8e4dc;
+      --accent: #2f4f3e;
       --paper: #ffffff;
     }
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
       padding: 0;
-      background: #f7f3ec;
+      background: #faf8f4;
       color: var(--ink);
       font-family: 'Helvetica', 'Arial', sans-serif;
       font-size: 13px;

@@ -9,8 +9,8 @@ body *:not(html):not(style):not(br):not(tr):not(code) {
 
 body {
     -webkit-text-size-adjust: none;
-    background-color: #f4f6f3;
-    color: #1f2a26;
+    background-color: #faf8f4;
+    color: #1c2421;
     height: 100%;
     line-height: 1.5;
     margin: 0;
@@ -27,7 +27,7 @@ blockquote {
 }
 
 a {
-    color: #2c4a3a;
+    color: #2f4f3e;
     font-weight: 500;
 }
 
@@ -38,8 +38,8 @@ a img {
 h1,
 h2,
 h3 {
-    color: #1f2a26;
-    font-family: 'Sora', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #1c2421;
+    font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 600;
     margin-top: 0;
     text-align: start;
@@ -58,7 +58,7 @@ h3 {
 }
 
 p {
-    color: #1f2a26;
+    color: #1c2421;
     font-size: 15px;
     line-height: 1.55em;
     margin-top: 0;
@@ -66,7 +66,7 @@ p {
 }
 
 p.sub {
-    color: #6b7670;
+    color: #6b7268;
     font-size: 13px;
 }
 
@@ -78,7 +78,7 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f4f6f3;
+    background-color: #faf8f4;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -99,8 +99,8 @@ img {
 }
 
 .header a {
-    color: #2c4a3a;
-    font-family: 'Sora', Georgia, 'Times New Roman', serif;
+    color: #2f4f3e;
+    font-family: 'Inter', Georgia, 'Times New Roman', serif;
     font-size: 22px;
     font-style: italic;
     font-weight: 500;
@@ -121,9 +121,9 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f4f6f3;
-    border-bottom: 1px solid #f4f6f3;
-    border-top: 1px solid #f4f6f3;
+    background-color: #faf8f4;
+    border-bottom: 1px solid #f2efe8;
+    border-top: 1px solid #f2efe8;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -134,10 +134,10 @@ img {
     -premailer-cellspacing: 0;
     -premailer-width: 570px;
     background-color: #ffffff;
-    border-color: #e8e8e6;
+    border-color: #e8e4dc;
     border-radius: 16px;
     border-width: 1px;
-    box-shadow: 0 4px 24px rgba(31, 42, 38, 0.06);
+    box-shadow: 0 4px 24px rgba(28, 36, 33, 0.06);
     margin: 0 auto;
     padding: 0;
     width: 570px;
@@ -148,13 +148,13 @@ img {
 }
 
 .subcopy {
-    border-top: 1px solid #e8e8e6;
+    border-top: 1px solid #e8e4dc;
     margin-top: 25px;
     padding-top: 25px;
 }
 
 .subcopy p {
-    color: #6b7670;
+    color: #6b7268;
     font-size: 13px;
 }
 
@@ -169,14 +169,14 @@ img {
 }
 
 .footer p {
-    color: #6b7670;
+    color: #6b7268;
     font-size: 12px;
     line-height: 1.5;
     text-align: center;
 }
 
 .footer a {
-    color: #2c4a3a;
+    color: #2f4f3e;
     font-weight: 500;
     text-decoration: underline;
 }
@@ -190,8 +190,8 @@ img {
 }
 
 .table th {
-    border-bottom: 1px solid #e8e8e6;
-    color: #6b7670;
+    border-bottom: 1px solid #e8e4dc;
+    color: #6b7268;
     font-size: 13px;
     font-weight: 600;
     margin: 0;
@@ -201,12 +201,12 @@ img {
 }
 
 .table td {
-    color: #1f2a26;
+    color: #1c2421;
     font-size: 14px;
     line-height: 1.45;
     margin: 0;
     padding: 10px 0;
-    border-bottom: 1px solid #f4f6f3;
+    border-bottom: 1px solid #f2efe8;
 }
 
 .content-cell {
@@ -228,7 +228,7 @@ img {
 .button {
     -webkit-text-size-adjust: none;
     border-radius: 999px;
-    color: #2d3a18 !important;
+    color: #2a2418 !important;
     display: inline-block;
     font-size: 14px;
     font-weight: 600;
@@ -238,46 +238,46 @@ img {
 
 .button-blue,
 .button-primary {
-    background-color: #d8e25a;
-    border-bottom: 10px solid #d8e25a;
-    border-left: 22px solid #d8e25a;
-    border-right: 22px solid #d8e25a;
-    border-top: 10px solid #d8e25a;
+    background-color: #c4a35a;
+    border-bottom: 10px solid #c4a35a;
+    border-left: 22px solid #c4a35a;
+    border-right: 22px solid #c4a35a;
+    border-top: 10px solid #c4a35a;
 }
 
 .button-green,
 .button-success {
-    background-color: #2c4a3a;
-    border-bottom: 10px solid #2c4a3a;
-    border-left: 22px solid #2c4a3a;
-    border-right: 22px solid #2c4a3a;
-    border-top: 10px solid #2c4a3a;
+    background-color: #2f4f3e;
+    border-bottom: 10px solid #2f4f3e;
+    border-left: 22px solid #2f4f3e;
+    border-right: 22px solid #2f4f3e;
+    border-top: 10px solid #2f4f3e;
     color: #ffffff !important;
 }
 
 .button-red,
 .button-error {
-    background-color: #dc2626;
-    border-bottom: 10px solid #dc2626;
-    border-left: 22px solid #dc2626;
-    border-right: 22px solid #dc2626;
-    border-top: 10px solid #dc2626;
+    background-color: #a63d3d;
+    border-bottom: 10px solid #a63d3d;
+    border-left: 22px solid #a63d3d;
+    border-right: 22px solid #a63d3d;
+    border-top: 10px solid #a63d3d;
     color: #ffffff !important;
 }
 
 .panel {
-    border-left: #2c4a3a solid 4px;
+    border-left: #2f4f3e solid 4px;
     margin: 21px 0;
 }
 
 .panel-content {
-    background-color: #e9efe2;
-    color: #1f2a26;
+    background-color: #e8efe4;
+    color: #1c2421;
     padding: 16px;
 }
 
 .panel-content p {
-    color: #1f2a26;
+    color: #1c2421;
 }
 
 .panel-item {

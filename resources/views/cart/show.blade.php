@@ -114,7 +114,7 @@
             </div>
 
             @if ($coupon)
-              <div class="cart-summary__row" style="color:#1f7a3a">
+              <div class="cart-summary__row" style="color:var(--green-deep)">
                 <span>{{ __('Diskon') }} ({{ $coupon->code }})</span>
                 <strong>− {{ idr($discount) }}</strong>
               </div>

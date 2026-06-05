@@ -59,7 +59,7 @@
             <strong>{{ idr($order->subtotal) }}</strong>
           </div>
           @if ((float) $order->discount > 0)
-            <div class="cart-summary__row" style="color:#1f7a3a">
+            <div class="cart-summary__row" style="color:var(--green-deep)">
               <span>{{ __('Diskon') }}{{ $order->coupon_code ? " ({$order->coupon_code})" : '' }}</span>
               <strong>− {{ idr($order->discount) }}</strong>
             </div>
