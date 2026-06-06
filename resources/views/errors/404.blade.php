@@ -17,20 +17,6 @@
       padding: clamp(2rem, 6vw, 4rem) var(--page-padding-x, 1rem);
       min-height: min(70dvh, 640px);
     }
-    .error-404__badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 88px;
-      height: 88px;
-      border-radius: 24px;
-      background: var(--green-soft, #e8efe4);
-      color: var(--green-deep, #2f4f3e);
-      font-size: 2.5rem;
-      line-height: 1;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 12px 32px rgba(44, 74, 58, 0.12);
-    }
     .error-404__code {
       font-family: var(--font-heading, 'Inter', system-ui, sans-serif);
       font-size: clamp(3rem, 10vw, 4.5rem);
@@ -57,29 +43,15 @@
     .error-404__actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
+      gap: 12px;
       justify-content: center;
     }
-    .error-404__btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.65rem 1.35rem;
-      border-radius: 999px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: opacity 0.15s ease, transform 0.1s ease;
-    }
-    .error-404__btn:hover { opacity: 0.92; transform: translateY(-1px); }
-    .error-404__btn--primary {
-      background: var(--green-deep, #2f4f3e);
-      color: #fff;
-    }
-    .error-404__btn--ghost {
-      background: var(--card, #fff);
-      color: var(--ink, #1c2421);
-      border: 1px solid var(--line, #e8e4dc);
+
+    .error-404__actions .hero-cta,
+    .error-404__actions .sf-btn {
+      --btn-radius: 999px;
+      padding: 12px 26px;
+      font-size: 14px;
     }
   </style>
 @endpush
@@ -88,15 +60,14 @@
   <x-navbar />
   <main id="main-content" class="page-main" role="main">
     <div class="container error-404">
-      <div class="error-404__badge" aria-hidden="true" title="Besek">🧺</div>
       <p class="error-404__code">404</p>
       <h1 class="error-404__title">{{ __('Halaman tidak ditemukan') }}</h1>
       <p class="error-404__lead">
         {{ __('Alamat ini tidak ada atau sudah dipindahkan. Periksa penulisan URL, atau kembali ke beranda untuk melanjutkan belanja besek anyaman bambu.') }}
       </p>
       <div class="error-404__actions">
-        <a class="error-404__btn error-404__btn--primary" href="{{ route('home') }}">{{ __('Ke beranda') }}</a>
-        <a class="error-404__btn error-404__btn--ghost" href="{{ route('shop.index') }}">{{ __('Lihat katalog') }}</a>
+        <a class="hero-cta" href="{{ route('home') }}">{{ __('Ke beranda') }}</a>
+        <a class="sf-btn sf-btn--tertiary sf-btn--md" href="{{ route('shop.index') }}">{{ __('Lihat katalog') }}</a>
       </div>
     </div>
   </main>
