@@ -45,6 +45,31 @@ class OrderAccessTest extends TestCase
             ->assertSee($order->number);
     }
 
+    public function test_confirmation_shows_whatsapp_button_when_number_configured(): void
+    {
+        config(['store.whatsapp_number' => '6281234567890']);
+
+        $order = $this->order();
+
+        $this->withSession(['accessible_order_numbers' => [$order->number]])
+            ->get(route('checkout.confirmation', $order))
+            ->assertOk()
+            ->assertSee(__('Kabari admin via WhatsApp'), false)
+            ->assertSee('wa.me/6281234567890', false);
+    }
+
+    public function test_confirmation_hides_whatsapp_button_without_number(): void
+    {
+        config(['store.whatsapp_number' => '']);
+
+        $order = $this->order();
+
+        $this->withSession(['accessible_order_numbers' => [$order->number]])
+            ->get(route('checkout.confirmation', $order))
+            ->assertOk()
+            ->assertDontSee(__('Kabari admin via WhatsApp'), false);
+    }
+
     public function test_signed_url_allows_guest_to_view_confirmation(): void
     {
         $order = $this->order();

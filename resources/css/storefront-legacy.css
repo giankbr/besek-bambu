@@ -1241,6 +1241,14 @@
     --btn-lip-color: var(--btn-danger-lip);
   }
 
+  .sf-btn--wa {
+    --btn-surface: #25d366;
+    --btn-ink: #fff;
+    --btn-ring: #20bd5a;
+    --btn-lip-color: #1da851;
+    --btn-highlight: rgba(255, 255, 255, 0.2);
+  }
+
   .sf-btn--sm {
     padding: 7px 14px;
     font-size: 12px;

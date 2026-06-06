@@ -186,6 +186,47 @@ if (! function_exists('whatsapp_digits')) {
     }
 }
 
+if (! function_exists('whatsapp_order_message')) {
+    /**
+     * Pre-filled WhatsApp text for notifying admin about an order.
+     */
+    function whatsapp_order_message(Order $order): string
+    {
+        $lines = [
+            __('Halo, saya baru saja buat pesanan di :store.', ['store' => store_name()]),
+            '',
+            __('No. pesanan: :num', ['num' => $order->number]),
+            __('Nama: :name', ['name' => $order->customer_name]),
+            __('Total: :total', ['total' => idr($order->total)]),
+            __('Pembayaran: :status', ['status' => payment_status_label($order->payment_status)]),
+        ];
+
+        $method = payment_method_label($order->payment_method);
+
+        if ($method !== '—') {
+            $lines[] = __('Metode: :method', ['method' => $method]);
+        }
+
+        $lines[] = '';
+        $lines[] = __('Mohon konfirmasi pesanan saya. Terima kasih!');
+
+        return implode("\n", $lines);
+    }
+}
+
+if (! function_exists('whatsapp_order_url')) {
+    function whatsapp_order_url(Order $order): ?string
+    {
+        $digits = whatsapp_digits();
+
+        if ($digits === null) {
+            return null;
+        }
+
+        return 'https://wa.me/'.$digits.'?text='.rawurlencode(whatsapp_order_message($order));
+    }
+}
+
 if (! function_exists('store_address')) {
     function store_address(): ?string
     {
