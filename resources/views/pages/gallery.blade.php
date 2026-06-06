@@ -6,7 +6,7 @@
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">
-    <section class="container">
+    <section class="container gallery-page">
       <x-page-head
         :crumbs="[
             ['label' => __('Beranda'), 'url' => route('home')],

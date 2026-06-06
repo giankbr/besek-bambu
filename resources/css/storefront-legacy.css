@@ -623,6 +623,7 @@
     display: flex;
     flex-direction: column;
     background-color: var(--bg);
+    scroll-padding-top: calc(5.5rem + env(safe-area-inset-top, 0px));
   }
 
   .page-main {
@@ -2201,6 +2202,7 @@
     padding-top: 1.25rem;
   }
 
+  /* Inner pages: compact footer (see .site-footer--compact in storefront.css) */
   .join-btn {
     gap: 8px;
     font-size: 13px;
@@ -3112,7 +3114,7 @@
 
 /* ===== Shop pages ===== */
 .shop-page {
-  padding-bottom: 48px;
+  padding-bottom: clamp(2rem, 5vw, 3rem);
 }
 
 .shop-head {
@@ -5744,6 +5746,42 @@ body.sf-confirm-open {
   grid-template-columns: 1fr 320px;
   gap: 32px;
   margin-top: 24px;
+  align-items: start;
+}
+
+.about-section,
+.contact-section,
+.faq-section,
+.gallery-page {
+  padding-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+.about-main {
+  min-width: 0;
+}
+
+.about-block + .about-block {
+  margin-top: 1.75rem;
+}
+
+.about-block__title {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin: 0 0 12px;
+  font-weight: 500;
+}
+
+.about-side,
+.contact-side,
+.store-contact-sidebar {
+  position: sticky;
+  top: calc(5.5rem + env(safe-area-inset-top, 0px));
+}
+
+.store-contact-sidebar__title {
+  margin-top: 0;
 }
 
 .about-lead {
@@ -5774,7 +5812,8 @@ body.sf-confirm-open {
 }
 
 .about-side .confirmation-card,
-.contact-side .confirmation-card { margin: 0 0 16px; padding: 20px 24px; }
+.contact-side .confirmation-card,
+.store-contact-sidebar .confirmation-card { margin: 0 0 16px; padding: 20px 24px; }
 
 .contact-form {
   display: flex;
@@ -5807,10 +5846,6 @@ body.sf-confirm-open {
 
 .contact-form .hero-cta {
   width: 100%;
-}
-
-.faq-section {
-  padding-bottom: clamp(3.5rem, 10vw, 5.5rem);
 }
 
 .faq-list {
@@ -5863,6 +5898,12 @@ body.sf-confirm-open {
 @media (max-width: 900px) {
   .about-grid,
   .contact-grid { grid-template-columns: 1fr; }
+
+  .about-side,
+  .contact-side,
+  .store-contact-sidebar {
+    position: static;
+  }
 }
 
 /* === Cart coupon === */

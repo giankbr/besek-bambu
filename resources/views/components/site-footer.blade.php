@@ -15,7 +15,10 @@
     implode(' ', array_slice($words, $half)),
   ];
 @endphp
-<footer class="site-footer">
+<footer @class([
+  'site-footer',
+  'site-footer--compact' => ! request()->routeIs('home', 'about', 'contact', 'gallery'),
+])>
   <div class="container">
     <div class="foot-upper">
       <p class="foot-tag">{{ $tagline }}</p>
