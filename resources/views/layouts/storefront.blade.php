@@ -34,6 +34,7 @@
 @endphp
 
 <title>{{ $pageTitle }}</title>
+@include('partials.favicon')
 <meta name="description" content="{{ $metaDescription }}" />
 <meta name="robots" content="{{ $robots }}" />
 <link rel="canonical" href="{{ $canonicalUrl }}" />
