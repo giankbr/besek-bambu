@@ -12,8 +12,8 @@ class DatabaseSeeder extends Seeder
         if (! app()->environment('production')) {
             User::factory()->create([
                 'name' => 'Admin',
-                'email' => 'admin@besek.test',
-                'password' => bcrypt('password'),
+                'email' => 'admin@besekbambu.com',
+                'password' => bcrypt('besekbambu2026'),
                 'is_admin' => true,
                 'email_verified_at' => now(),
             ]);

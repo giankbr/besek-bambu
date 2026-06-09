@@ -11,7 +11,7 @@
 @php
   $brandName = store_name();
   $brandTagline = setting('store_tagline');
-  $defaultTitle = meta_title($brandName, $brandTagline ?: __('Peralatan Dapur Ramah Lingkungan'));
+  $defaultTitle = meta_title($brandName, $brandTagline ?: __('Besek Handmade untuk Hantaran & Kemasan'));
   $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
   $metaDescription = trim($__env->yieldContent('meta_description', default_meta_description()));
   $metaImage = trim($__env->yieldContent('meta_image', default_og_image_url() ?: asset('images/og-default.jpg')));

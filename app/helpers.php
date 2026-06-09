@@ -480,7 +480,7 @@ if (! function_exists('default_meta_description')) {
             return $custom;
         }
 
-        return __('Peralatan dapur bambu buatan tangan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.');
+        return __('Besek bambu handmade untuk hantaran, hamper, dan kemasan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.');
     }
 }
 
