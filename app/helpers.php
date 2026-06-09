@@ -511,7 +511,7 @@ if (! function_exists('default_meta_description')) {
             return $custom;
         }
 
-        return __('Besek bambu handmade untuk hantaran, hamper, dan kemasan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.');
+        return __('Besek Bambu — besek bambu handmade untuk hantaran, hamper, dan kemasan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.');
     }
 }
 
@@ -545,5 +545,162 @@ if (! function_exists('twitter_handle')) {
         }
 
         return str_starts_with($handle, '@') ? $handle : '@'.$handle;
+    }
+}
+
+if (! function_exists('seo_meta_text')) {
+    /** Escape meta/title text once even when the source already contains entities. */
+    function seo_meta_text(?string $value): string
+    {
+        $value = trim(html_entity_decode((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+        return e($value);
+    }
+}
+
+if (! function_exists('seo_site_root')) {
+    function seo_site_root(): string
+    {
+        return rtrim(url('/'), '/');
+    }
+}
+
+if (! function_exists('seo_schema_id')) {
+    function seo_schema_id(string $fragment): string
+    {
+        return seo_site_root().'/#'.ltrim($fragment, '#');
+    }
+}
+
+if (! function_exists('seo_store_social_urls')) {
+    /**
+     * @return list<string>
+     */
+    function seo_store_social_urls(): array
+    {
+        return collect([
+            setting('social_instagram'),
+            setting('social_facebook'),
+            setting('social_tiktok'),
+            setting('social_whatsapp'),
+        ])->filter()->values()->all();
+    }
+}
+
+if (! function_exists('seo_schema_graph')) {
+    /**
+     * Yoast-style linked schema graph for Organization + WebSite + LocalBusiness.
+     *
+     * @param  list<array<string, mixed>>  $extra
+     * @return array{'@context': string, '@graph': list<array<string, mixed>>}
+     */
+    function seo_schema_graph(array $extra = []): array
+    {
+        $brand = store_name();
+        $root = seo_site_root();
+        $orgId = seo_schema_id('organization');
+        $websiteId = seo_schema_id('website');
+        $logoUrl = store_logo_url();
+        $socials = seo_store_social_urls();
+        $storeAddress = preg_replace('/\s+/', ' ', trim((string) setting('store_address')));
+
+        $organization = array_filter([
+            '@type' => 'Organization',
+            '@id' => $orgId,
+            'name' => $brand,
+            'alternateName' => array_values(array_unique(array_filter([
+                $brand,
+                'Besek Bambu',
+                'besek bambu',
+            ]))),
+            'url' => $root.'/',
+            'logo' => $logoUrl ? [
+                '@type' => 'ImageObject',
+                'url' => $logoUrl,
+            ] : null,
+            'email' => store_email() ?: null,
+            'telephone' => store_phone() ?: null,
+            'sameAs' => $socials !== [] ? $socials : null,
+        ], fn ($value) => $value !== null && $value !== []);
+
+        $website = [
+            '@type' => 'WebSite',
+            '@id' => $websiteId,
+            'url' => $root.'/',
+            'name' => $brand,
+            'description' => default_meta_description(),
+            'publisher' => ['@id' => $orgId],
+            'inLanguage' => [app()->getLocale() === 'en' ? 'en-US' : 'id-ID'],
+            'potentialAction' => [
+                '@type' => 'SearchAction',
+                'target' => [
+                    '@type' => 'EntryPoint',
+                    'urlTemplate' => route('shop.index').'?q={search_term_string}',
+                ],
+                'query-input' => 'required name=search_term_string',
+            ],
+        ];
+
+        $localBusiness = array_filter([
+            '@type' => 'LocalBusiness',
+            '@id' => seo_schema_id('localbusiness'),
+            'name' => $brand,
+            'url' => $root.'/',
+            'image' => default_og_image_url() ?: $logoUrl,
+            'telephone' => store_phone() ?: null,
+            'email' => store_email() ?: null,
+            'address' => $storeAddress !== '' ? [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $storeAddress,
+                'addressCountry' => 'ID',
+            ] : null,
+            'sameAs' => $socials !== [] ? $socials : null,
+        ], fn ($value) => $value !== null && $value !== []);
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => array_values(array_filter([$organization, $website, $localBusiness, ...$extra])),
+        ];
+    }
+}
+
+if (! function_exists('seo_webpage_node')) {
+    /**
+     * @return array<string, mixed>
+     */
+    function seo_webpage_node(string $url, string $name, ?string $description = null, ?string $image = null): array
+    {
+        $node = [
+            '@type' => 'WebPage',
+            '@id' => rtrim($url, '/').'#webpage',
+            'url' => $url,
+            'name' => $name,
+            'isPartOf' => ['@id' => seo_schema_id('website')],
+            'about' => ['@id' => seo_schema_id('organization')],
+            'inLanguage' => app()->getLocale() === 'en' ? 'en-US' : 'id-ID',
+        ];
+
+        if ($description) {
+            $node['description'] = $description;
+        }
+
+        if ($image) {
+            $node['primaryImageOfPage'] = [
+                '@type' => 'ImageObject',
+                'url' => $image,
+            ];
+        }
+
+        return $node;
+    }
+}
+
+if (! function_exists('seo_json_ld')) {
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    function seo_json_ld(array $data): string
+    {
+        return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 }

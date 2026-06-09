@@ -1,38 +1,50 @@
 @extends('layouts.storefront')
 
-@section('title', meta_title(__('Katalog Besek Bambu'), store_name()))
-@section('meta_description', __('Lihat katalog besek bambu berbagai ukuran dan model. Tersedia untuk kebutuhan hampers, seserahan, souvenir, dan kemasan produk ramah lingkungan.'))
-
-@push('head')
-  @php
-    $itemList = $products->values()->map(function ($product, $index) {
-      return [
-        '@type' => 'ListItem',
-        'position' => $index + 1,
-        'url' => route('shop.product', $product),
-        'name' => $product->name,
-      ];
-    })->all();
-
-    $itemListSchema = [
-      '@context' => 'https://schema.org',
-      '@type' => 'ItemList',
-      'name' => 'Katalog Besek Bambu',
-      'numberOfItems' => count($itemList),
-      'itemListElement' => $itemList,
+@php
+  $shopTitle = meta_title(__('Produk Besek Bambu'), store_name());
+  $shopDescription = __('Jelajahi produk besek bambu handmade kami. Katalog berbagai ukuran untuk hantaran, hampers, seserahan, souvenir, dan kemasan ramah lingkungan.');
+  $shopUrl = route('shop.index');
+@endphp
+@section('title', $shopTitle)
+@section('meta_description', $shopDescription)
+@section('canonical', $shopUrl)
+@section('schema_graph_extra')
+@php
+  $itemList = $products->values()->map(function ($product, $index) {
+    return [
+      '@type' => 'ListItem',
+      'position' => $index + 1,
+      'url' => route('shop.product', $product),
+      'name' => $product->name,
     ];
-  @endphp
-  <script type="application/ld+json">{!! json_encode($itemListSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-@endpush
+  })->all();
+@endphp
+{!! json_encode([
+  seo_webpage_node($shopUrl, $shopTitle, $shopDescription, default_og_image_url()),
+  [
+    '@type' => 'ItemList',
+    '@id' => $shopUrl.'#itemlist',
+    'name' => __('Katalog Besek Bambu'),
+    'numberOfItems' => count($itemList),
+    'itemListElement' => $itemList,
+  ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+@endsection
 
 @section('content')
   <x-navbar />
   <main id="main-content" class="page-main">
     <section class="container shop-page">
-      <div class="shop-head">
-        <div class="eyebrow">{{ __('Katalog besek · Anyaman bambu') }}</div>
-        <h1 class="section-title shop-title">{!! __('Semua <em>produk</em>') !!}</h1>
-      </div>
+      <x-page-head
+        :crumbs="[
+            ['label' => __('Beranda'), 'url' => route('home')],
+            ['label' => __('Produk Besek Bambu')],
+        ]"
+        eyebrow="{{ __('Katalog besek · Anyaman bambu') }}"
+        :schema="false"
+      >
+        <h1 class="section-title shop-title">{{ __('Produk Besek Bambu') }}</h1>
+      </x-page-head>
 
       <form method="get" action="{{ route('shop.index') }}" class="shop-filter">
         <input type="search" name="q" value="{{ $searchTerm }}" placeholder="{{ __('Cari produk…') }}" aria-label="{{ __('Cari produk') }}" />

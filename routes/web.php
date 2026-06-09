@@ -44,6 +44,9 @@ Route::post('/contact', [PageController::class, 'contactSubmit'])
     ->middleware('throttle:contact')
     ->name('contact.submit');
 
+Route::redirect('/products', '/shop', 301);
+Route::redirect('/products/', '/shop', 301);
+
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/products/{product:slug}', [ShopController::class, 'show'])->name('shop.product');
 Route::get('/categories/{category:slug}', [ShopController::class, 'category'])->name('shop.category');

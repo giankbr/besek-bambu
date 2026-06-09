@@ -24,18 +24,11 @@
   $googleVerification = trim((string) setting('seo_google_site_verification', ''));
   $bingVerification = trim((string) setting('seo_bing_site_verification', ''));
   $googleAnalyticsId = trim((string) setting('seo_google_analytics_id', ''));
-  $storeAddress = preg_replace('/\s+/', ' ', trim((string) setting('store_address')));
-  $socials = collect([
-    setting('social_instagram'),
-    setting('social_facebook'),
-    setting('social_tiktok'),
-    setting('social_whatsapp'),
-  ])->filter()->values()->all();
 @endphp
 
-<title>{{ $pageTitle }}</title>
+<title>{!! seo_meta_text($pageTitle) !!}</title>
 @include('partials.favicon')
-<meta name="description" content="{{ $metaDescription }}" />
+<meta name="description" content="{!! seo_meta_text($metaDescription) !!}" />
 <meta name="robots" content="{{ $robots }}" />
 <link rel="canonical" href="{{ $canonicalUrl }}" />
 <link rel="alternate" hreflang="id" href="{{ localized_url('id') }}" />
@@ -49,8 +42,8 @@
 @endif
 
 <meta property="og:type" content="{{ $ogType }}" />
-<meta property="og:title" content="{{ $pageTitle }}" />
-<meta property="og:description" content="{{ $metaDescription }}" />
+<meta property="og:title" content="{!! seo_meta_text($pageTitle) !!}" />
+<meta property="og:description" content="{!! seo_meta_text($metaDescription) !!}" />
 <meta property="og:image" content="{{ $metaImage }}" />
 <meta property="og:url" content="{{ $canonicalUrl }}" />
 <meta property="og:site_name" content="{{ $brandName }}" />
@@ -58,54 +51,26 @@
 <meta property="og:locale:alternate" content="{{ $alternateLocale }}" />
 
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="{{ $pageTitle }}" />
-<meta name="twitter:description" content="{{ $metaDescription }}" />
+<meta name="twitter:title" content="{!! seo_meta_text($pageTitle) !!}" />
+<meta name="twitter:description" content="{!! seo_meta_text($metaDescription) !!}" />
 <meta name="twitter:image" content="{{ $metaImage }}" />
 @if ($twitterHandle)
   <meta name="twitter:site" content="{{ $twitterHandle }}" />
 @endif
 
 @php
-  $orgSchema = array_filter([
-    '@context' => 'https://schema.org',
-    '@type' => 'Organization',
-    'name' => $brandName,
-    'url' => url('/'),
-    'logo' => store_logo_url() ?: null,
-    'email' => store_email() ?: null,
-    'telephone' => store_phone() ?: null,
-    'sameAs' => count($socials) > 0 ? $socials : null,
-  ]);
-  $siteSchema = [
-    '@context' => 'https://schema.org',
-    '@type' => 'WebSite',
-    'url' => url('/'),
-    'name' => $brandName,
-    'potentialAction' => [
-      '@type' => 'SearchAction',
-      'target' => url('/shop').'?q={search_term_string}',
-      'query-input' => 'required name=search_term_string',
-    ],
-  ];
-  $localBusinessSchema = array_filter([
-    '@context' => 'https://schema.org',
-    '@type' => 'LocalBusiness',
-    'name' => $brandName,
-    'url' => url('/'),
-    'image' => $metaImage ?: null,
-    'telephone' => store_phone() ?: null,
-    'email' => store_email() ?: null,
-    'address' => $storeAddress !== '' ? [
-      '@type' => 'PostalAddress',
-      'streetAddress' => $storeAddress,
-      'addressCountry' => 'ID',
-    ] : null,
-    'sameAs' => count($socials) > 0 ? $socials : null,
-  ]);
+  $schemaExtraJson = trim((string) $__env->yieldContent('schema_graph_extra'));
+  $schemaExtra = [];
+  if ($schemaExtraJson !== '') {
+      try {
+          $decoded = json_decode($schemaExtraJson, true, 512, JSON_THROW_ON_ERROR);
+          $schemaExtra = is_array($decoded) ? $decoded : [];
+      } catch (JsonException) {
+          $schemaExtra = [];
+      }
+  }
 @endphp
-<script type="application/ld+json">{!! json_encode($orgSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-<script type="application/ld+json">{!! json_encode($siteSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-<script type="application/ld+json">{!! json_encode($localBusinessSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+<script type="application/ld+json">{!! seo_json_ld(seo_schema_graph($schemaExtra)) !!}</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

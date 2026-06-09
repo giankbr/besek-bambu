@@ -3,9 +3,16 @@
 @php
   $homeTitle = trim((string) setting('seo_home_meta_title', ''));
   $homeDescription = trim((string) setting('seo_home_meta_description', ''));
+  $resolvedHomeTitle = $homeTitle !== '' ? $homeTitle : meta_title(store_name(), __('Besek Bambu Handmade untuk Hantaran & Kemasan'));
+  $resolvedHomeDescription = $homeDescription !== '' ? $homeDescription : default_meta_description();
 @endphp
-@section('title', $homeTitle !== '' ? $homeTitle : meta_title(store_name(), __('Besek Bambu Handmade untuk Hantaran & Kemasan')))
-@section('meta_description', $homeDescription !== '' ? $homeDescription : default_meta_description())
+@section('title', $resolvedHomeTitle)
+@section('meta_description', $resolvedHomeDescription)
+@section('schema_graph_extra')
+{!! json_encode([
+  seo_webpage_node(url('/'), $resolvedHomeTitle, $resolvedHomeDescription, default_og_image_url()),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+@endsection
 
 @section('content')
   <x-navbar />
