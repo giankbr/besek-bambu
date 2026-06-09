@@ -23,7 +23,7 @@ class SeoSettingsTest extends TestCase
             ->test('pages::admin.settings.index')
             ->set('tab', 'seo')
             ->set('seo_default_meta_description', 'Besek bambu handmade untuk hantaran dan kemasan.')
-            ->set('seo_home_meta_title', 'Besek Bambu — Hantaran & Kemasan')
+            ->set('seo_home_meta_title', 'Besek Bambu, Hantaran & Kemasan')
             ->set('social_twitter', 'besekbambu')
             ->set('seo_google_analytics_id', 'G-TEST123456')
             ->set('seo_google_site_verification', 'google-verify-token')
@@ -31,7 +31,7 @@ class SeoSettingsTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertSame('Besek bambu handmade untuk hantaran dan kemasan.', Setting::get('seo_default_meta_description'));
-        $this->assertSame('Besek Bambu — Hantaran & Kemasan', Setting::get('seo_home_meta_title'));
+        $this->assertSame('Besek Bambu, Hantaran & Kemasan', Setting::get('seo_home_meta_title'));
         $this->assertSame('besekbambu', Setting::get('social_twitter'));
         $this->assertSame('G-TEST123456', Setting::get('seo_google_analytics_id'));
         $this->assertSame('google-verify-token', Setting::get('seo_google_site_verification'));
