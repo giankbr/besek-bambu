@@ -2,6 +2,7 @@
   $logos = midtrans_payment_logos();
 @endphp
 
+@if ($logos !== [])
 <div class="checkout-midtrans" role="group" aria-label="{{ __('Metode pembayaran online') }}">
   <p class="checkout-midtrans__lead">{{ __('Kartu, transfer bank, e-wallet, dan QRIS tersedia saat pembayaran.') }}</p>
   <ul class="checkout-midtrans__channels">
@@ -20,3 +21,4 @@
     @endforeach
   </ul>
 </div>
+@endif

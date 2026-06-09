@@ -254,30 +254,61 @@ if (! function_exists('store_socials')) {
     }
 }
 
+if (! function_exists('midtrans_channel_catalog')) {
+    /**
+     * @return array<string, array{label: string, logos: list<array{file: string, alt: string}>}>
+     */
+    function midtrans_channel_catalog(): array
+    {
+        return config('midtrans_channels.channels', []);
+    }
+}
+
+if (! function_exists('midtrans_display_channel_keys')) {
+    /**
+     * Channel keys shown on checkout and passed to Snap enabled_payments.
+     *
+     * @return list<string>
+     */
+    function midtrans_display_channel_keys(): array
+    {
+        $saved = setting('payment_midtrans_display_channels');
+        $catalog = array_keys(midtrans_channel_catalog());
+
+        if (is_array($saved)) {
+            return array_values(array_intersect($saved, $catalog));
+        }
+
+        return array_values(array_intersect(
+            config('midtrans_channels.default_display', []),
+            $catalog,
+        ));
+    }
+}
+
 if (! function_exists('midtrans_payment_logos')) {
     /**
-     * Official payment provider logos from Midtrans (veritrans/logo).
+     * Payment logos for enabled Midtrans channels (admin settings).
      *
      * @return list<array{file: string, alt: string}>
      */
     function midtrans_payment_logos(): array
     {
-        return [
-            ['file' => 'visa.png', 'alt' => 'Visa'],
-            ['file' => 'mastercard.png', 'alt' => 'Mastercard'],
-            ['file' => 'jcb.png', 'alt' => 'JCB'],
-            ['file' => 'amex.png', 'alt' => 'American Express'],
-            ['file' => 'bca.png', 'alt' => 'BCA'],
-            ['file' => 'bni.png', 'alt' => 'BNI'],
-            ['file' => 'mandiri.png', 'alt' => 'Bank Mandiri'],
-            ['file' => 'permata.png', 'alt' => 'PermataBank'],
-            ['file' => 'cimb.png', 'alt' => 'CIMB Niaga'],
-            ['file' => 'bri.png', 'alt' => 'BRI'],
-            ['file' => 'gopay.png', 'alt' => 'GoPay'],
-            ['file' => 'shopee.png', 'alt' => 'ShopeePay'],
-            ['file' => 'qris.png', 'alt' => 'QRIS'],
-            ['file' => 'dana.png', 'alt' => 'DANA'],
-        ];
+        $logos = [];
+
+        foreach (midtrans_display_channel_keys() as $key) {
+            $channel = midtrans_channel_catalog()[$key] ?? null;
+
+            if ($channel === null) {
+                continue;
+            }
+
+            foreach ($channel['logos'] as $logo) {
+                $logos[] = $logo;
+            }
+        }
+
+        return $logos;
     }
 }
 

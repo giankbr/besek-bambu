@@ -95,6 +95,12 @@ class MidtransService
             ],
         ];
 
+        $enabledPayments = midtrans_display_channel_keys();
+
+        if ($enabledPayments !== []) {
+            $payload['enabled_payments'] = $enabledPayments;
+        }
+
         $token = Snap::getSnapToken($payload);
         $baseUrl = Config::$isProduction
             ? 'https://app.midtrans.com/snap/v2/vtweb/'

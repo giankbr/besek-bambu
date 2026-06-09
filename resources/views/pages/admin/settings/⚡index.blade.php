@@ -53,6 +53,8 @@ new #[Title('Store settings')] class extends Component {
     public bool $tax_inclusive = false;
 
     public bool $payment_midtrans = true;
+    /** @var list<string> */
+    public array $payment_midtrans_channels = [];
     public bool $payment_manual_transfer = false;
     public bool $payment_cod = false;
     public string $payment_bank_info = '';
@@ -115,6 +117,11 @@ new #[Title('Store settings')] class extends Component {
         $this->tax_inclusive = (bool) Setting::get('tax_inclusive', false);
 
         $this->payment_midtrans = (bool) Setting::get('payment_midtrans', true);
+        $channels = Setting::get('payment_midtrans_display_channels');
+        $catalog = array_keys(midtrans_channel_catalog());
+        $this->payment_midtrans_channels = is_array($channels)
+            ? array_values(array_intersect($channels, $catalog))
+            : array_values(array_intersect(config('midtrans_channels.default_display', []), $catalog));
         $this->payment_manual_transfer = (bool) Setting::get('payment_manual_transfer', false);
         $this->payment_cod = (bool) Setting::get('payment_cod', false);
         $this->payment_bank_info = (string) Setting::get('payment_bank_info', '');
@@ -394,14 +401,22 @@ new #[Title('Store settings')] class extends Component {
     public function savePayment(): void
     {
         try {
+            $catalog = array_keys(midtrans_channel_catalog());
+
             $this->validate([
                 'payment_midtrans' => ['boolean'],
+                'payment_midtrans_channels' => ['array'],
+                'payment_midtrans_channels.*' => ['string', 'in:'.implode(',', $catalog)],
                 'payment_manual_transfer' => ['boolean'],
                 'payment_cod' => ['boolean'],
                 'payment_bank_info' => ['nullable', 'string', 'max:2000'],
             ]);
 
             Setting::put('payment_midtrans', (bool) $this->payment_midtrans);
+            Setting::put(
+                'payment_midtrans_display_channels',
+                array_values(array_intersect($this->payment_midtrans_channels, $catalog)),
+            );
             Setting::put('payment_manual_transfer', (bool) $this->payment_manual_transfer);
             Setting::put('payment_cod', (bool) $this->payment_cod);
             Setting::put('payment_bank_info', $this->payment_bank_info);
@@ -896,6 +911,38 @@ new #[Title('Store settings')] class extends Component {
                     <flux:checkbox wire:model="payment_manual_transfer" :label="__('Manual bank transfer')" />
                     <flux:checkbox wire:model="payment_cod" :label="__('Cash on delivery (COD)')" />
                 </div>
+
+                @if ($payment_midtrans)
+                    <flux:separator />
+                    <div class="grid gap-3">
+                        <flux:heading size="lg">{{ __('Metode Midtrans di checkout') }}</flux:heading>
+                        <flux:text size="sm" class="text-zinc-500">
+                            {{ __('Centang metode yang sudah aktif di dashboard Midtrans. Logo checkout dan Snap mengikuti pilihan ini.') }}
+                        </flux:text>
+                        <div class="grid gap-2 sm:grid-cols-2">
+                            @foreach (midtrans_channel_catalog() as $key => $channel)
+                                <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                                    <flux:checkbox wire:model="payment_midtrans_channels" value="{{ $key }}" />
+                                    <span class="flex min-w-0 flex-1 items-center gap-2">
+                                        @foreach ($channel['logos'] as $logo)
+                                            <img
+                                                src="{{ asset('images/payments/'.$logo['file']) }}"
+                                                alt=""
+                                                class="h-6 w-auto max-w-[3.5rem] object-contain"
+                                                width="56"
+                                                height="24"
+                                                loading="lazy"
+                                            />
+                                        @endforeach
+                                        <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{{ __($channel['label']) }}</span>
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
+                        @error('payment_midtrans_channels')<flux:text class="text-rose-500 text-sm">{{ $message }}</flux:text>@enderror
+                    </div>
+                @endif
+
                 <flux:textarea
                     wire:model="payment_bank_info"
                     :label="__('Manual transfer instructions (shown to customer)')"
