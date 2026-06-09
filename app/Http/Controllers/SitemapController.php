@@ -76,9 +76,33 @@ class SitemapController extends Controller
 
     public function robots(): Response
     {
-        $body = "User-agent: *\nDisallow: /admin\nDisallow: /account\nDisallow: /cart\nDisallow: /checkout\nDisallow: /payment\n\nSitemap: ".url('/sitemap.xml')."\n";
+        $disallow = [
+            '/admin',
+            '/account',
+            '/cart',
+            '/checkout',
+            '/payment',
+            '/shipping',
+            '/dashboard',
+            '/settings',
+            '/login',
+            '/register',
+            '/forgot-password',
+            '/reset-password',
+            '/email/',
+            '/two-factor-challenge',
+            '/user/',
+        ];
 
-        return response($body, 200)->header('Content-Type', 'text/plain');
+        $lines = [
+            'User-agent: *',
+            'Allow: /',
+            ...array_map(fn (string $path) => "Disallow: {$path}", $disallow),
+            '',
+            'Sitemap: '.url('/sitemap.xml'),
+        ];
+
+        return response(implode("\n", $lines)."\n", 200)->header('Content-Type', 'text/plain; charset=UTF-8');
     }
 
     private function renderSitemap(array $urls): string
