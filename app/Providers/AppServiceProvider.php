@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\SendEmailVerifiedWelcome;
+use App\Models\Product;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -33,8 +35,16 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->configureUrlSchemeForProxiedHttps();
         $this->configureRateLimiting();
+        $this->configureProductRouteBinding();
 
         Event::listen(Verified::class, SendEmailVerifiedWelcome::class);
+    }
+
+    protected function configureProductRouteBinding(): void
+    {
+        Route::bind('product', function (string $value) {
+            return Product::findBySlugOrLegacy($value) ?? abort(404);
+        });
     }
 
     protected function configureRateLimiting(): void

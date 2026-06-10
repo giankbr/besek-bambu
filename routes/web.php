@@ -48,7 +48,7 @@ Route::redirect('/products', '/shop', 301);
 Route::redirect('/products/', '/shop', 301);
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
-Route::get('/products/{product:slug}', [ShopController::class, 'show'])->name('shop.product');
+Route::get('/products/{slug}', [ShopController::class, 'show'])->name('shop.product');
 Route::get('/categories/{category:slug}', [ShopController::class, 'category'])->name('shop.category');
 
 Route::get('/cart', [CartController::class, 'show'])->name('cart.show');

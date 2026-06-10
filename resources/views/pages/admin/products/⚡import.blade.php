@@ -133,9 +133,9 @@ new #[Title('Import products')] class extends Component {
                         throw new \RuntimeException(__('Name is required'));
                     }
 
-                    $slug = trim((string) ($record['slug'] ?? ''));
+                    $slug = Product::normalizeSlug(trim((string) ($record['slug'] ?? '')) ?: $name);
                     if ($slug === '') {
-                        $slug = Str::slug($name);
+                        throw new \RuntimeException(__('Slug is required'));
                     }
 
                     $categoryId = null;

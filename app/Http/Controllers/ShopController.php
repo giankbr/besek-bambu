@@ -56,8 +56,16 @@ class ShopController extends Controller
         ]);
     }
 
-    public function show(Product $product)
+    public function show(string $slug)
     {
+        $product = Product::findBySlugOrLegacy($slug);
+
+        abort_unless($product, 404);
+
+        if ($slug !== $product->slug) {
+            return redirect()->route('shop.product', $product, 301);
+        }
+
         abort_unless($product->is_active, 404);
 
         $product->load(['category', 'images', 'variants', 'priceTiers']);

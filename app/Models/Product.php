@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -20,6 +21,7 @@ class Product extends Model
         'meta_title', 'meta_description', 'og_image',
         'low_stock_notified_at',
         'min_order_quantity', 'production_lead_days',
+        'legacy_slugs',
     ];
 
     public function getLoggableAttributes(): array
@@ -37,11 +39,31 @@ class Product extends Model
         'low_stock_notified_at' => 'datetime',
         'min_order_quantity' => 'integer',
         'production_lead_days' => 'integer',
+        'legacy_slugs' => 'array',
     ];
 
     protected static function booted(): void
     {
         static::saving(function (Product $product) {
+            $product->name = trim((string) $product->name);
+
+            $incomingSlug = trim((string) $product->slug);
+            $normalizedSlug = static::normalizeSlug($incomingSlug !== '' ? $incomingSlug : $product->name);
+
+            if ($normalizedSlug !== '') {
+                if ($product->exists && $normalizedSlug !== $product->getOriginal('slug')) {
+                    $legacy = is_array($product->legacy_slugs) ? $product->legacy_slugs : [];
+                    $previousSlug = trim((string) $product->getOriginal('slug'));
+
+                    if ($previousSlug !== '' && $previousSlug !== $normalizedSlug && ! in_array($previousSlug, $legacy, true)) {
+                        $legacy[] = $previousSlug;
+                        $product->legacy_slugs = array_values(array_unique($legacy));
+                    }
+                }
+
+                $product->slug = $normalizedSlug;
+            }
+
             // Reset the low-stock notification flag when stock is
             // topped back up above the configured threshold so the
             // next dip can trigger another alert.
@@ -63,6 +85,53 @@ class Product extends Model
         };
         static::saved($invalidate);
         static::deleted($invalidate);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public static function normalizeSlug(string $value): string
+    {
+        return Str::slug(trim($value));
+    }
+
+    public static function findBySlugOrLegacy(string $slug): ?self
+    {
+        $slug = trim(rawurldecode($slug));
+
+        if ($slug === '') {
+            return null;
+        }
+
+        $product = static::query()->where('slug', $slug)->first();
+
+        if ($product) {
+            return $product;
+        }
+
+        $normalized = static::normalizeSlug($slug);
+
+        if ($normalized !== '' && $normalized !== $slug) {
+            $product = static::query()->where('slug', $normalized)->first();
+
+            if ($product) {
+                return $product;
+            }
+        }
+
+        foreach (static::query()->whereNotNull('legacy_slugs')->cursor() as $candidate) {
+            foreach ($candidate->legacy_slugs ?? [] as $legacy) {
+                $legacy = (string) $legacy;
+
+                if ($legacy === $slug || ($normalized !== '' && static::normalizeSlug($legacy) === $normalized)) {
+                    return $candidate;
+                }
+            }
+        }
+
+        return null;
     }
 
     public function category(): BelongsTo
