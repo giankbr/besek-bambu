@@ -21,8 +21,7 @@
   @else
     <div class="confirmation-card">
       <h3 class="confirmation-section-title store-contact-sidebar__title">{{ __('Lokasi kami') }}</h3>
-      <p class="confirmation-meta">Tunggur, Lembeyan, Magetan</p>
-      <p class="confirmation-meta">Jawa Timur 63372</p>
+      <p class="confirmation-meta">{{ store_location_area() }}</p>
     </div>
   @endif
 

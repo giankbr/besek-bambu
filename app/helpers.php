@@ -236,6 +236,125 @@ if (! function_exists('store_address')) {
     }
 }
 
+if (! function_exists('store_location_area')) {
+    /**
+     * Short area label for copy/SEO, derived from the store address setting.
+     * e.g. "Mandiraja, Banjarnegara, Jawa Tengah"
+     */
+    function store_location_area(): string
+    {
+        $custom = trim((string) setting('store_location_label', ''));
+
+        if ($custom !== '') {
+            return $custom;
+        }
+
+        $address = trim((string) store_address());
+
+        if ($address === '') {
+            return __('Banjarnegara, Jawa Tengah');
+        }
+
+        $normalized = preg_replace('/\s+/', ' ', $address);
+        $normalized = trim(preg_replace('/\b\d{5}\b/', '', $normalized));
+        $parts = array_values(array_filter(array_map('trim', explode(',', $normalized))));
+
+        if ($parts === []) {
+            return __('Banjarnegara, Jawa Tengah');
+        }
+
+        $province = null;
+        $provinceIndex = null;
+
+        foreach ($parts as $index => $part) {
+            if (preg_match('/jawa\s+(tengah|timur|barat)|yogyakarta|dki\s+jakarta|bali|banten/i', $part)) {
+                $province = $part;
+                $provinceIndex = $index;
+                break;
+            }
+        }
+
+        if ($province === null) {
+            return $parts[count($parts) - 1];
+        }
+
+        unset($parts[$provinceIndex]);
+        $parts = array_values($parts);
+
+        if (count($parts) >= 2) {
+            $kabupaten = $parts[count($parts) - 1];
+            $kecamatan = $parts[count($parts) - 2];
+
+            return "{$kecamatan}, {$kabupaten}, {$province}";
+        }
+
+        if (count($parts) === 1) {
+            return "{$parts[0]}, {$province}";
+        }
+
+        return $province;
+    }
+}
+
+if (! function_exists('store_postal_address_schema')) {
+    /**
+     * @return array<string, string>|null
+     */
+    function store_postal_address_schema(): ?array
+    {
+        $address = trim((string) store_address());
+
+        if ($address === '') {
+            return null;
+        }
+
+        preg_match('/\b(\d{5})\b/', $address, $postalMatch);
+        $withoutPostal = trim(preg_replace('/\b\d{5}\b/', '', $address));
+        $parts = array_values(array_filter(array_map('trim', explode(',', $withoutPostal))));
+
+        $schema = [
+            '@type' => 'PostalAddress',
+            'addressCountry' => 'ID',
+        ];
+
+        if (isset($postalMatch[1])) {
+            $schema['postalCode'] = $postalMatch[1];
+        }
+
+        if ($parts === []) {
+            $schema['streetAddress'] = $withoutPostal;
+
+            return $schema;
+        }
+
+        $province = null;
+        $provinceIndex = null;
+
+        foreach ($parts as $index => $part) {
+            if (preg_match('/jawa\s+(tengah|timur|barat)|yogyakarta|dki\s+jakarta|bali|banten/i', $part)) {
+                $province = $part;
+                $provinceIndex = $index;
+                break;
+            }
+        }
+
+        if ($province !== null) {
+            $schema['addressRegion'] = $province;
+            unset($parts[$provinceIndex]);
+            $parts = array_values($parts);
+        }
+
+        if (count($parts) >= 2) {
+            $schema['addressLocality'] = $parts[count($parts) - 1];
+            $schema['streetAddress'] = implode(', ', array_slice($parts, 0, -1));
+        } elseif (count($parts) === 1) {
+            $schema['streetAddress'] = $parts[0];
+        }
+
+        return $schema;
+    }
+}
+
 if (! function_exists('store_socials')) {
     /**
      * @return array<string, string> map of platform key => url for non-empty links
@@ -511,7 +630,9 @@ if (! function_exists('default_meta_description')) {
             return $custom;
         }
 
-        return __('Besek Bambu, besek bambu handmade untuk hantaran, hamper, dan kemasan dari Indonesia. Berkelanjutan, mudah terurai, dan dibuat oleh pengrajin.');
+        return __('Besek Bambu, besek bambu handmade untuk hantaran, hamper, dan kemasan. Dianyam pengrajin di :location dari bambu alami Indonesia.', [
+            'location' => store_location_area(),
+        ]);
     }
 }
 
@@ -602,7 +723,7 @@ if (! function_exists('seo_schema_graph')) {
         $websiteId = seo_schema_id('website');
         $logoUrl = store_logo_url();
         $socials = seo_store_social_urls();
-        $storeAddress = preg_replace('/\s+/', ' ', trim((string) setting('store_address')));
+        $postalAddress = store_postal_address_schema();
 
         $organization = array_filter([
             '@type' => 'Organization',
@@ -620,6 +741,7 @@ if (! function_exists('seo_schema_graph')) {
             ] : null,
             'email' => store_email() ?: null,
             'telephone' => store_phone() ?: null,
+            'address' => $postalAddress,
             'sameAs' => $socials !== [] ? $socials : null,
         ], fn ($value) => $value !== null && $value !== []);
 
@@ -649,11 +771,8 @@ if (! function_exists('seo_schema_graph')) {
             'image' => default_og_image_url() ?: $logoUrl,
             'telephone' => store_phone() ?: null,
             'email' => store_email() ?: null,
-            'address' => $storeAddress !== '' ? [
-                '@type' => 'PostalAddress',
-                'streetAddress' => $storeAddress,
-                'addressCountry' => 'ID',
-            ] : null,
+            'address' => $postalAddress,
+            'areaServed' => store_location_area(),
             'sameAs' => $socials !== [] ? $socials : null,
         ], fn ($value) => $value !== null && $value !== []);
 

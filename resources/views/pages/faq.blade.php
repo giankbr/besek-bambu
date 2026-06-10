@@ -7,7 +7,7 @@
   $faqs = [
     [
       'q' => __('Bagaimana produk Anda dibuat?'),
-      'a' => __('Setiap produk dianyam tangan oleh pengrajin di Magetan, Jawa Timur, dari bambu yang dipanen secara alami. Produksi memakan waktu 2–7 hari per item, tergantung ukuran dan kerumitan.'),
+      'a' => __('Setiap produk dianyam tangan oleh pengrajin di :location, dari bambu yang dipanen secara alami. Produksi memakan waktu 2–7 hari per item, tergantung ukuran dan kerumitan.', ['location' => store_location_area()]),
     ],
     [
       'q' => __('Bagaimana cara merawat besek saya?'),
