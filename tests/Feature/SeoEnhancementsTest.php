@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -29,6 +30,29 @@ class SeoEnhancementsTest extends TestCase
         $response->assertSee('"@type":"WebPage"', false);
         $response->assertSee('"alternateName"', false);
         $response->assertSee('Besek Bambu', false);
+    }
+
+    public function test_homepage_product_schema_includes_merchant_listing_fields(): void
+    {
+        Product::create([
+            'name' => 'Besek Test Schema',
+            'slug' => 'besek-test-schema',
+            'icon' => '🧺',
+            'price' => 100000,
+            'stock' => 5,
+            'rating' => 5,
+            'color_class' => 'p-1',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('"@type":"Product"', false);
+        $response->assertSee('Besek Test Schema', false);
+        $response->assertSee('"shippingDetails"', false);
+        $response->assertSee('"hasMerchantReturnPolicy"', false);
     }
 
     public function test_shop_page_targets_besek_bambu_keywords(): void

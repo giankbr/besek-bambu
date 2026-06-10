@@ -9,9 +9,16 @@
 @section('title', $resolvedHomeTitle)
 @section('meta_description', $resolvedHomeDescription)
 @section('schema_graph_extra')
-{!! json_encode([
-  seo_webpage_node(url('/'), $resolvedHomeTitle, $resolvedHomeDescription, default_og_image_url()),
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+@php
+  $schemaGraphExtra = [
+    seo_webpage_node(url('/'), $resolvedHomeTitle, $resolvedHomeDescription, default_og_image_url()),
+  ];
+
+  foreach ($products as $product) {
+    $schemaGraphExtra[] = seo_product_schema_node($product);
+  }
+@endphp
+{!! json_encode($schemaGraphExtra, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 @endsection
 
 @section('content')

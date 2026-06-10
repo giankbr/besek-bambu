@@ -21,42 +21,7 @@
   @endif
 
   @php
-    $schemaImages = collect();
-    if ($product->image_url) { $schemaImages->push(image_src($product->image_url)); }
-    foreach ($product->images as $img) {
-      $src = image_src($img->path);
-      if ($src && ! $schemaImages->contains($src)) { $schemaImages->push($src); }
-    }
-    $schemaImages = $schemaImages->values()->all();
-
-    $productSchema = array_filter([
-      '@context' => 'https://schema.org',
-      '@type' => 'Product',
-      'name' => $product->name,
-      'description' => strip_tags((string) $product->description),
-      'sku' => 'BSK-'.$product->id,
-      'mpn' => 'BSK-'.$product->id,
-      'image' => count($schemaImages) > 0 ? $schemaImages : null,
-      'category' => $product->category?->title,
-      'brand' => ['@type' => 'Brand', 'name' => store_name()],
-      'offers' => [
-        '@type' => 'Offer',
-        'price' => (float) $product->price,
-        'priceCurrency' => 'IDR',
-        'priceValidUntil' => now()->addYear()->toDateString(),
-        'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-        'itemCondition' => 'https://schema.org/NewCondition',
-        'url' => route('shop.product', $product),
-        'seller' => ['@type' => 'Organization', 'name' => store_name()],
-      ],
-      'aggregateRating' => $reviewsCount > 0 ? [
-        '@type' => 'AggregateRating',
-        'ratingValue' => $averageRating,
-        'reviewCount' => $reviewsCount,
-        'bestRating' => 5,
-        'worstRating' => 1,
-      ] : null,
-    ]);
+    $productSchema = seo_product_schema_document($product, $reviews);
 
     $breadcrumbItems = [
       ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],

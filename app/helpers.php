@@ -2,8 +2,11 @@
 
 use App\Mail\NewOrderReceived;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductReview;
 use App\Models\Setting;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
@@ -293,6 +296,67 @@ if (! function_exists('store_location_area')) {
         }
 
         return $province;
+    }
+}
+
+if (! function_exists('store_faqs')) {
+    /**
+     * @return list<array{q: string, a: string}>
+     */
+    function store_faqs(): array
+    {
+        return [
+            [
+                'q' => __('Bagaimana produk Anda dibuat?'),
+                'a' => __('Setiap produk dianyam tangan oleh pengrajin di :location, dari bambu yang dipanen secara alami. Produksi memakan waktu 2–7 hari per item, tergantung ukuran dan kerumitan.', ['location' => store_location_area()]),
+            ],
+            [
+                'q' => __('Bagaimana cara merawat besek saya?'),
+                'a' => __('Lap dengan kain lembap dan keringkan di tempat teduh. Hindari paparan air atau sinar matahari langsung dalam waktu lama. Dengan perawatan yang tepat, besek bisa awet bertahun-tahun.'),
+            ],
+            [
+                'q' => __('Metode pembayaran apa saja yang diterima?'),
+                'a' => __('Kami menerima kartu kredit/debit, transfer bank (BCA, BNI, Mandiri, Permata), e-wallet (GoPay, OVO, ShopeePay), dan QRIS. Pembayaran dilayani secara aman melalui Midtrans.'),
+            ],
+            [
+                'q' => __('Berapa lama pengiriman?'),
+                'a' => __('Di Jawa, 2–4 hari kerja. Luar Jawa, 4–7 hari kerja. Pengiriman internasional tersedia atas permintaan.'),
+            ],
+            [
+                'q' => __('Bisakah saya mengembalikan produk?'),
+                'a' => __('Ya, kami menerima pengembalian dalam 14 hari setelah barang diterima untuk produk yang belum dipakai dan dalam kondisi asli. Pesanan custom tidak dapat dikembalikan.'),
+            ],
+            [
+                'q' => __('Apakah ada harga grosir?'),
+                'a' => __('Tentu. Hubungi kami untuk pesanan 25 buah atau lebih. Kami siap melayani UMKM, toko oleh-oleh, hampers, dan penyelenggara acara.'),
+            ],
+            [
+                'q' => __('Apakah produk Anda aman untuk makanan?'),
+                'a' => __('Ya. Kami tidak memakai pernis, pewarna, atau bahan finishing. Bambu dicuci, dikeringkan, dan dianyam tanpa bahan kimia tambahan.'),
+            ],
+        ];
+    }
+}
+
+if (! function_exists('faq_page_schema')) {
+    /**
+     * @param  list<array{q: string, a: string}>  $faqs
+     * @return array<string, mixed>
+     */
+    function faq_page_schema(array $faqs): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => array_map(fn (array $faq) => [
+                '@type' => 'Question',
+                'name' => $faq['q'],
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => $faq['a'],
+                ],
+            ], $faqs),
+        ];
     }
 }
 
@@ -705,6 +769,232 @@ if (! function_exists('seo_store_social_urls')) {
             setting('social_tiktok'),
             setting('social_whatsapp'),
         ])->filter()->values()->all();
+    }
+}
+
+if (! function_exists('seo_merchant_return_policy_schema')) {
+    /**
+     * @return array<string, mixed>
+     */
+    function seo_merchant_return_policy_schema(): array
+    {
+        return [
+            '@type' => 'MerchantReturnPolicy',
+            'applicableCountry' => 'ID',
+            'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+            'merchantReturnDays' => 14,
+            'returnMethod' => 'https://schema.org/ReturnByMail',
+            'returnFees' => 'https://schema.org/FreeReturn',
+        ];
+    }
+}
+
+if (! function_exists('seo_offer_shipping_details_schema')) {
+    /**
+     * @return array<string, mixed>
+     */
+    function seo_offer_shipping_details_schema(?Product $product = null): array
+    {
+        $leadDays = max(0, (int) ($product?->production_lead_days ?? 0));
+        $handlingMin = $leadDays > 0 ? $leadDays : 2;
+        $handlingMax = max($handlingMin, $leadDays > 0 ? $leadDays : 7);
+
+        return [
+            '@type' => 'OfferShippingDetails',
+            'shippingRate' => [
+                '@type' => 'MonetaryAmount',
+                'value' => 0,
+                'currency' => 'IDR',
+            ],
+            'shippingDestination' => [
+                '@type' => 'DefinedRegion',
+                'addressCountry' => 'ID',
+            ],
+            'deliveryTime' => [
+                '@type' => 'ShippingDeliveryTime',
+                'handlingTime' => [
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => $handlingMin,
+                    'maxValue' => $handlingMax,
+                    'unitCode' => 'DAY',
+                ],
+                'transitTime' => [
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => 2,
+                    'maxValue' => 7,
+                    'unitCode' => 'DAY',
+                ],
+            ],
+        ];
+    }
+}
+
+if (! function_exists('seo_product_offer_schema')) {
+    /**
+     * @return array<string, mixed>
+     */
+    function seo_product_offer_schema(Product $product): array
+    {
+        return [
+            '@type' => 'Offer',
+            'price' => (float) $product->price,
+            'priceCurrency' => 'IDR',
+            'priceValidUntil' => now()->addYear()->toDateString(),
+            'availability' => $product->stock > 0
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            'itemCondition' => 'https://schema.org/NewCondition',
+            'url' => route('shop.product', $product),
+            'seller' => ['@type' => 'Organization', 'name' => store_name()],
+            'shippingDetails' => seo_offer_shipping_details_schema($product),
+            'hasMerchantReturnPolicy' => seo_merchant_return_policy_schema(),
+        ];
+    }
+}
+
+if (! function_exists('seo_product_schema_images')) {
+    /**
+     * @return list<string>
+     */
+    function seo_product_schema_images(Product $product): array
+    {
+        $images = collect();
+
+        if ($product->image_url) {
+            $images->push(image_src($product->image_url));
+        }
+
+        foreach ($product->images ?? [] as $image) {
+            $src = image_src($image->path);
+            if ($src && ! $images->contains($src)) {
+                $images->push($src);
+            }
+        }
+
+        return $images->values()->all();
+    }
+}
+
+if (! function_exists('seo_product_review_nodes')) {
+    /**
+     * @param  iterable<int, ProductReview>|null  $reviews
+     * @return list<array<string, mixed>>
+     */
+    function seo_product_review_nodes(Product $product, ?iterable $reviews = null): array
+    {
+        if ($reviews === null) {
+            $reviews = $product->approvedReviews()
+                ->with('user:id,name')
+                ->latest()
+                ->limit(10)
+                ->get();
+        }
+
+        $nodes = [];
+
+        foreach ($reviews as $review) {
+            $body = trim((string) ($review->body ?: $review->title));
+            if ($body === '') {
+                continue;
+            }
+
+            $nodes[] = array_filter([
+                '@type' => 'Review',
+                'author' => [
+                    '@type' => 'Person',
+                    'name' => $review->user?->name ?: __('Pelanggan'),
+                ],
+                'datePublished' => $review->created_at?->toDateString(),
+                'reviewRating' => [
+                    '@type' => 'Rating',
+                    'ratingValue' => (int) $review->rating,
+                    'bestRating' => 5,
+                    'worstRating' => 1,
+                ],
+                'reviewBody' => $body,
+            ]);
+        }
+
+        return $nodes;
+    }
+}
+
+if (! function_exists('seo_product_aggregate_rating_schema')) {
+    /**
+     * @param  iterable<int, ProductReview>|null  $reviews
+     * @return array<string, mixed>|null
+     */
+    function seo_product_aggregate_rating_schema(Product $product, ?iterable $reviews = null): ?array
+    {
+        if ($reviews === null) {
+            $reviews = $product->approvedReviews()->get();
+        }
+
+        $collection = $reviews instanceof Collection
+            ? $reviews
+            : collect($reviews);
+
+        $count = $collection->count();
+
+        if ($count === 0) {
+            return null;
+        }
+
+        return [
+            '@type' => 'AggregateRating',
+            'ratingValue' => round((float) $collection->avg('rating'), 1),
+            'reviewCount' => $count,
+            'bestRating' => 5,
+            'worstRating' => 1,
+        ];
+    }
+}
+
+if (! function_exists('seo_product_schema_node')) {
+    /**
+     * Product node for @graph (no @context).
+     *
+     * @param  iterable<int, ProductReview>|null  $reviews
+     * @return array<string, mixed>
+     */
+    function seo_product_schema_node(Product $product, ?iterable $reviews = null): array
+    {
+        $productUrl = route('shop.product', $product);
+        $images = seo_product_schema_images($product);
+        $reviewNodes = seo_product_review_nodes($product, $reviews);
+
+        $node = array_filter([
+            '@type' => 'Product',
+            '@id' => $productUrl.'#product',
+            'name' => $product->name,
+            'description' => strip_tags((string) $product->description),
+            'sku' => 'BSK-'.$product->id,
+            'mpn' => 'BSK-'.$product->id,
+            'image' => $images !== [] ? $images : null,
+            'category' => $product->category?->title,
+            'brand' => ['@type' => 'Brand', 'name' => store_name()],
+            'offers' => seo_product_offer_schema($product),
+            'aggregateRating' => seo_product_aggregate_rating_schema($product, $reviews),
+            'review' => $reviewNodes !== [] ? $reviewNodes : null,
+        ], fn ($value) => $value !== null && $value !== []);
+
+        return $node;
+    }
+}
+
+if (! function_exists('seo_product_schema_document')) {
+    /**
+     * Standalone Product JSON-LD document.
+     *
+     * @param  iterable<int, ProductReview>|null  $reviews
+     * @return array<string, mixed>
+     */
+    function seo_product_schema_document(Product $product, ?iterable $reviews = null): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            ...seo_product_schema_node($product, $reviews),
+        ];
     }
 }
 
