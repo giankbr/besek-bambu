@@ -26,13 +26,15 @@ class SeoContentTest extends TestCase
         $this->get('/wholesale')->assertRedirect('/grosir');
     }
 
-    public function test_blog_post_seeder_creates_ten_articles(): void
+    public function test_blog_post_seeder_creates_hundred_articles(): void
     {
         $this->seed(BlogPostSeeder::class);
 
-        $this->assertSame(10, BlogPost::query()->where('is_published', true)->count());
+        $this->assertSame(100, BlogPost::query()->where('is_published', true)->count());
         $this->assertDatabaseHas('blog_posts', ['slug' => 'cara-merawat-besek-bambu-awet']);
         $this->assertDatabaseHas('blog_posts', ['slug' => 'besek-bambu-corporate-gifting']);
+        $this->assertDatabaseHas('blog_posts', ['slug' => 'besek-bambu-15x15-hantaran-pernikahan']);
+        $this->assertDatabaseHas('blog_posts', ['slug' => 'besek-harga-grosir-per-lusin']);
     }
 
     public function test_blog_index_paginates_published_posts(): void

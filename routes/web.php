@@ -32,6 +32,7 @@ Route::get('/lang/{locale}', function (string $locale) {
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemap-static.xml', [SitemapController::class, 'staticChunk'])->name('sitemap.static');
+Route::get('/sitemap-blog.xml', [SitemapController::class, 'blogChunk'])->name('sitemap.blog');
 Route::get('/sitemap-products-{page}.xml', [SitemapController::class, 'productChunk'])
     ->whereNumber('page')
     ->name('sitemap.products');

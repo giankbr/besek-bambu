@@ -74,9 +74,9 @@ class Product extends Model
         });
 
         $invalidate = function () {
-            Cache::forget('sitemap.xml');
             Cache::forget('sitemap.index.xml');
             Cache::forget('sitemap.static.xml');
+            Cache::forget('sitemap.blog.xml');
             // Per-page product chunks share a numeric suffix; flush a
             // generous range so editors never see stale data.
             for ($i = 1; $i <= 50; $i++) {

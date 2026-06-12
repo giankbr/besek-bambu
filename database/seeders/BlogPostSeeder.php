@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\BlogPost;
+use Database\Seeders\Support\BulkBlogPostDefinitions;
 use Illuminate\Database\Seeder;
 
 class BlogPostSeeder extends Seeder
@@ -279,6 +280,8 @@ HTML,
 HTML,
             ],
         ];
+
+        $posts = array_merge($posts, BulkBlogPostDefinitions::all());
 
         foreach ($posts as $row) {
             $daysAgo = $row['days_ago'] ?? max(1, 28 - ($row['sort_order'] * 2));

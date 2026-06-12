@@ -24,7 +24,18 @@ class SitemapTest extends TestCase
         $response->assertSee('Allow: /', false);
     }
 
-    public function test_sitemap_includes_static_pages_categories_and_products(): void
+    public function test_sitemap_index_lists_child_sitemaps(): void
+    {
+        $response = $this->get('/sitemap.xml');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/xml');
+        $response->assertSee('<sitemapindex', false);
+        $response->assertSee(url('/sitemap-static.xml'), false);
+        $response->assertSee(url('/sitemap-blog.xml'), false);
+    }
+
+    public function test_static_sitemap_includes_pages_categories_and_products(): void
     {
         $category = Category::create([
             'title' => 'Hantaran',
@@ -61,6 +72,24 @@ class SitemapTest extends TestCase
             'category_id' => $category->id,
         ]);
 
+        $response = $this->get('/sitemap-static.xml');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/xml');
+        $response->assertSee(route('home'), false);
+        $response->assertSee(route('shop.index'), false);
+        $response->assertSee(route('about'), false);
+        $response->assertSee(route('wholesale'), false);
+        $response->assertSee(route('blog.index'), false);
+        $response->assertSee(route('privacy'), false);
+        $response->assertSee(route('terms'), false);
+        $response->assertSee(route('shop.category', $category), false);
+        $response->assertSee(route('shop.product', $product), false);
+        $response->assertDontSee(route('shop.product', $inactive), false);
+    }
+
+    public function test_blog_sitemap_lists_published_posts(): void
+    {
         $post = BlogPost::create([
             'title' => 'SEO Post',
             'slug' => 'seo-post',
@@ -70,20 +99,20 @@ class SitemapTest extends TestCase
             'sort_order' => 0,
         ]);
 
-        $response = $this->get('/sitemap.xml');
+        BlogPost::create([
+            'title' => 'Draft',
+            'slug' => 'draft-post',
+            'body' => '<p>Hidden</p>',
+            'is_published' => false,
+            'published_at' => now()->subDay(),
+            'sort_order' => 1,
+        ]);
+
+        $response = $this->get('/sitemap-blog.xml');
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/xml');
-        $response->assertSee(route('home'), false);
-        $response->assertSee(route('shop.index'), false);
-        $response->assertSee(route('about'), false);
-        $response->assertSee(route('wholesale'), false);
-        $response->assertSee(route('blog.index'), false);
         $response->assertSee(route('blog.show', $post), false);
-        $response->assertSee(route('privacy'), false);
-        $response->assertSee(route('terms'), false);
-        $response->assertSee(route('shop.category', $category), false);
-        $response->assertSee(route('shop.product', $product), false);
-        $response->assertDontSee(route('shop.product', $inactive), false);
+        $response->assertDontSee(route('blog.show', ['post' => 'draft-post']), false);
     }
 }

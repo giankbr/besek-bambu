@@ -21,14 +21,14 @@ class SitemapController extends Controller
     {
         $totalProducts = Product::query()->where('is_active', true)->count();
 
-        // Sitemap index when the catalog gets too big to fit in a
-        // single XML file. This points at /sitemap-N.xml chunks.
-        if ($totalProducts > self::CHUNK_SIZE) {
-            $body = Cache::remember('sitemap.index.xml', now()->addMinutes(30), function () use ($totalProducts) {
+        $body = Cache::remember('sitemap.index.xml', now()->addMinutes(30), function () use ($totalProducts) {
+            $entries = [
+                ['loc' => url('/sitemap-static.xml'), 'lastmod' => now()->toAtomString()],
+                ['loc' => url('/sitemap-blog.xml'), 'lastmod' => now()->toAtomString()],
+            ];
+
+            if ($totalProducts > self::CHUNK_SIZE) {
                 $chunks = (int) ceil($totalProducts / self::CHUNK_SIZE);
-                $entries = [
-                    ['loc' => url('/sitemap-static.xml'), 'lastmod' => now()->toAtomString()],
-                ];
 
                 for ($i = 1; $i <= $chunks; $i++) {
                     $entries[] = [
@@ -36,20 +36,9 @@ class SitemapController extends Controller
                         'lastmod' => now()->toAtomString(),
                     ];
                 }
+            }
 
-                return '<?xml version="1.0" encoding="UTF-8"?>'."\n".view('sitemap-index', ['entries' => $entries])->render();
-            });
-
-            return response($body, 200)->header('Content-Type', 'application/xml');
-        }
-
-        $body = Cache::remember('sitemap.xml', now()->addMinutes(30), function () {
-            return $this->renderSitemap(array_merge(
-                $this->staticUrls(),
-                $this->categoryUrls(),
-                $this->blogUrls(),
-                $this->productUrls(1),
-            ));
+            return $this->renderSitemapIndex($entries);
         });
 
         return response($body, 200)->header('Content-Type', 'application/xml');
@@ -58,7 +47,24 @@ class SitemapController extends Controller
     public function staticChunk(): Response
     {
         $body = Cache::remember('sitemap.static.xml', now()->addMinutes(30), function () {
-            return $this->renderSitemap(array_merge($this->staticUrls(), $this->categoryUrls(), $this->blogUrls()));
+            $urls = array_merge($this->staticUrls(), $this->categoryUrls());
+
+            $totalProducts = Product::query()->where('is_active', true)->count();
+
+            if ($totalProducts <= self::CHUNK_SIZE) {
+                $urls = array_merge($urls, $this->productUrls(1));
+            }
+
+            return $this->renderSitemap($urls);
+        });
+
+        return response($body, 200)->header('Content-Type', 'application/xml');
+    }
+
+    public function blogChunk(): Response
+    {
+        $body = Cache::remember('sitemap.blog.xml', now()->addMinutes(30), function () {
+            return $this->renderSitemap($this->blogUrls());
         });
 
         return response($body, 200)->header('Content-Type', 'application/xml');
@@ -105,6 +111,11 @@ class SitemapController extends Controller
         ];
 
         return response(implode("\n", $lines)."\n", 200)->header('Content-Type', 'text/plain; charset=UTF-8');
+    }
+
+    private function renderSitemapIndex(array $entries): string
+    {
+        return '<?xml version="1.0" encoding="UTF-8"?>'."\n".view('sitemap-index', ['entries' => $entries])->render();
     }
 
     private function renderSitemap(array $urls): string

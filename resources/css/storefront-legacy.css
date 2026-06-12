@@ -3377,7 +3377,7 @@ a.product:hover,
   background: var(--card);
 }
 
-.pagination-wrap [aria-current="page"] span {
+.pagination-wrap [aria-current="page"] {
   background: var(--green-deep);
   color: var(--cta-ink, #fff);
   border-color: var(--green-deep);

@@ -7,7 +7,7 @@ use Illuminate\View\View;
 
 class BlogController extends Controller
 {
-    private const INDEX_PER_PAGE = 6;
+    private const INDEX_PER_PAGE = 9;
 
     public function index(): View
     {
