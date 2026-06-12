@@ -5986,12 +5986,12 @@ body.sf-confirm-open {
 }
 
 .blog-share {
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px 16px;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
+  max-width: none;
   margin: 1.25rem 0 1.75rem;
   padding: 14px 16px;
   border: 1px solid var(--line);
@@ -6071,7 +6071,8 @@ body.sf-confirm-open {
 }
 
 .blog-article__body {
-  max-width: 720px;
+  width: 100%;
+  max-width: none;
   font-size: 16px;
   line-height: 1.75;
   color: var(--ink);
