@@ -18,17 +18,30 @@
       'name' => $product->name,
     ];
   })->all();
+
+  $schemaNodes = [
+    seo_webpage_node($shopUrl, $shopTitle, $shopDescription, default_og_image_url()),
+    [
+      '@type' => 'ItemList',
+      '@id' => $shopUrl.'#itemlist',
+      'name' => __('Katalog Besek Bambu'),
+      'numberOfItems' => count($itemList),
+      'itemListElement' => $itemList,
+    ],
+  ];
+
+  if ($searchTerm) {
+    $schemaNodes[] = [
+      '@type' => 'CollectionPage',
+      '@id' => $shopUrl.'#collectionpage',
+      'name' => __('Hasil pencarian: :term', ['term' => $searchTerm]),
+      'url' => $shopUrl,
+      'numberOfItems' => $products->total(),
+      'description' => __('Menampilkan :count produk untuk pencarian ":term".', ['count' => $products->total(), 'term' => $searchTerm]),
+    ];
+  }
 @endphp
-{!! json_encode([
-  seo_webpage_node($shopUrl, $shopTitle, $shopDescription, default_og_image_url()),
-  [
-    '@type' => 'ItemList',
-    '@id' => $shopUrl.'#itemlist',
-    'name' => __('Katalog Besek Bambu'),
-    'numberOfItems' => count($itemList),
-    'itemListElement' => $itemList,
-  ],
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+{!! json_encode($schemaNodes, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 @endsection
 
 @section('content')

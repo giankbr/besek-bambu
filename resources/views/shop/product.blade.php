@@ -92,7 +92,7 @@
         <div class="product-detail__media {{ $product->color_class }}">
           @if ($heroSrc)
             <div class="product-detail__hero" x-show="!imgError">
-              <img :src="active" src="{{ $heroSrc }}" alt="{{ $product->name }}" x-on:error="imgError = true" />
+              <img :src="active" src="{{ $heroSrc }}" alt="{{ $product->name }}" x-on:error="imgError = true" width="600" height="600" decoding="async" />
               @if ($hasMultiple)
                 <button
                   type="button"
@@ -124,7 +124,7 @@
                   @click="index = {{ $i }}"
                   aria-label="{{ __('Lihat gambar :n', ['n' => $i + 1]) }}"
                 >
-                  <img src="{{ $src }}" alt="" loading="lazy" />
+                  <img src="{{ $src }}" alt="{{ __('Lihat gambar :n', ['n' => $i + 1]) }}" loading="lazy" decoding="async" width="80" height="80" />
                 </button>
               @endforeach
             </div>

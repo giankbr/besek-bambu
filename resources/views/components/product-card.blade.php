@@ -12,7 +12,7 @@
     <a class="product-card__link" href="{{ route('shop.product', $product) }}">
       <div class="product-img">
         @if ($product->image_url)
-          <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="lazy" />
+          <img src="{{ image_src($product->image_url) }}" alt="{{ $product->name }}" class="h-full w-full object-cover" loading="lazy" width="400" height="400" decoding="async" />
         @else
           {{ $product->icon }}
         @endif
