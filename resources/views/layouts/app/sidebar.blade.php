@@ -60,6 +60,9 @@
                 <flux:sidebar.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>
                     {{ __('Gallery') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="newspaper" :href="route('admin.blog-posts.index')" :current="request()->routeIs('admin.blog-posts.*')" wire:navigate>
+                    {{ __('Blog') }}
+                </flux:sidebar.item>
                 <flux:sidebar.item icon="folder-open" :href="route('admin.media.index')" :current="request()->routeIs('admin.media.*')" wire:navigate>
                     {{ __('Media library') }}
                 </flux:sidebar.item>
