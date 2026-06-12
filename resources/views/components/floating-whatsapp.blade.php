@@ -9,7 +9,7 @@
   <a
     href="https://wa.me/{{ $waNumber }}?text={{ $waText }}"
     target="_blank"
-    rel="noopener noreferrer"
+    rel="noopener noreferrer nofollow"
     aria-label="{{ __('Chat WhatsApp') }}"
     class="wa-floating"
     tabindex="0"

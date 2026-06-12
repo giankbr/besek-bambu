@@ -139,6 +139,16 @@ class SeoSettingsTest extends TestCase
         );
     }
 
+    public function test_whatsapp_links_use_nofollow_for_crawler_rate_limits(): void
+    {
+        config(['store.whatsapp_number' => '6289630309373']);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('href="https://wa.me/6289630309373', false)
+            ->assertSee('rel="noopener noreferrer nofollow"', false);
+    }
+
     public function test_store_email_link_uses_mailto_with_cloudflare_obfuscation_disabled(): void
     {
         Setting::put('store_email', 'hello@besek.test');

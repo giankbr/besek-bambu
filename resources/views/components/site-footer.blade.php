@@ -54,7 +54,7 @@
         @if (count($socials) > 0)
           <div class="foot-socials">
             @foreach ($socials as $key => $url)
-              <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $socialLabels[$key] ?? ucfirst($key) }}</a>
+              <a href="{{ $url }}" target="_blank" rel="noopener noreferrer{{ str_contains($url, 'wa.me') ? ' nofollow' : '' }}">{{ $socialLabels[$key] ?? ucfirst($key) }}</a>
             @endforeach
           </div>
         @endif

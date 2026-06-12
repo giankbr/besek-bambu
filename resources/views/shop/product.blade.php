@@ -335,7 +335,7 @@
               <a
                 href="https://wa.me/{{ $waNumber }}?text={{ $waText }}"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer nofollow"
                 class="product-detail__wa"
               >
                 {{ __('Tanya / pesan via WhatsApp') }}
