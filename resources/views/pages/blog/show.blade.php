@@ -31,6 +31,7 @@
       'author' => [
         '@type' => 'Person',
         'name' => $post->author_name ?: store_name(),
+        'url' => route('about'),
       ],
       'publisher' => [
         '@type' => 'Organization',
@@ -38,6 +39,8 @@
         'logo' => store_logo_url() ? [
           '@type' => 'ImageObject',
           'url' => store_logo_url(),
+          'width' => 200,
+          'height' => 60,
         ] : null,
       ],
       'mainEntityOfPage' => route('blog.show', $post),

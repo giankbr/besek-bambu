@@ -45,6 +45,8 @@
 <meta property="og:title" content="{!! seo_meta_text($pageTitle) !!}" />
 <meta property="og:description" content="{!! seo_meta_text($metaDescription) !!}" />
 <meta property="og:image" content="{{ $metaImage }}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta property="og:url" content="{{ $canonicalUrl }}" />
 <meta property="og:site_name" content="{{ $brandName }}" />
 <meta property="og:locale" content="{{ $activeLocale === 'en' ? 'en_US' : 'id_ID' }}" />

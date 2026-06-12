@@ -2,6 +2,7 @@
 
 @section('title', seo_category_meta_title($category))
 @section('meta_description', seo_category_meta_description($category))
+@section('canonical', route('shop.category', $category))
 
 @push('head')
   @php

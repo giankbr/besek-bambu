@@ -1275,6 +1275,8 @@ if (! function_exists('seo_schema_graph')) {
             'logo' => $logoUrl ? [
                 '@type' => 'ImageObject',
                 'url' => $logoUrl,
+                'width' => 200,
+                'height' => 60,
             ] : null,
             'email' => store_email() ?: null,
             'telephone' => store_phone() ?: null,
@@ -1289,7 +1291,7 @@ if (! function_exists('seo_schema_graph')) {
             'name' => $brand,
             'description' => default_meta_description(),
             'publisher' => ['@id' => $orgId],
-            'inLanguage' => [app()->getLocale() === 'en' ? 'en-US' : 'id-ID'],
+            'inLanguage' => app()->getLocale() === 'en' ? 'en-US' : 'id-ID',
             'potentialAction' => [
                 '@type' => 'SearchAction',
                 'target' => [
@@ -1344,6 +1346,8 @@ if (! function_exists('seo_webpage_node')) {
             $node['primaryImageOfPage'] = [
                 '@type' => 'ImageObject',
                 'url' => $image,
+                'width' => 1200,
+                'height' => 630,
             ];
         }
 
