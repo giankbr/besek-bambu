@@ -28,6 +28,14 @@ class BlogPostsAdminTest extends TestCase
             ->assertSee('New article', false);
     }
 
+    public function test_blog_create_form_includes_rich_text_editor(): void
+    {
+        $this->actingAs($this->admin())
+            ->get(route('admin.blog-posts.create'))
+            ->assertOk()
+            ->assertSee('sun-editor-wrapper', false);
+    }
+
     public function test_admin_can_create_blog_post(): void
     {
         $this->actingAs($this->admin());

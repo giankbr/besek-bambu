@@ -97,7 +97,12 @@ new #[Title('New article')] class extends Component {
 
             <flux:textarea wire:model="excerpt" :label="__('Excerpt')" rows="2" maxlength="500" :description="__('Short summary for cards and SEO fallback.').' '.($excerpt ? strlen($excerpt) : 0).' / 500'" />
 
-            <flux:textarea wire:model="body" :label="__('Body')" rows="14" required :description="__('HTML is supported (h2, p, ul, ol, a, strong, em).')" />
+            <livewire:admin.rich-text-editor
+                wire:model="body"
+                :label="__('Body')"
+                :description="__('Format artikel dengan editor visual. Heading, list, link, dan mode HTML tersedia.')"
+                key="blog-body-create"
+            />
 
             <div class="grid gap-5 md:grid-cols-2">
                 <flux:input wire:model="author_name" :label="__('Author name')" />
