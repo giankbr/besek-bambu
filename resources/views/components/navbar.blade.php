@@ -10,6 +10,8 @@
   $isGallery = request()->routeIs('gallery');
   $isAbout = request()->routeIs('about');
   $isContact = request()->routeIs('contact');
+  $isWholesale = request()->routeIs('wholesale');
+  $isBlog = request()->routeIs('blog.*');
   $isAccountArea = request()->routeIs(
     'account.*',
     'profile.*',
@@ -30,6 +32,8 @@
 
   $mobileNavLinks = [
     ['route' => 'shop.index', 'label' => __('nav.shop'), 'active' => $isShop],
+    ['route' => 'wholesale', 'label' => __('Grosir'), 'active' => $isWholesale],
+    ['route' => 'blog.index', 'label' => __('Blog'), 'active' => $isBlog],
     ['route' => 'gallery', 'label' => __('nav.gallery'), 'active' => $isGallery],
     ['route' => 'about', 'label' => __('nav.about'), 'active' => $isAbout],
     ['route' => 'contact', 'label' => __('nav.contact'), 'active' => $isContact],

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,6 +61,15 @@ class SitemapTest extends TestCase
             'category_id' => $category->id,
         ]);
 
+        $post = BlogPost::create([
+            'title' => 'SEO Post',
+            'slug' => 'seo-post',
+            'body' => '<p>Test</p>',
+            'is_published' => true,
+            'published_at' => now()->subDay(),
+            'sort_order' => 0,
+        ]);
+
         $response = $this->get('/sitemap.xml');
 
         $response->assertOk();
@@ -67,6 +77,9 @@ class SitemapTest extends TestCase
         $response->assertSee(route('home'), false);
         $response->assertSee(route('shop.index'), false);
         $response->assertSee(route('about'), false);
+        $response->assertSee(route('wholesale'), false);
+        $response->assertSee(route('blog.index'), false);
+        $response->assertSee(route('blog.show', $post), false);
         $response->assertSee(route('shop.category', $category), false);
         $response->assertSee(route('shop.product', $product), false);
         $response->assertDontSee(route('shop.product', $inactive), false);

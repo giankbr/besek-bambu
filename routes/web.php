@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
@@ -39,6 +40,10 @@ Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/grosir', [PageController::class, 'wholesale'])->name('wholesale');
+Route::redirect('/wholesale', '/grosir', 301);
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [PageController::class, 'contactSubmit'])
     ->middleware('throttle:contact')
@@ -138,6 +143,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::livewire('/', 'pages::admin.gallery.index')->name('index');
             Route::livewire('create', 'pages::admin.gallery.create')->name('create');
             Route::livewire('{item}/edit', 'pages::admin.gallery.edit')->name('edit');
+        });
+
+        Route::prefix('blog-posts')->name('blog-posts.')->group(function () {
+            Route::livewire('/', 'pages::admin.blog-posts.index')->name('index');
+            Route::livewire('create', 'pages::admin.blog-posts.create')->name('create');
+            Route::livewire('{post}/edit', 'pages::admin.blog-posts.edit')->name('edit');
         });
 
         Route::prefix('messages')->name('messages.')->group(function () {

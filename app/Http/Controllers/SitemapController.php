@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Response;
@@ -46,6 +47,7 @@ class SitemapController extends Controller
             return $this->renderSitemap(array_merge(
                 $this->staticUrls(),
                 $this->categoryUrls(),
+                $this->blogUrls(),
                 $this->productUrls(1),
             ));
         });
@@ -56,7 +58,7 @@ class SitemapController extends Controller
     public function staticChunk(): Response
     {
         $body = Cache::remember('sitemap.static.xml', now()->addMinutes(30), function () {
-            return $this->renderSitemap(array_merge($this->staticUrls(), $this->categoryUrls()));
+            return $this->renderSitemap(array_merge($this->staticUrls(), $this->categoryUrls(), $this->blogUrls()));
         });
 
         return response($body, 200)->header('Content-Type', 'application/xml');
@@ -115,11 +117,30 @@ class SitemapController extends Controller
         return [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'weekly'],
             ['loc' => route('shop.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
+            ['loc' => route('wholesale'), 'priority' => '0.8', 'changefreq' => 'monthly'],
+            ['loc' => route('blog.index'), 'priority' => '0.7', 'changefreq' => 'weekly'],
             ['loc' => route('gallery'), 'priority' => '0.7', 'changefreq' => 'monthly'],
             ['loc' => route('about'), 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => route('faq'), 'priority' => '0.5', 'changefreq' => 'monthly'],
             ['loc' => route('contact'), 'priority' => '0.5', 'changefreq' => 'monthly'],
         ];
+    }
+
+    private function blogUrls(): array
+    {
+        return BlogPost::query()
+            ->where('is_published', true)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderByDesc('published_at')
+            ->get()
+            ->map(fn (BlogPost $post) => [
+                'loc' => route('blog.show', $post),
+                'priority' => '0.6',
+                'changefreq' => 'monthly',
+                'lastmod' => optional($post->updated_at)->toAtomString(),
+            ])
+            ->all();
     }
 
     private function categoryUrls(): array
