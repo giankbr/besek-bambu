@@ -3,7 +3,7 @@
 @php
   $homeTitle = trim((string) setting('seo_home_meta_title', ''));
   $homeDescription = trim((string) setting('seo_home_meta_description', ''));
-  $resolvedHomeTitle = $homeTitle !== '' ? $homeTitle : meta_title(store_name(), __('Besek Bambu Handmade untuk Hantaran & Kemasan'));
+  $resolvedHomeTitle = $homeTitle !== '' ? $homeTitle : default_home_meta_title();
   $resolvedHomeDescription = $homeDescription !== '' ? $homeDescription : default_meta_description();
 @endphp
 @section('title', $resolvedHomeTitle)

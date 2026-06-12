@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
-@section('title', meta_title('FAQ', store_name()))
-@section('meta_description', __('Pertanyaan umum tentang besek bambu: cara perawatan, metode pembayaran, estimasi pengiriman, dan kebijakan pemesanan.'))
+@section('title', meta_title(__('FAQ Besek Bambu — Perawatan, Pengiriman & Grosir'), store_name()))
+@section('meta_description', __('Pertanyaan umum tentang besek bambu: cara perawatan anyaman, estimasi produksi, pengiriman, pembayaran, pesanan grosir, dan custom logo.'))
 
 @php
   $faqs = store_faqs();

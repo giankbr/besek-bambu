@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
-@section('title', meta_title(__('Galeri'), store_name()))
-@section('meta_description', __('Lihat inspirasi penggunaan besek bambu handmade untuk hampers, dekorasi acara, dan kemasan produk brand lokal.'))
+@section('title', meta_title(__('Galeri Inspirasi Besek Bambu — Hantaran & Hampers'), store_name()))
+@section('meta_description', __('Inspirasi penggunaan besek bambu handmade: hampers, seserahan pernikahan, dekorasi acara, dan kemasan produk brand lokal ramah lingkungan.'))
 
 @section('content')
   <x-navbar />

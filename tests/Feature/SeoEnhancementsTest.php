@@ -62,7 +62,7 @@ class SeoEnhancementsTest extends TestCase
         $response->assertOk();
         $response->assertSee('<h1', false);
         $response->assertSee('Produk Besek Bambu', false);
-        $response->assertSee('Jelajahi produk besek bambu handmade kami.', false);
+        $response->assertSee('Jelajahi katalog besek bambu handmade berbagai ukuran', false);
         $response->assertSee('"@type":"ItemList"', false);
     }
 
@@ -74,6 +74,6 @@ class SeoEnhancementsTest extends TestCase
 
         $response->assertOk();
         $response->assertDontSee('&amp;amp;', false);
-        $response->assertSee('Hantaran &amp; Kemasan', false);
+        $response->assertSee('Hantaran, Hampers &amp; Kemasan Anyaman', false);
     }
 }

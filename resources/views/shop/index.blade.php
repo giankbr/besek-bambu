@@ -1,8 +1,8 @@
 @extends('layouts.storefront')
 
 @php
-  $shopTitle = meta_title(__('Produk Besek Bambu'), store_name());
-  $shopDescription = __('Jelajahi produk besek bambu handmade kami. Katalog berbagai ukuran untuk hantaran, hampers, seserahan, souvenir, dan kemasan ramah lingkungan.');
+  $shopTitle = default_shop_meta_title();
+  $shopDescription = default_shop_meta_description();
   $shopUrl = route('shop.index');
 @endphp
 @section('title', $shopTitle)

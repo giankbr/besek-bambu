@@ -1,6 +1,7 @@
 <?php
 
 use App\Mail\NewOrderReceived;
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductReview;
@@ -10,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 if (! function_exists('idr')) {
     function idr(int|float|string|null $amount): string
@@ -694,9 +696,127 @@ if (! function_exists('default_meta_description')) {
             return $custom;
         }
 
-        return __('Besek Bambu, besek bambu handmade untuk hantaran, hamper, dan kemasan. Dianyam pengrajin di :location dari bambu alami Indonesia.', [
+        return __('Besek bambu handmade untuk hantaran, hampers, seserahan & kemasan ramah lingkungan. Anyaman pengrajin di :location, kirim ke seluruh Indonesia.', [
             'location' => store_location_area(),
         ]);
+    }
+}
+
+if (! function_exists('default_home_meta_title')) {
+    function default_home_meta_title(): string
+    {
+        return meta_title(
+            __('Besek Bambu Handmade — Hantaran, Hampers & Kemasan Anyaman'),
+            store_name(),
+        );
+    }
+}
+
+if (! function_exists('default_shop_meta_title')) {
+    function default_shop_meta_title(): string
+    {
+        return meta_title(
+            __('Produk Besek Bambu 7×7–20×20 — Hantaran & Hampers'),
+            store_name(),
+        );
+    }
+}
+
+if (! function_exists('default_shop_meta_description')) {
+    function default_shop_meta_description(): string
+    {
+        return __('Jelajahi katalog besek bambu handmade berbagai ukuran. Pilihan untuk hantaran, hampers, seserahan, souvenir, dan kemasan ramah lingkungan. Pesan online, kirim ke seluruh Indonesia.');
+    }
+}
+
+if (! function_exists('seo_category_meta_title')) {
+    function seo_category_meta_title(Category $category): string
+    {
+        return meta_title(
+            __('Besek Bambu :size — Hantaran, Hampers & Souvenir', ['size' => $category->title]),
+            store_name(),
+        );
+    }
+}
+
+if (! function_exists('seo_category_meta_description')) {
+    function seo_category_meta_description(Category $category): string
+    {
+        return __('Koleksi besek bambu :size handmade dari pengrajin :location. Cocok untuk hantaran, hampers, seserahan, dan kemasan ramah lingkungan. Siap kirim ke seluruh Indonesia.', [
+            'size' => $category->title,
+            'location' => store_location_area(),
+        ]);
+    }
+}
+
+if (! function_exists('generate_blog_seo_meta')) {
+    /**
+     * @return array{meta_title: string, meta_description: string}
+     */
+    function generate_blog_seo_meta(string $title, ?string $excerpt = null, ?string $body = null): array
+    {
+        $metaTitle = Str::limit(meta_title($title, store_name()), 160, '');
+
+        $plain = trim((string) $excerpt);
+        if ($plain === '') {
+            $plain = preg_replace('/\s+/u', ' ', trim(strip_tags($body ?? '')));
+        }
+
+        if (mb_strlen($plain) >= 80) {
+            $metaDescription = Str::limit($plain, 155, '…');
+        } else {
+            $metaDescription = Str::limit(
+                __('Artikel besek bambu: :title. Tips hantaran, hampers, seserahan & kemasan ramah lingkungan dari :brand.', [
+                    'title' => $title,
+                    'brand' => store_name(),
+                ]),
+                155,
+                '…',
+            );
+        }
+
+        return [
+            'meta_title' => $metaTitle,
+            'meta_description' => $metaDescription,
+        ];
+    }
+}
+
+if (! function_exists('generate_product_seo_meta')) {
+    /**
+     * @return array{meta_title: string, meta_description: string}
+     */
+    function generate_product_seo_meta(string $name, ?string $description = null, ?string $categoryTitle = null): array
+    {
+        $brand = store_name();
+        $location = store_location_area();
+        $sizeSuffix = $categoryTitle ? " {$categoryTitle}" : '';
+
+        $metaTitle = meta_title(
+            trim("{$name} — Besek Bambu{$sizeSuffix}"),
+            $brand,
+        );
+        $metaTitle = Str::limit($metaTitle, 160, '');
+
+        $plain = strip_tags($description ?? '');
+        $plain = preg_replace('/\s+/u', ' ', trim($plain));
+
+        if (mb_strlen($plain) >= 80) {
+            $metaDescription = Str::limit($plain, 155, '…');
+        } else {
+            $sizeLabel = $categoryTitle ? __(' ukuran :size', ['size' => $categoryTitle]) : '';
+            $metaDescription = __('Besek bambu:category handmade dari pengrajin di :location. Cocok untuk hantaran, hampers, seserahan & kemasan ramah lingkungan. Pesan di :brand.', [
+                'category' => $sizeLabel,
+                'location' => $location,
+                'brand' => $brand,
+            ]);
+            $metaDescription = Str::limit($metaDescription, 155, '…');
+        }
+
+        return [
+            'meta_title' => $metaTitle,
+            'meta_description' => $metaDescription,
+        ];
     }
 }
 

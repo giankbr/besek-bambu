@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
-@section('title', meta_title($category->title, store_name()))
-@section('meta_description', __('Jelajahi kategori :cat dari koleksi besek bambu handmade :store. Pilihan produk siap kirim ke seluruh Indonesia.', ['cat' => $category->title, 'store' => store_name()]))
+@section('title', seo_category_meta_title($category))
+@section('meta_description', seo_category_meta_description($category))
 
 @push('head')
   @php

@@ -1,7 +1,7 @@
 @extends('layouts.storefront')
 
-@section('title', meta_title(__('Tentang'), store_name()))
-@section('meta_description', __('Kenali cerita besek bambu handmade dari :location: anyaman tradisional, bahan berkelanjutan, dan kualitas dari pengrajin lokal.', ['location' => store_location_area()]))
+@section('title', meta_title(__('Tentang Pengrajin Besek Bambu'), store_name()))
+@section('meta_description', __('Kenali cerita besek bambu handmade dari :location: anyaman tradisi Jawa & Sunda, bambu berkelanjutan, dan kualitas dari pengrajin lokal Indonesia.', ['location' => store_location_area()]))
 
 @section('content')
   <x-navbar />

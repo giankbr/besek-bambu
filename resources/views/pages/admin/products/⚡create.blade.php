@@ -39,6 +39,13 @@ new #[Title('New Product')] class extends Component {
         }
     }
 
+    public function generateSeo(): void
+    {
+        $seo = generate_product_seo_meta($this->name, $this->description);
+        $this->meta_title = $seo['meta_title'];
+        $this->meta_description = $seo['meta_description'];
+    }
+
     public function save(): void
     {
         try {
@@ -161,25 +168,39 @@ new #[Title('New Product')] class extends Component {
 
             <flux:separator />
 
-            <div>
-                <flux:heading size="lg">{{ __('SEO') }}</flux:heading>
-                <flux:subheading>{{ __('Optional. Defaults to product name and description if blank.') }}</flux:subheading>
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <flux:heading size="lg">{{ __('SEO') }}</flux:heading>
+                    <flux:subheading>{{ __('Optional. Defaults to product name and description if blank.') }}</flux:subheading>
+                </div>
+                <flux:button size="sm" variant="ghost" icon="sparkles" wire:click="generateSeo" type="button">
+                    {{ __('Generate') }}
+                </flux:button>
             </div>
 
             <flux:input
-                wire:model="meta_title"
+                wire:model.live="meta_title"
                 :label="__('Meta title')"
                 maxlength="160"
-                :description="($meta_title ? strlen($meta_title) : 0).' / 160'"
+                :description="($meta_title ? strlen($meta_title) : 0).' / 160. '.__('Format: Nama Produk — Besek Bambu | Brand.')"
             />
 
             <flux:textarea
-                wire:model="meta_description"
+                wire:model.live="meta_description"
                 :label="__('Meta description')"
                 rows="3"
                 maxlength="320"
-                :description="($meta_description ? strlen($meta_description) : 0).' / 320. '.__('Recommended 120–160 characters.')"
+                :description="($meta_description ? strlen($meta_description) : 0).' / 320. '.__('Recommended 120–160 characters. Include: hantaran, hampers, seserahan.')"
             />
+
+            @if ($meta_title || $meta_description)
+                <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-900/50">
+                    <flux:text size="sm" class="mb-2 font-medium text-zinc-600 dark:text-zinc-300">{{ __('Search preview') }}</flux:text>
+                    <p class="text-base text-[#1a0dab] dark:text-blue-400">{{ $meta_title ?: $name }}</p>
+                    <p class="mt-1 text-sm text-emerald-700 dark:text-emerald-400">{{ url('/products/'.($slug ?: 'produk')) }}</p>
+                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{{ $meta_description ?: __('Meta description will fall back to product description.') }}</p>
+                </div>
+            @endif
 
             <livewire:admin.media-picker
                 wire:model="og_image"
