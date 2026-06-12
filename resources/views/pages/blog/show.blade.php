@@ -18,14 +18,15 @@
   @if ($post->author_name)
     <meta property="article:author" content="{{ $post->author_name }}" />
   @endif
-  <meta property="og:image:alt" content="{{ $post->title }}" />
+  <meta property="og:image:alt" content="{{ $post->localizedTitle() }}" />
 
   @php
     $articleSchema = [
       '@context' => 'https://schema.org',
       '@type' => 'Article',
-      'headline' => $post->title,
+      'headline' => $post->localizedTitle(),
       'description' => $post->resolvedMetaDescription(),
+      'inLanguage' => app()->getLocale() === 'en' ? 'en-US' : 'id-ID',
       'datePublished' => optional($post->published_at)->toAtomString(),
       'dateModified' => optional($post->updated_at)->toAtomString(),
       'author' => [
@@ -56,12 +57,12 @@
         :crumbs="[
             ['label' => __('Beranda'), 'url' => route('home')],
             ['label' => __('Blog'), 'url' => route('blog.index')],
-            ['label' => $post->title],
+            ['label' => $post->localizedTitle()],
         ]"
         eyebrow="{{ __('Artikel') }}"
         :schema="false"
       >
-        <h1 class="section-title page-head__title cart-title">{{ $post->title }}</h1>
+        <h1 class="section-title page-head__title cart-title">{{ $post->localizedTitle() }}</h1>
         <p class="blog-article__meta">
           <time datetime="{{ $post->published_at?->toDateString() }}">{{ $post->published_at?->translatedFormat('d F Y') }}</time>
           @if ($post->author_name)
@@ -71,10 +72,10 @@
         </p>
       </x-page-head>
 
-      <x-blog-share :title="$post->title" :url="route('blog.show', $post)" />
+      <x-blog-share :title="$post->localizedTitle()" :url="route('blog.show', $post)" />
 
       <div class="blog-article__body">
-        {!! $post->body !!}
+        {!! $post->localizedBody() !!}
       </div>
 
       @if ($related->isNotEmpty())
@@ -84,7 +85,7 @@
             @foreach ($related as $item)
               <article class="blog-card">
                 <a href="{{ route('blog.show', $item) }}" class="blog-card__link">
-                  <h3 class="blog-card__title">{{ $item->title }}</h3>
+                  <h3 class="blog-card__title">{{ $item->localizedTitle() }}</h3>
                   <span class="blog-card__more">{{ __('Baca') }} →</span>
                 </a>
               </article>

@@ -31,8 +31,8 @@
                 <time class="blog-card__date" datetime="{{ $post->published_at?->toDateString() }}">
                   {{ $post->published_at?->translatedFormat('d F Y') }}
                 </time>
-                <h2 class="blog-card__title">{{ $post->title }}</h2>
-                <p class="blog-card__excerpt">{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->body), 140) }}</p>
+                <h2 class="blog-card__title">{{ $post->localizedTitle() }}</h2>
+                <p class="blog-card__excerpt">{{ $post->localizedExcerpt() ?: \Illuminate\Support\Str::limit(strip_tags($post->localizedBody()), 140) }}</p>
                 <span class="blog-card__more">{{ __('Baca selengkapnya') }} →</span>
               </a>
             </article>

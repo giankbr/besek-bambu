@@ -753,7 +753,7 @@ if (! function_exists('generate_blog_seo_meta')) {
     /**
      * @return array{meta_title: string, meta_description: string}
      */
-    function generate_blog_seo_meta(string $title, ?string $excerpt = null, ?string $body = null): array
+    function generate_blog_seo_meta(string $title, ?string $excerpt = null, ?string $body = null, string $locale = 'id'): array
     {
         $metaTitle = Str::limit(meta_title($title, store_name()), 160, '');
 
@@ -764,6 +764,12 @@ if (! function_exists('generate_blog_seo_meta')) {
 
         if (mb_strlen($plain) >= 80) {
             $metaDescription = Str::limit($plain, 155, '…');
+        } elseif ($locale === 'en') {
+            $metaDescription = Str::limit(
+                "Bamboo basket article: {$title}. Tips for hantaran, hampers, wedding gifts & eco-friendly packaging from ".store_name().'.',
+                155,
+                '…',
+            );
         } else {
             $metaDescription = Str::limit(
                 __('Artikel besek bambu: :title. Tips hantaran, hampers, seserahan & kemasan ramah lingkungan dari :brand.', [

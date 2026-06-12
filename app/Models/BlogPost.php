@@ -10,11 +10,16 @@ class BlogPost extends Model
 {
     protected $fillable = [
         'title',
+        'title_en',
         'slug',
         'excerpt',
+        'excerpt_en',
         'body',
+        'body_en',
         'meta_title',
+        'meta_title_en',
         'meta_description',
+        'meta_description_en',
         'og_image',
         'author_name',
         'published_at',
@@ -59,32 +64,76 @@ class BlogPost extends Model
         return Str::slug(trim($value));
     }
 
+    public function localizedTitle(): string
+    {
+        return $this->localizedField('title', 'title_en');
+    }
+
+    public function localizedExcerpt(): string
+    {
+        return $this->localizedField('excerpt', 'excerpt_en');
+    }
+
+    public function localizedBody(): string
+    {
+        return $this->localizedField('body', 'body_en');
+    }
+
     public function resolvedMetaTitle(): string
     {
+        if (app()->getLocale() === 'en') {
+            $custom = trim((string) $this->meta_title_en);
+
+            if ($custom !== '') {
+                return $custom;
+            }
+        }
+
         $custom = trim((string) $this->meta_title);
 
-        return $custom !== '' ? $custom : meta_title($this->title, store_name());
+        return $custom !== '' ? $custom : meta_title($this->localizedTitle(), store_name());
     }
 
     public function resolvedMetaDescription(): string
     {
+        if (app()->getLocale() === 'en') {
+            $custom = trim((string) $this->meta_description_en);
+
+            if ($custom !== '') {
+                return $custom;
+            }
+        }
+
         $custom = trim((string) $this->meta_description);
 
         if ($custom !== '') {
             return $custom;
         }
 
-        $excerpt = trim((string) $this->excerpt);
+        $excerpt = trim($this->localizedExcerpt());
 
         if ($excerpt !== '') {
             return Str::limit($excerpt, 155, '…');
         }
 
-        return Str::limit(strip_tags($this->body), 155, '…');
+        return Str::limit(strip_tags($this->localizedBody()), 155, '…');
     }
 
     public function resolvedOgImage(): ?string
     {
         return $this->og_image ? image_src((string) $this->og_image) : default_og_image_url();
+    }
+
+    private function localizedField(string $base, string $english): string
+    {
+        if (app()->getLocale() === 'en') {
+            $value = trim((string) $this->{$english});
+
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return (string) $this->{$base};
     }
 }

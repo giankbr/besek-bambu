@@ -19,6 +19,11 @@ new #[Title('New article')] class extends Component {
     public int $sort_order = 0;
     public ?string $meta_title = null;
     public ?string $meta_description = null;
+    public ?string $title_en = null;
+    public ?string $excerpt_en = null;
+    public string $body_en = '';
+    public ?string $meta_title_en = null;
+    public ?string $meta_description_en = null;
     public ?string $og_image = null;
 
     public function mount(): void
@@ -40,6 +45,13 @@ new #[Title('New article')] class extends Component {
         $this->meta_description = $seo['meta_description'];
     }
 
+    public function generateSeoEn(): void
+    {
+        $seo = generate_blog_seo_meta($this->title_en ?? '', $this->excerpt_en, $this->body_en, 'en');
+        $this->meta_title_en = $seo['meta_title'];
+        $this->meta_description_en = $seo['meta_description'];
+    }
+
     public function save(): void
     {
         try {
@@ -54,6 +66,11 @@ new #[Title('New article')] class extends Component {
                 'sort_order' => ['integer', 'min:0'],
                 'meta_title' => ['nullable', 'string', 'max:160'],
                 'meta_description' => ['nullable', 'string', 'max:320'],
+                'title_en' => ['nullable', 'string', 'max:255'],
+                'excerpt_en' => ['nullable', 'string', 'max:500'],
+                'body_en' => ['nullable', 'string'],
+                'meta_title_en' => ['nullable', 'string', 'max:160'],
+                'meta_description_en' => ['nullable', 'string', 'max:320'],
                 'og_image' => ['nullable', 'string', 'max:2048'],
             ]);
 
@@ -115,6 +132,36 @@ new #[Title('New article')] class extends Component {
                 </div>
                 <flux:checkbox wire:model="is_published" :label="__('Published (visible on storefront)')" />
             </div>
+
+            <flux:separator />
+
+            <div>
+                <flux:heading size="lg">{{ __('English version') }}</flux:heading>
+                <flux:subheading>{{ __('Optional translation shown when visitors switch to English.') }}</flux:subheading>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2">
+                <flux:input wire:model="title_en" :label="__('Title (English)')" />
+                <flux:textarea wire:model="excerpt_en" :label="__('Excerpt (English)')" rows="2" maxlength="500" />
+            </div>
+
+            <livewire:admin.rich-text-editor
+                wire:model="body_en"
+                :label="__('Body (English)')"
+                key="blog-body-create-en"
+            />
+
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <flux:heading size="md">{{ __('SEO (English)') }}</flux:heading>
+                </div>
+                <flux:button size="sm" variant="ghost" icon="sparkles" wire:click="generateSeoEn" type="button">
+                    {{ __('Generate') }}
+                </flux:button>
+            </div>
+
+            <flux:input wire:model.live="meta_title_en" :label="__('Meta title (English)')" maxlength="160" />
+            <flux:textarea wire:model.live="meta_description_en" :label="__('Meta description (English)')" rows="3" maxlength="320" />
 
             <flux:separator />
 

@@ -35,6 +35,10 @@ class SeoContentTest extends TestCase
         $this->assertDatabaseHas('blog_posts', ['slug' => 'besek-bambu-corporate-gifting']);
         $this->assertDatabaseHas('blog_posts', ['slug' => 'besek-bambu-15x15-hantaran-pernikahan']);
         $this->assertDatabaseHas('blog_posts', ['slug' => 'besek-harga-grosir-per-lusin']);
+        $this->assertDatabaseHas('blog_posts', [
+            'slug' => 'cara-merawat-besek-bambu-awet',
+            'title_en' => 'How to Care for Bamboo Baskets So They Last',
+        ]);
     }
 
     public function test_blog_index_paginates_published_posts(): void

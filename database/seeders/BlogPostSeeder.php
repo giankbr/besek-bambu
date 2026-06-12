@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\BlogPost;
 use Database\Seeders\Support\BulkBlogPostDefinitions;
+use Database\Seeders\Support\HandcraftedBlogPostEnglish;
 use Illuminate\Database\Seeder;
 
 class BlogPostSeeder extends Seeder
@@ -282,6 +283,14 @@ HTML,
         ];
 
         $posts = array_merge($posts, BulkBlogPostDefinitions::all());
+
+        $englishBySlug = HandcraftedBlogPostEnglish::bySlug();
+
+        foreach ($posts as $index => $row) {
+            if (isset($englishBySlug[$row['slug']])) {
+                $posts[$index] = array_merge($row, $englishBySlug[$row['slug']]);
+            }
+        }
 
         foreach ($posts as $row) {
             $daysAgo = $row['days_ago'] ?? max(1, 28 - ($row['sort_order'] * 2));
