@@ -97,6 +97,7 @@ class SitemapController extends Controller
     public function robots(): Response
     {
         $disallow = [
+            '/lang',
             '/admin',
             '/account',
             '/cart',

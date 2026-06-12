@@ -893,6 +893,65 @@ if (! function_exists('canonical_url')) {
     }
 }
 
+if (! function_exists('localized_url_for_full_url')) {
+    /** Build a locale variant for an absolute URL (used by /lang/{locale} fallback). */
+    function localized_url_for_full_url(string $locale, string $fullUrl): string
+    {
+        $parts = parse_url($fullUrl) ?: [];
+        $query = [];
+
+        if (! empty($parts['query'])) {
+            parse_str($parts['query'], $query);
+        }
+
+        unset($query['lang']);
+
+        if ($locale === 'en') {
+            $query['lang'] = 'en';
+        }
+
+        $scheme = $parts['scheme'] ?? 'https';
+        $host = $parts['host'] ?? parse_url((string) config('app.url'), PHP_URL_HOST);
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
+        $path = $parts['path'] ?? '/';
+        $origin = "{$scheme}://{$host}{$port}";
+
+        if ($path === '/' && $query === []) {
+            return $origin;
+        }
+
+        $url = $origin.$path;
+
+        if ($query !== []) {
+            $url .= '?'.http_build_query($query);
+        }
+
+        return $url;
+    }
+}
+
+if (! function_exists('localized_switch_target')) {
+    /** Redirect target after switching locale via /lang/{locale}. */
+    function localized_switch_target(string $locale): string
+    {
+        $previous = url()->previous();
+        $appRoot = rtrim((string) config('app.url'), '/');
+        $previousHost = is_string($previous) ? parse_url($previous, PHP_URL_HOST) : null;
+        $requestHost = request()->getHost();
+
+        if (
+            is_string($previous)
+            && $previous !== ''
+            && $previousHost === $requestHost
+            && ! str_contains(parse_url($previous, PHP_URL_PATH) ?? '', '/lang/')
+        ) {
+            return localized_url_for_full_url($locale, $previous);
+        }
+
+        return localized_url_for_full_url($locale, url('/'));
+    }
+}
+
 if (! function_exists('localized_url')) {
     /** Hreflang alternate URL for a locale (id = clean URL without lang param). */
     function localized_url(string $locale): string

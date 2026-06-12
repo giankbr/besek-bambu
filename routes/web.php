@@ -23,11 +23,13 @@ Route::post('/newsletter', [NewsletterController::class, 'subscribe'])
     ->name('newsletter.subscribe');
 
 Route::get('/lang/{locale}', function (string $locale) {
-    if (in_array($locale, SetLocale::SUPPORTED, true)) {
-        session(['locale' => $locale]);
+    if (! in_array($locale, SetLocale::SUPPORTED, true)) {
+        return redirect()->route('home');
     }
 
-    return back();
+    session(['locale' => $locale]);
+
+    return redirect()->to(localized_switch_target($locale));
 })->name('locale.switch');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');

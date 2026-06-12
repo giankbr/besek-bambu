@@ -136,7 +136,7 @@
             <div class="nav-lang__menu" role="menu">
               @foreach ($locales as $code => $label)
                 <a
-                  href="{{ route('locale.switch', $code) }}"
+                  href="{{ localized_url($code) }}"
                   class="nav-lang__item @if ($activeLocale === $code) is-active @endif"
                   role="menuitem"
                   @if ($activeLocale === $code) aria-current="true" @endif

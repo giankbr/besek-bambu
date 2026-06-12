@@ -63,6 +63,37 @@ class SeoSettingsTest extends TestCase
         $response->assertSessionHas('locale', 'en');
     }
 
+    public function test_navbar_language_links_use_direct_urls_not_lang_switch_route(): void
+    {
+        $html = $this->get('/grosir')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('#href="[^"]+/grosir"[^>]*>\\s*<span class="nav-lang__dot"#s', $html);
+        $this->assertMatchesRegularExpression('#href="[^"]+/grosir\\?lang=en"#', $html);
+        $this->assertStringNotContainsString('/lang/id', $html);
+        $this->assertStringNotContainsString('/lang/en', $html);
+    }
+
+    public function test_lang_switch_route_redirects_to_localized_home_without_referer(): void
+    {
+        $home = url('/');
+        $homeEn = rtrim(url('/'), '/').'/?lang=en';
+
+        $this->get('/lang/en')
+            ->assertRedirect($homeEn)
+            ->assertSessionHas('locale', 'en');
+
+        $this->get('/lang/id')
+            ->assertRedirect($home)
+            ->assertSessionHas('locale', 'id');
+    }
+
+    public function test_lang_switch_route_redirects_to_localized_referer_page(): void
+    {
+        $this->from(url('/blog/besek-test'))
+            ->get('/lang/en')
+            ->assertRedirect(url('/blog/besek-test?lang=en'));
+    }
+
     public function test_default_locale_hreflang_id_self_references_without_lang_param(): void
     {
         $response = $this->get('/syarat-ketentuan');

@@ -19,6 +19,7 @@ class SitemapTest extends TestCase
         $response->assertOk();
         $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
         $response->assertSee('Sitemap: '.url('/sitemap.xml'), false);
+        $response->assertSee('Disallow: /lang', false);
         $response->assertSee('Disallow: /admin', false);
         $response->assertSee('Disallow: /checkout', false);
         $response->assertSee('Allow: /', false);
