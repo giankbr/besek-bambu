@@ -857,10 +857,54 @@ if (! function_exists('default_og_image_url')) {
     }
 }
 
+if (! function_exists('locale_query_params')) {
+    /**
+     * Query string for a locale variant. Indonesian is the default and omits ?lang=id.
+     *
+     * @return array<string, string>
+     */
+    function locale_query_params(?string $locale = null): array
+    {
+        $query = request()->query();
+        unset($query['lang']);
+
+        $locale ??= app()->getLocale();
+
+        if ($locale === 'en') {
+            $query['lang'] = 'en';
+        }
+
+        return $query;
+    }
+}
+
+if (! function_exists('canonical_url')) {
+    /** Canonical URL for the current page, including pagination and ?lang=en when active. */
+    function canonical_url(): string
+    {
+        $query = locale_query_params();
+        $url = request()->url();
+
+        if ($query === []) {
+            return $url;
+        }
+
+        return $url.'?'.http_build_query($query);
+    }
+}
+
 if (! function_exists('localized_url')) {
+    /** Hreflang alternate URL for a locale (id = clean URL without lang param). */
     function localized_url(string $locale): string
     {
-        return request()->fullUrlWithQuery(array_merge(request()->query(), ['lang' => $locale]));
+        $query = locale_query_params($locale);
+        $url = request()->url();
+
+        if ($query === []) {
+            return $url;
+        }
+
+        return $url.'?'.http_build_query($query);
     }
 }
 

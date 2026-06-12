@@ -62,4 +62,81 @@ class SeoSettingsTest extends TestCase
         $response->assertOk();
         $response->assertSessionHas('locale', 'en');
     }
+
+    public function test_default_locale_hreflang_id_self_references_without_lang_param(): void
+    {
+        $response = $this->get('/syarat-ketentuan');
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $this->assertMatchesRegularExpression(
+            '#<link rel="canonical" href="[^"]+/syarat-ketentuan" />#',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '#<link rel="alternate" hreflang="id" href="[^"]+/syarat-ketentuan" />#',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '#<link rel="alternate" hreflang="en" href="[^"]+/syarat-ketentuan\?lang=en" />#',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '#<link rel="alternate" hreflang="x-default" href="[^"]+/syarat-ketentuan" />#',
+            $html
+        );
+    }
+
+    public function test_english_locale_hreflang_en_self_references_with_lang_param(): void
+    {
+        $response = $this->withSession(['locale' => 'en'])
+            ->get('/syarat-ketentuan?lang=en');
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $this->assertMatchesRegularExpression(
+            '#<link rel="canonical" href="[^"]+/syarat-ketentuan\?lang=en" />#',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '#<link rel="alternate" hreflang="en" href="[^"]+/syarat-ketentuan\?lang=en" />#',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '#<link rel="alternate" hreflang="id" href="[^"]+/syarat-ketentuan" />#',
+            $html
+        );
+    }
+
+    public function test_store_email_link_uses_mailto_with_cloudflare_obfuscation_disabled(): void
+    {
+        Setting::put('store_email', 'hello@besek.test');
+
+        $response = $this->get(route('contact'));
+
+        $response->assertOk();
+        $response->assertSee('<!--email_off-->', false);
+        $response->assertSee('href="mailto:hello@besek.test"', false);
+        $response->assertDontSee('/cdn-cgi/l/email-protection', false);
+    }
+
+    public function test_paginated_blog_hreflang_preserves_page_query(): void
+    {
+        $response = $this->get('/blog?page=2');
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $this->assertMatchesRegularExpression(
+            '#<link rel="canonical" href="[^"]+/blog\?page=2" />#',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '#<link rel="alternate" hreflang="id" href="[^"]+/blog\?page=2" />#',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '#<link rel="alternate" hreflang="en" href="[^"]+/blog\?page=2&amp;lang=en" />#',
+            $html
+        );
+    }
 }

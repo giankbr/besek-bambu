@@ -76,7 +76,7 @@
           {{ __('Pertanyaan tentang syarat ini dapat disampaikan melalui') }}
           <a href="{{ route('contact') }}">{{ __('halaman kontak') }}</a>
           @if (store_email())
-            {{ __('atau') }} <a href="mailto:{{ store_email() }}">{{ store_email() }}</a>.
+            {{ __('atau') }} <x-store-email-link />.
           @else
             .
           @endif

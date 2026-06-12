@@ -16,7 +16,7 @@
   $pageTitle = trim($__env->yieldContent('title', $defaultTitle));
   $metaDescription = trim($__env->yieldContent('meta_description', default_meta_description()));
   $metaImage = trim($__env->yieldContent('meta_image', default_og_image_url() ?: asset('images/og-default.jpg')));
-  $canonicalUrl = trim($__env->yieldContent('canonical', url()->current()));
+  $canonicalUrl = trim($__env->yieldContent('canonical', canonical_url()));
   $ogType = trim($__env->yieldContent('og_type', 'website'));
   $robots = trim($__env->yieldContent('meta_robots', 'index,follow,max-image-preview:large'));
   $twitterHandle = twitter_handle();

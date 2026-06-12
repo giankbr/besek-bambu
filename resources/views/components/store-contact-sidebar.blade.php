@@ -34,7 +34,7 @@
   @if ($contactEmail)
     <div class="confirmation-card">
       <h3 class="confirmation-section-title store-contact-sidebar__title">{{ __('Email') }}</h3>
-      <p class="confirmation-meta"><a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a></p>
+      <p class="confirmation-meta"><x-store-email-link :email="$contactEmail" /></p>
     </div>
   @endif
 

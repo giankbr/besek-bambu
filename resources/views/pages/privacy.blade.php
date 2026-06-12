@@ -69,7 +69,7 @@
           {{ __('Untuk mengajukan permintaan terkait data pribadi, hubungi kami melalui') }}
           <a href="{{ route('contact') }}">{{ __('halaman kontak') }}</a>
           @if (store_email())
-            {{ __('atau email') }} <a href="mailto:{{ store_email() }}">{{ store_email() }}</a>.
+            {{ __('atau email') }} <x-store-email-link />.
           @else
             .
           @endif

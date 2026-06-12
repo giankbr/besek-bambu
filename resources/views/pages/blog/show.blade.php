@@ -2,7 +2,6 @@
 
 @section('title', $post->resolvedMetaTitle())
 @section('meta_description', $post->resolvedMetaDescription())
-@section('canonical', route('blog.show', $post))
 @section('og_type', 'article')
 @if ($post->resolvedOgImage())
   @section('meta_image', $post->resolvedOgImage())
