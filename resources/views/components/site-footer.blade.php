@@ -9,6 +9,7 @@
     'whatsapp' => 'WhatsApp',
   ];
   $words = array_values(array_filter(explode(' ', $brandName)));
+  $isLongBrand = count($words) > 3;
   $half = (int) ceil(count($words) / 2);
   $brandLines = [
     implode(' ', array_slice($words, 0, $half)),
@@ -24,6 +25,8 @@
       <p class="foot-tag">{{ $tagline }}</p>
       <nav class="foot-nav" aria-label="{{ __('Navigasi footer') }}">
         <a href="{{ route('shop.index') }}">{{ __('nav.shop') }}</a>
+        <a href="{{ route('wholesale') }}">{{ __('Grosir & Custom') }}</a>
+        <a href="{{ route('blog.index') }}">{{ __('Blog') }}</a>
         <a href="{{ route('gallery') }}">{{ __('nav.gallery') }}</a>
         <a href="{{ route('about') }}">{{ __('nav.about') }}</a>
         <a href="{{ route('faq') }}">{{ __('FAQ') }}</a>
@@ -32,7 +35,7 @@
     </div>
 
     <div class="foot-mega" data-mega-brand>
-      <div class="foot-mega__brand mega-brand" aria-label="{{ $brandName }}">
+      <div @class(['foot-mega__brand', 'mega-brand', 'mega-brand--long' => $isLongBrand]) aria-label="{{ $brandName }}">
         @foreach (array_filter($brandLines) as $index => $line)
           <span class="mega-brand__line">
             <span class="mega-brand__fill @if ($index > 0) mega-brand__fill--accent @endif">{{ $line }}</span>
@@ -43,18 +46,16 @@
 
     <div class="foot-lower">
       <a class="join-btn" href="{{ route('shop.index') }}">{{ __('Belanja sekarang') }} ↗</a>
-      <div class="foot-socials">
+      <div class="foot-lower__aside">
         @if (count($socials) > 0)
-          @foreach ($socials as $key => $url)
-            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $socialLabels[$key] ?? ucfirst($key) }}</a>
-          @endforeach
-        @else
-          <a href="#">Instagram</a>
-          <a href="#">Facebook</a>
-          <a href="#">TikTok</a>
+          <div class="foot-socials">
+            @foreach ($socials as $key => $url)
+              <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $socialLabels[$key] ?? ucfirst($key) }}</a>
+            @endforeach
+          </div>
         @endif
+        <p class="foot-meta">© {{ date('Y') }} {{ $brandName }}</p>
       </div>
-      <p class="foot-meta">© {{ date('Y') }} {{ $brandName }}</p>
     </div>
   </div>
 </footer>

@@ -49,7 +49,7 @@
             </div>
             <label>
               {{ __('Subjek') }}
-              <input type="text" name="subject" value="{{ old('subject') }}" required />
+              <input type="text" name="subject" value="{{ old('subject', request('subject')) }}" required />
               @error('subject')<span class="form-error">{{ $message }}</span>@enderror
             </label>
             <label>
