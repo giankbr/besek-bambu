@@ -72,6 +72,21 @@ class SeoContentTest extends TestCase
         $response->assertOk();
         $response->assertSee('"@type":"Article"', false);
         $response->assertSee('Meta khusus artikel besek.', false);
+        $response->assertSee('property="og:type" content="article"', false);
+        $response->assertSee('property="article:published_time"', false);
+        $response->assertSee('blog-share', false);
+        $response->assertSee('wa.me', false);
+        $response->assertSee('facebook.com/sharer', false);
+    }
+
+    public function test_social_share_urls_encode_title_and_url(): void
+    {
+        $urls = social_share_urls('Ide Hantaran', 'https://besekbambu.com/blog/test');
+
+        $this->assertStringContainsString('wa.me', $urls['whatsapp']);
+        $this->assertStringContainsString('Ide%20Hantaran', $urls['whatsapp']);
+        $this->assertStringContainsString('facebook.com/sharer', $urls['facebook']);
+        $this->assertStringContainsString('twitter.com/intent/tweet', $urls['twitter']);
     }
 
     public function test_shop_page_uses_enhanced_meta_title(): void

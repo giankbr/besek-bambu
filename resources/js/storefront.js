@@ -1037,6 +1037,41 @@ const initConfirmDialog = () => {
   })
 }
 
+const initBlogShare = () => {
+  document.querySelectorAll('.blog-share__btn--copy[data-copy-url]').forEach((button) => {
+    if (button.dataset.bound === '1') return
+    button.dataset.bound = '1'
+
+    const url = button.dataset.copyUrl
+    const labelDefault = button.dataset.copyLabel ?? 'Copy link'
+    const labelCopied = button.dataset.copiedLabel ?? 'Copied!'
+    const labelEl = button.querySelector('.blog-share__copy-text')
+
+    button.addEventListener('click', async () => {
+      if (!url) return
+
+      try {
+        await navigator.clipboard.writeText(url)
+      } catch {
+        const input = document.createElement('input')
+        input.value = url
+        document.body.appendChild(input)
+        input.select()
+        document.execCommand('copy')
+        input.remove()
+      }
+
+      button.classList.add('is-copied')
+      if (labelEl) labelEl.textContent = labelCopied
+
+      window.setTimeout(() => {
+        button.classList.remove('is-copied')
+        if (labelEl) labelEl.textContent = labelDefault
+      }, 2000)
+    })
+  })
+}
+
 const initPasswordToggles = () => {
   document.querySelectorAll('.auth-password__toggle').forEach((button) => {
     if (button.dataset.bound === '1') return
@@ -1073,6 +1108,7 @@ const boot = () => {
   initReviewsAutoSlider()
   initMegaBrandFill()
   initPasswordToggles()
+  initBlogShare()
   init()
 }
 

@@ -3,11 +3,23 @@
 @section('title', $post->resolvedMetaTitle())
 @section('meta_description', $post->resolvedMetaDescription())
 @section('canonical', route('blog.show', $post))
+@section('og_type', 'article')
 @if ($post->resolvedOgImage())
   @section('meta_image', $post->resolvedOgImage())
 @endif
 
 @push('head')
+  @if ($post->published_at)
+    <meta property="article:published_time" content="{{ $post->published_at->toAtomString() }}" />
+  @endif
+  @if ($post->updated_at)
+    <meta property="article:modified_time" content="{{ $post->updated_at->toAtomString() }}" />
+  @endif
+  @if ($post->author_name)
+    <meta property="article:author" content="{{ $post->author_name }}" />
+  @endif
+  <meta property="og:image:alt" content="{{ $post->title }}" />
+
   @php
     $articleSchema = [
       '@context' => 'https://schema.org',
@@ -58,6 +70,8 @@
           @endif
         </p>
       </x-page-head>
+
+      <x-blog-share :title="$post->title" :url="route('blog.show', $post)" />
 
       <div class="blog-article__body">
         {!! $post->body !!}

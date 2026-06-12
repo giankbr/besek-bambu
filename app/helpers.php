@@ -782,6 +782,24 @@ if (! function_exists('generate_blog_seo_meta')) {
     }
 }
 
+if (! function_exists('social_share_urls')) {
+    /**
+     * @return array{whatsapp: string, facebook: string, twitter: string}
+     */
+    function social_share_urls(string $title, string $url): array
+    {
+        $urlEnc = rawurlencode($url);
+        $titleEnc = rawurlencode($title);
+        $messageEnc = rawurlencode(trim($title).' — '.store_name());
+
+        return [
+            'whatsapp' => 'https://wa.me/?text='.$messageEnc.'%20'.$urlEnc,
+            'facebook' => 'https://www.facebook.com/sharer/sharer.php?u='.$urlEnc,
+            'twitter' => 'https://twitter.com/intent/tweet?text='.$titleEnc.'&url='.$urlEnc,
+        ];
+    }
+}
+
 if (! function_exists('generate_product_seo_meta')) {
     /**
      * @return array{meta_title: string, meta_description: string}
