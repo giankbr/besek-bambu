@@ -21,6 +21,20 @@ class SeoContentTest extends TestCase
         $response->assertSee('custom logo', false);
     }
 
+    public function test_wholesale_page_renders_english_when_locale_is_en(): void
+    {
+        $response = $this->withSession(['locale' => 'en'])
+            ->get('/grosir?lang=en');
+
+        $response->assertOk();
+        $response->assertSee('Wholesale &amp; Custom Bamboo Besek', false);
+        $response->assertSee('Wholesale orders', false);
+        $response->assertSee('Minimum wholesale order is 25 pieces', false);
+        $response->assertSee('Custom logo &amp; sizes', false);
+        $response->assertSee('Request a quote', false);
+        $response->assertDontSee('Pesanan grosir', false);
+    }
+
     public function test_wholesale_redirects_from_english_path(): void
     {
         $this->get('/wholesale')->assertRedirect('/grosir');

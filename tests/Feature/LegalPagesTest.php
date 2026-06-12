@@ -27,6 +27,30 @@ class LegalPagesTest extends TestCase
             ->assertSee('Pengembalian &amp; pembatalan', false);
     }
 
+    public function test_privacy_page_renders_english_when_locale_is_en(): void
+    {
+        $this->withSession(['locale' => 'en'])
+            ->get(route('privacy').'?lang=en')
+            ->assertOk()
+            ->assertSee('Privacy <em>Policy</em>', false)
+            ->assertSee('1. Data we collect', false)
+            ->assertSee('Cookies &amp; analytics', false)
+            ->assertSee('Read our Terms &amp; Conditions', false)
+            ->assertDontSee('Data yang kami kumpulkan', false);
+    }
+
+    public function test_terms_page_renders_english_when_locale_is_en(): void
+    {
+        $this->withSession(['locale' => 'en'])
+            ->get(route('terms').'?lang=en')
+            ->assertOk()
+            ->assertSee('Terms & <em>Conditions</em>', false)
+            ->assertSee('6. Returns &amp; cancellation', false)
+            ->assertSee('Governing law', false)
+            ->assertSee('Read our Privacy Policy', false)
+            ->assertDontSee('Pengembalian &amp; pembatalan', false);
+    }
+
     public function test_footer_links_to_legal_pages(): void
     {
         $this->get(route('home'))
