@@ -24,18 +24,7 @@ class SitemapTest extends TestCase
         $response->assertSee('Allow: /', false);
     }
 
-    public function test_sitemap_index_lists_child_sitemaps(): void
-    {
-        $response = $this->get('/sitemap.xml');
-
-        $response->assertOk();
-        $response->assertHeader('Content-Type', 'application/xml');
-        $response->assertSee('<sitemapindex', false);
-        $response->assertSee(url('/sitemap-static.xml'), false);
-        $response->assertSee(url('/sitemap-blog.xml'), false);
-    }
-
-    public function test_static_sitemap_includes_pages_categories_and_products(): void
+    public function test_sitemap_includes_static_pages_categories_blog_and_products(): void
     {
         $category = Category::create([
             'title' => 'Hantaran',
@@ -72,7 +61,16 @@ class SitemapTest extends TestCase
             'category_id' => $category->id,
         ]);
 
-        $response = $this->get('/sitemap-static.xml');
+        $post = BlogPost::create([
+            'title' => 'SEO Post',
+            'slug' => 'seo-post',
+            'body' => '<p>Test</p>',
+            'is_published' => true,
+            'published_at' => now()->subDay(),
+            'sort_order' => 0,
+        ]);
+
+        $response = $this->get('/sitemap.xml');
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/xml');
@@ -81,6 +79,8 @@ class SitemapTest extends TestCase
         $response->assertSee(route('about'), false);
         $response->assertSee(route('wholesale'), false);
         $response->assertSee(route('blog.index'), false);
+        $response->assertSee(route('blog.show', $post), false);
+        $response->assertSee('<urlset', false);
         $response->assertSee(route('privacy'), false);
         $response->assertSee(route('terms'), false);
         $response->assertSee(route('shop.category', $category), false);

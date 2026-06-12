@@ -28,6 +28,7 @@ class Category extends Model
     protected static function booted(): void
     {
         $invalidate = function () {
+            Cache::forget('sitemap.xml');
             Cache::forget('sitemap.index.xml');
             Cache::forget('sitemap.static.xml');
             Cache::forget('sitemap.blog.xml');

@@ -21,27 +21,39 @@ class SitemapController extends Controller
     {
         $totalProducts = Product::query()->where('is_active', true)->count();
 
+        // Small/medium catalog: one urlset so GSC reads every URL directly.
+        if ($totalProducts <= self::CHUNK_SIZE) {
+            $body = Cache::remember('sitemap.xml', now()->addMinutes(30), function () {
+                return $this->renderSitemap(array_merge(
+                    $this->staticUrls(),
+                    $this->categoryUrls(),
+                    $this->blogUrls(),
+                    $this->productUrls(1),
+                ));
+            });
+
+            return $this->xmlResponse($body);
+        }
+
         $body = Cache::remember('sitemap.index.xml', now()->addMinutes(30), function () use ($totalProducts) {
             $entries = [
                 ['loc' => url('/sitemap-static.xml'), 'lastmod' => now()->toAtomString()],
                 ['loc' => url('/sitemap-blog.xml'), 'lastmod' => now()->toAtomString()],
             ];
 
-            if ($totalProducts > self::CHUNK_SIZE) {
-                $chunks = (int) ceil($totalProducts / self::CHUNK_SIZE);
+            $chunks = (int) ceil($totalProducts / self::CHUNK_SIZE);
 
-                for ($i = 1; $i <= $chunks; $i++) {
-                    $entries[] = [
-                        'loc' => url("/sitemap-products-{$i}.xml"),
-                        'lastmod' => now()->toAtomString(),
-                    ];
-                }
+            for ($i = 1; $i <= $chunks; $i++) {
+                $entries[] = [
+                    'loc' => url("/sitemap-products-{$i}.xml"),
+                    'lastmod' => now()->toAtomString(),
+                ];
             }
 
             return $this->renderSitemapIndex($entries);
         });
 
-        return response($body, 200)->header('Content-Type', 'application/xml');
+        return $this->xmlResponse($body);
     }
 
     public function staticChunk(): Response
@@ -58,7 +70,7 @@ class SitemapController extends Controller
             return $this->renderSitemap($urls);
         });
 
-        return response($body, 200)->header('Content-Type', 'application/xml');
+        return $this->xmlResponse($body);
     }
 
     public function blogChunk(): Response
@@ -67,7 +79,7 @@ class SitemapController extends Controller
             return $this->renderSitemap($this->blogUrls());
         });
 
-        return response($body, 200)->header('Content-Type', 'application/xml');
+        return $this->xmlResponse($body);
     }
 
     public function productChunk(int $page): Response
@@ -79,7 +91,7 @@ class SitemapController extends Controller
             return $this->renderSitemap($this->productUrls($page));
         });
 
-        return response($body, 200)->header('Content-Type', 'application/xml');
+        return $this->xmlResponse($body);
     }
 
     public function robots(): Response
@@ -111,6 +123,13 @@ class SitemapController extends Controller
         ];
 
         return response(implode("\n", $lines)."\n", 200)->header('Content-Type', 'text/plain; charset=UTF-8');
+    }
+
+    private function xmlResponse(string $body): Response
+    {
+        return response($body, 200)
+            ->header('Content-Type', 'application/xml')
+            ->header('Cache-Control', 'public, max-age=1800');
     }
 
     private function renderSitemapIndex(array $entries): string
