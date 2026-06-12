@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\BlogPost;
+use Database\Seeders\BlogPostSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -23,6 +24,29 @@ class SeoContentTest extends TestCase
     public function test_wholesale_redirects_from_english_path(): void
     {
         $this->get('/wholesale')->assertRedirect('/grosir');
+    }
+
+    public function test_blog_post_seeder_creates_ten_articles(): void
+    {
+        $this->seed(BlogPostSeeder::class);
+
+        $this->assertSame(10, BlogPost::query()->where('is_published', true)->count());
+        $this->assertDatabaseHas('blog_posts', ['slug' => 'cara-merawat-besek-bambu-awet']);
+        $this->assertDatabaseHas('blog_posts', ['slug' => 'besek-bambu-corporate-gifting']);
+    }
+
+    public function test_blog_index_paginates_published_posts(): void
+    {
+        $this->seed(BlogPostSeeder::class);
+
+        $this->get('/blog')
+            ->assertOk()
+            ->assertSee('aria-current="page"', false)
+            ->assertSee('/blog?page=2', false);
+
+        $this->get('/blog?page=2')
+            ->assertOk()
+            ->assertSee('aria-current="page"', false);
     }
 
     public function test_blog_index_lists_published_posts(): void

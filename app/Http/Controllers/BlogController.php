@@ -7,6 +7,8 @@ use Illuminate\View\View;
 
 class BlogController extends Controller
 {
+    private const INDEX_PER_PAGE = 6;
+
     public function index(): View
     {
         $posts = BlogPost::query()
@@ -14,7 +16,8 @@ class BlogController extends Controller
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->orderByDesc('published_at')
-            ->paginate(12);
+            ->paginate(self::INDEX_PER_PAGE)
+            ->withQueryString();
 
         return view('pages.blog.index', [
             'posts' => $posts,

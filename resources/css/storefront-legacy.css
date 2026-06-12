@@ -3379,8 +3379,13 @@ a.product:hover,
 
 .pagination-wrap [aria-current="page"] span {
   background: var(--green-deep);
-  color: #fff;
+  color: var(--cta-ink, #fff);
   border-color: var(--green-deep);
+}
+
+.pagination-wrap span[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: default;
 }
 
 /* Breadcrumbs (legacy flat markup) */

@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -33,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        Paginator::defaultView('vendor.pagination.storefront');
         $this->configureUrlSchemeForProxiedHttps();
         $this->configureRateLimiting();
         $this->configureProductRouteBinding();
