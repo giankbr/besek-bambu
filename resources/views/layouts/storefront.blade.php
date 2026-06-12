@@ -23,7 +23,7 @@
   $alternateLocale = $activeLocale === 'en' ? 'id_ID' : 'en_US';
   $googleVerification = trim((string) setting('seo_google_site_verification', ''));
   $bingVerification = trim((string) setting('seo_bing_site_verification', ''));
-  $googleAnalyticsId = trim((string) setting('seo_google_analytics_id', ''));
+  $googleAnalyticsId = trim((string) setting('seo_google_analytics_id', config('services.google.analytics_id', '')));
 @endphp
 
 <title>{!! seo_meta_text($pageTitle) !!}</title>
