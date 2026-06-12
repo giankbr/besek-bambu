@@ -18,7 +18,7 @@
 @endphp
 <footer @class([
   'site-footer',
-  'site-footer--compact' => ! request()->routeIs('home', 'about', 'contact', 'gallery', 'faq', 'blog.*', 'wholesale'),
+  'site-footer--compact' => ! request()->routeIs('home', 'about', 'contact', 'gallery', 'faq', 'blog.*', 'wholesale', 'privacy', 'terms'),
 ])>
   <div class="container">
     <div class="foot-upper">
@@ -47,6 +47,10 @@
     <div class="foot-lower">
       <a class="join-btn" href="{{ route('shop.index') }}">{{ __('Belanja sekarang') }} ↗</a>
       <div class="foot-lower__aside">
+        <nav class="foot-legal" aria-label="{{ __('Legal') }}">
+          <a href="{{ route('privacy') }}">{{ __('Kebijakan Privasi') }}</a>
+          <a href="{{ route('terms') }}">{{ __('Syarat & Ketentuan') }}</a>
+        </nav>
         @if (count($socials) > 0)
           <div class="foot-socials">
             @foreach ($socials as $key => $url)

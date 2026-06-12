@@ -123,6 +123,8 @@ class SitemapController extends Controller
             ['loc' => route('about'), 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => route('faq'), 'priority' => '0.5', 'changefreq' => 'monthly'],
             ['loc' => route('contact'), 'priority' => '0.5', 'changefreq' => 'monthly'],
+            ['loc' => route('privacy'), 'priority' => '0.4', 'changefreq' => 'yearly'],
+            ['loc' => route('terms'), 'priority' => '0.4', 'changefreq' => 'yearly'],
         ];
     }
 

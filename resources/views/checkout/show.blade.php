@@ -283,6 +283,15 @@
               @error('payment_method')<span class="form-error">{{ $message }}</span>@enderror
             @endif
           @endif
+
+          <label class="checkout-terms">
+            <input type="checkbox" name="accept_terms" value="1" required @checked(old('accept_terms')) />
+            <span>{!! __('Saya setuju dengan :terms dan :privacy.', [
+              'terms' => '<a href="'.route('terms').'" target="_blank" rel="noopener">'.__('Syarat & Ketentuan').'</a>',
+              'privacy' => '<a href="'.route('privacy').'" target="_blank" rel="noopener">'.__('Kebijakan Privasi').'</a>',
+            ]) !!}</span>
+          </label>
+          @error('accept_terms')<span class="form-error">{{ $message }}</span>@enderror
         </div>
       </form>
 

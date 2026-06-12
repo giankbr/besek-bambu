@@ -80,6 +80,8 @@ class SitemapTest extends TestCase
         $response->assertSee(route('wholesale'), false);
         $response->assertSee(route('blog.index'), false);
         $response->assertSee(route('blog.show', $post), false);
+        $response->assertSee(route('privacy'), false);
+        $response->assertSee(route('terms'), false);
         $response->assertSee(route('shop.category', $category), false);
         $response->assertSee(route('shop.product', $product), false);
         $response->assertDontSee(route('shop.product', $inactive), false);

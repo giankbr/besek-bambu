@@ -44,6 +44,8 @@ Route::get('/grosir', [PageController::class, 'wholesale'])->name('wholesale');
 Route::redirect('/wholesale', '/grosir', 301);
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/kebijakan-privasi', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/syarat-ketentuan', [PageController::class, 'terms'])->name('terms');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [PageController::class, 'contactSubmit'])
     ->middleware('throttle:contact')

@@ -40,6 +40,16 @@ class PageController extends Controller
         return view('pages.wholesale');
     }
 
+    public function privacy()
+    {
+        return view('pages.privacy');
+    }
+
+    public function terms()
+    {
+        return view('pages.terms');
+    }
+
     public function contactSubmit(Request $request)
     {
         // Honeypot: humans never see or fill the "website" field. Bots that
