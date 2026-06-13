@@ -49,4 +49,18 @@ class RegistrationTest extends TestCase
 
         Mail::assertNotSent(EmailVerifiedWelcome::class);
     }
+
+    public function test_registration_rejects_password_shorter_than_eight_characters(): void
+    {
+        $response = $this->from(route('register'))
+            ->post(route('register.store'), [
+                'name' => 'John Doe',
+                'email' => 'test@example.com',
+                'password' => 'pass123',
+                'password_confirmation' => 'pass123',
+            ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertGuest();
+    }
 }

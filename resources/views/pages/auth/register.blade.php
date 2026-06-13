@@ -50,7 +50,7 @@
         name="password"
         required
         autocomplete="new-password"
-        placeholder="{{ __('Minimal sesuai aturan keamanan') }}"
+        placeholder="{{ __('Minimal 8 karakter') }}"
       />
       @error('password')
         <span class="form-error">{{ $message }}</span>
