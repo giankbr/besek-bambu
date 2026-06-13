@@ -18,7 +18,7 @@
 @endphp
 <footer @class([
   'site-footer',
-  'site-footer--compact' => ! request()->routeIs('home', 'about', 'contact', 'gallery', 'faq', 'blog.*', 'wholesale', 'privacy', 'terms'),
+  'site-footer--compact' => ! request()->routeIs('home', 'about', 'contact', 'gallery', 'faq', 'blog.*', 'wholesale', 'privacy', 'terms', 'cart.show', 'checkout.show', 'checkout.confirmation', 'payment.pay'),
 ])>
   <div class="container">
     <div class="foot-upper">
