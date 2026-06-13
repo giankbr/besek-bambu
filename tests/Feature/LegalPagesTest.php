@@ -59,7 +59,7 @@ class LegalPagesTest extends TestCase
             ->assertSee(route('terms'), false);
     }
 
-    public function test_checkout_requires_terms_acceptance(): void
+    public function test_checkout_does_not_require_terms_checkbox(): void
     {
         $product = Product::create([
             'name' => 'Besek Test',
@@ -75,19 +75,14 @@ class LegalPagesTest extends TestCase
 
         app(CartService::class)->add($product, 1);
 
-        $payload = [
+        $this->post(route('checkout.store'), [
             'customer_name' => 'Test',
             'customer_email' => 'test@example.com',
             'customer_phone' => '081111111',
             'shipping_address' => 'Jl. Test',
             'shipping_region' => 'java',
             'payment_method' => 'midtrans',
-        ];
-
-        $this->post(route('checkout.store'), $payload)
-            ->assertSessionHasErrors('accept_terms');
-
-        $this->post(route('checkout.store'), array_merge($payload, ['accept_terms' => '1']))
+        ])
             ->assertSessionHasNoErrors()
             ->assertRedirect();
     }

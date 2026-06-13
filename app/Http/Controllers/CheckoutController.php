@@ -63,7 +63,6 @@ class CheckoutController extends Controller
             'shipping_address' => ['required', 'string', 'max:1000'],
             'payment_method' => ['nullable', 'string', 'in:'.implode(',', $methodKeys)],
             'notes' => ['nullable', 'string', 'max:500'],
-            'accept_terms' => ['accepted'],
         ];
 
         $mode = (string) $request->input('shipping_mode', '');
@@ -87,7 +86,6 @@ class CheckoutController extends Controller
         }
 
         $data = $request->validate($rules);
-        unset($data['accept_terms']);
         $data['payment_method'] = $data['payment_method'] ?? $methodKeys[0];
         $data['shipping_mode'] = $usingPickup ? 'pickup' : ($usingRajaOngkir ? 'rajaongkir' : 'flat');
 

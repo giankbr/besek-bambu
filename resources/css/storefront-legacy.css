@@ -5838,27 +5838,6 @@ body.sf-confirm-open {
   color: var(--green-deep);
 }
 
-.checkout-terms {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 1.25rem;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--muted);
-}
-
-.checkout-terms input {
-  margin-top: 3px;
-  flex-shrink: 0;
-}
-
-.checkout-terms a {
-  color: var(--green-deep);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
 .wholesale-cta,
 .blog-article__cta {
   display: flex;
