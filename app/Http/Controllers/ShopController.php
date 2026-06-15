@@ -66,7 +66,9 @@ class ShopController extends Controller
             return redirect()->route('shop.product', $product, 301);
         }
 
-        abort_unless($product->is_active, 404);
+        if (! $product->is_active) {
+            return LegacyRedirectController::redirectForProduct($product);
+        }
 
         $product->load(['category', 'images', 'variants', 'priceTiers']);
 

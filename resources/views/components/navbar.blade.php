@@ -100,6 +100,7 @@
               href="{{ route('account.index') }}"
               class="nav-actions__link @if ($isAccountArea) is-active @endif"
               aria-label="{{ __('nav.account') }}"
+              rel="nofollow"
               @if ($isAccountArea) aria-current="page" @endif
             >
               <x-icons.user class="nav-actions__icon" />
@@ -110,6 +111,7 @@
               href="{{ route('login') }}"
               class="nav-actions__link @if ($isAccountArea) is-active @endif"
               aria-label="{{ __('nav.login_register') }}"
+              rel="nofollow"
               @if ($isAccountArea) aria-current="page" @endif
             >
               <x-icons.user class="nav-actions__icon" />
@@ -120,6 +122,7 @@
             href="{{ route('cart.show') }}"
             class="nav-actions__link nav-actions__link--cart @if ($isCartFlow) is-active @endif"
             aria-label="{{ __('nav.cart') }} ({{ $cartCount }})"
+            rel="nofollow"
             @if ($isCartFlow) aria-current="page" @endif
           >
             <x-icons.cart class="nav-actions__icon" />

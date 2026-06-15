@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LegacyRedirectController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
@@ -31,6 +32,25 @@ Route::get('/lang/{locale}', function (string $locale) {
 
     return redirect()->to(localized_switch_target($locale));
 })->name('locale.switch');
+
+Route::redirect('/index.php', '/', 301);
+Route::redirect('/kontak', '/contact', 301);
+Route::redirect('/toko', '/shop', 301);
+Route::redirect('/about-us', '/about', 301);
+Route::redirect('/privacy-policy', '/kebijakan-privasi', 301);
+Route::redirect('/terms-of-service', '/syarat-ketentuan', 301);
+Route::redirect('/sitemap_index.xml', '/sitemap.xml', 301);
+Route::redirect('/sitemap-index.xml', '/sitemap.xml', 301);
+
+Route::get('/product/{slug}', [LegacyRedirectController::class, 'product'])
+    ->where('slug', '.*')
+    ->name('legacy.product');
+Route::get('/produk/{slug}', [LegacyRedirectController::class, 'product'])
+    ->where('slug', '.*')
+    ->name('legacy.produk');
+Route::get('/category/{slug}', [LegacyRedirectController::class, 'category'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('legacy.category');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemap-static.xml', [SitemapController::class, 'staticChunk'])->name('sitemap.static');
